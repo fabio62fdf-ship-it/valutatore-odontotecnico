@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Didattica - Proprietà dei Materiali Odontotecnici (4° Anno)</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --accent: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .section-content {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        /* FLASHCARDS STYLES */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-radius: 12px;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            border-radius: 12px;
+            background: white;
+            border: 2px solid var(--border);
+        }
+
+        .flashcard-back {
+            background-color: #f0fdf4;
+            border-color: var(--success);
+            transform: rotateY(180deg);
+            text-align: left;
+            align-items: flex-start;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* QUIZ STYLES */
+        .quiz-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 12px 15px;
+            text-align: left;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--error);
+            color: #991b1b;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct-fb {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a3e635;
+        }
+
+        .feedback.wrong-fb {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        /* LAB SIMULATOR STYLES */
+        .lab-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .result-box {
+            background: #f0fdf4;
+            border: 1px solid var(--success);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #065f46;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .download-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Laboratorio Odontotecnico Digitale</h1>
+        <p>Proprietà Fisiche, Chimiche e Biologiche dei Materiali Dentali - 4° Anno</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('flashcards')">Flashcard di Ripasso (20)</button>
+        <button class="tab-btn" onclick="switchTab('quiz')">Quiz di Verifica (20 Domande)</button>
+        <button class="tab-btn" onclick="switchTab('lab')">Calcolatore di Laboratorio</button>
+    </header>
+
+    <!-- SEZIONE FLASHCARDS -->
+    <main id="flashcards" class="section-content active">
+        <h2 style="margin-bottom: 15px; text-align: center;">Ripasso Guidato</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">Clicca sulla carta per girarla e scoprire la definizione e l'importanza clinica.</p>
+        
+        <div class="flashcard-container" onclick="flipCard()">
+            <div class="flashcard" id="cardElement">
+                <div class="flashcard-front">
+                    <span id="cardCategory" style="font-size: 0.85rem; color: var(--primary); font-weight: bold; margin-bottom: 10px;"></span>
+                    <h3 id="cardFrontText" style="font-size: 1.4rem;"></h3>
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);">(Clicca per girare)</p>
+                </div>
+                <div class="flashcard-back">
+                    <h4 style="color: var(--primary-dark); margin-bottom: 8px;">Spiegazione & Importanza:</h4>
+                    <p id="cardBackText" style="font-size: 1rem;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flashcard-controls">
+            <button class="btn" onclick="prevCard()">← Precedente</button>
+            <span id="cardCounter" style="font-weight: bold;">1 / 20</span>
+            <button class="btn" onclick="nextCard()">Successiva →</button>
+        </div>
+    </main>
+
+    <!-- SEZIONE QUIZ -->
+    <main id="quiz" class="section-content">
+        <h2 style="margin-bottom: 15px; text-align: center;">Test di Autovalutazione</h2>
+        <div id="quizContainer">
+            <!-- Le domande del quiz vengono generate dinamicamente via JS -->
+        </div>
+    </main>
+
+    <!-- SEZIONE CALCOLATORE -->
+    <main id="lab" class="section-content">
+        <div class="lab-card">
+            <h2>Simulatore di Fusione a Cera Persa</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted);">Calcola la quantità esatta di lega metallica da fondere moltiplicando il peso della cera per il peso specifico della lega.</p>
+            
+            <div class="form-group">
+                <label for="waxWeight">Peso del manufatto in cera (grammi):</label>
+                <input type="number" id="waxWeight" step="0.1" placeholder="Es. 1.5">
+            </div>
+
+            <div class="form-group">
+                <label for="alloyType">Seleziona la Lega Metallica:</label>
+                <select id="alloyType">
+                    <option value="14.2">Oro Nobile Standard (Peso Specifico ~ 14.2 g/cm³)</option>
+                    <option value="18.5">Oro ad alto titolo / Platino (Peso Specifico ~ 18.5 g/cm³)</option>
+                    <option value="8.3">Leghe in Cobalto-Cromo (Co-Cr) (Peso Specifico ~ 8.3 g/cm³)</option>
+                    <option value="7.9">Leghe in Nichel-Cromo (Ni-Cr) (Peso Specifico ~ 7.9 g/cm³)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="calculateAlloy()" style="width: 100%; margin-top: 10px;">Calcola Lega da Fondere</button>
+
+            <div class="result-box" id="calcResult" style="display: none;">
+                <!-- Risultato calcolato -->
+            </div>
+        </div>
+    </main>
+
+    <div class="download-container">
+        <button class="btn" style="background-color: var(--accent); font-size: 1.1rem; padding: 12px 25px;" onclick="downloadApp()">Scarica App per Uso Offline (.html)</button>
+    </div>
+
+    <footer>
+        <p>Creato per gli studenti del 4° Anno di Odontotecnica &bull; Basato sui Moduli Didattici Ufficiali</p>
+    </footer>
+
+    <script>
+        // DATI DELLE 20 FLASHCARDS
+        const flashcardsData = [
+            { category: "Proprietà Fisiche", front: "Massa Volumica (Densità Assoluta)", back: "Quantità di materia contenuta in un'unità di volume (Kg/m³). In campo dentale, a parità di volume, una densità alta aumenta il peso della protesi." },
+            { category: "Proprietà Fisiche", front: "Densità Relativa", back: "Rapporto tra la densità assoluta del materiale e quella del materiale di riferimento (acqua a 4°C). È una grandezza adimensionale." },
+            { category: "Proprietà Fisiche", front: "Peso Specifico", back: "Rappresenta la densità corretta per l'accelerazione di gravità (N/m³). Fondamentale in laboratorio per calcolare quanta lega fondere moltiplicandola per il peso della cera." },
+            { category: "Proprietà Fisiche", front: "Conducibilità Termica (Lambda)", back: "Attitudine a propagare il calore. I metalli hanno un alto lambda, mentre ceramiche e resine isolano. Nel cavo orale è cruciale per evitare shock termici alla polpa." },
+            { category: "Proprietà Fisiche", front: "Dilatazione Termica Lineare (Alfa)", back: "Variazione di lunghezza di un materiale quando la temperatura aumenta di un grado centigrado. I materiali plastici dilatano di più, seguiti da metalli e ceramiche." },
+            { category: "Proprietà Fisiche", front: "Temperatura di Fusione", back: "Temperatura di passaggio dallo stato solido (cristallino) a liquido. Le sostanze pure fondono a temperatura costante, mentre le leghe hanno un intervallo di fusione." },
+            { category: "Proprietà Fisiche", front: "Intervallo di Rammollimento", back: "Tipico dei solidi amorfi (come le cere). Non hanno un punto di fusione netto ma rammolliscono gradualmente in un intervallo di temperatura." },
+            { category: "Proprietà Fisiche", front: "Leghe Eutettiche", back: "Particolari leghe metalliche che, contrariamente alle normali soluzioni solide, fondono a una temperatura costante ben definita come le sostanze pure." },
+            { category: "Proprietà Fisiche", front: "Conducibilità Elettrica", back: "Attitudine a propagare corrente elettrica. Si divide in materiali conduttori (metalli), isolanti (ceramiche, resine) e semiconduttori (Ge, Si)." },
+            { category: "Proprietà Chimiche", front: "Fenomeni Chimici Utili", back: "Reazioni desiderate in cui il materiale si ricopre di una pellicola protettiva superficiale che migliora la resistenza meccanica e la resistenza alla corrosione." },
+            { category: "Proprietà Chimiche", front: "Corrosione", back: "Fenomeno chimico negativo che causa la riduzione di funzionalità della protesi e il rilascio indesiderato di metalli tossici nel cavo orale." },
+            { category: "Proprietà Biologiche", front: "Biomateriale", back: "Qualsiasi materiale impiegato per costruire dispositivi artificiali inseriti nel corpo umano (inclusi tutti i materiali dentali) che deve essere utile, duraturo e non dannoso." },
+            { category: "Proprietà Biologiche", front: "Biocompatibilità", back: "Capacità di un materiale di essere accettato dai tessuti dell'organismo ospite svolgendo al contempo funzioni specifiche all'interno di esso." },
+            { category: "Proprietà Speciali", front: "Durata in Utilizzo (Scadenza)", back: "Legata alla corretta conservazione del materiale in magazzino; superata la data, il materiale perde le sue proprietà chimico-fisiche originarie." },
+            { category: "Proprietà Speciali", front: "Assorbimento d'Acqua", back: "Proprietà critica soprattutto per le resine protesiche; un eccessivo assorbimento di liquidi può causare il fallimento del restauro clinico." },
+            { category: "Proprietà Speciali", front: "Solubilità nei Liquidi Orali", back: "Tendenza dei materiali dentali a sciogliersi o degradarsi a contatto con la saliva. Viene valutata sperimentalmente usando saliva sintetica." },
+            { category: "Proprietà Speciali", front: "Tempo di Presa e Indurimento", back: "Passaggio dallo stato fluido o plastico a quello rigido. È fondamentale per materiali da impronta, gessi e rivestimenti per fonderia." },
+            { category: "Proprietà Speciali", front: "Alterazione di Colore", back: "Cambiamento cromatico indesiderato nel tempo che compromette l'estetica del manufatto protesico nel cavo orale." },
+            { category: "Applicazione Pratica", front: "Fusione a Cera Persa", back: "Procedura odontotecnica in cui la conoscenza esatta del punto di fusione e del peso specifico evita surriscaldamenti o sottoriscaldamenti della lega." },
+            { category: "Ambiente Orale", front: "Sollecitazioni nel Cavo Orale", back: "L'ambiente orale sottopone i materiali a sbalzi termici continui, carichi masticatori elevati e presenza di fluidi aggressivi (saliva)." }
+        ];
+
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            const card = flashcardsData[currentCardIndex];
+            document.getElementById('cardCategory').innerText = card.category;
+            document.getElementById('cardFrontText').innerText = card.front;
+            document.getElementById('cardBackText').innerText = card.back;
+            document.getElementById('cardCounter').innerText = `${currentCardIndex + 1} / ${flashcardsData.length}`;
+            
+            const cardEl = document.getElementById('cardElement');
+            if(isFlipped) {
+                cardEl.classList.remove('flipped');
+                isFlipped = false;
+            }
+        }
+
+        function flipCard() {
+            const cardEl = document.getElementById('cardElement');
+            cardEl.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateCard();
+        }
+
+        // DATI DEL QUIZ (20 DOMANDE)
+        const quizData = [
+            { q: "1. Come si definisce la massa volumica?", options: ["Il peso totale di una protesi", "La quantità di materia contenuta in un volume unitario", "Il rapporto con l'acqua a 100°C", "La forza di gravità applicata al metallo"], correct: 1, explanation: "La massa volumica (o densità assoluta) è definita come m/V (Kg/m³)." },
+            { q: "2. Qual è l'unità di misura del peso specifico?", options: ["Kg/m³", "Newton su metro cubo (N/m³)", "Grandi litri", "Celsius"], correct: 1, explanation: "Il peso specifico corregge la densità con l'accelerazione di gravità ed è misurato in N/m³." },
+            { q: "3. Perché il peso specifico è importante in odontotecnica?", options: ["Per calcolare esattamente quanta lega fondere partendo dal peso della cera", "Per stabilire il colore della ceramica", "Per determinare la durezza superficiale", "Per la polimerizzazione delle resine"], correct: 0, explanation: "Moltiplicando il peso specifico della lega per il peso della cera si ottiene la quantità giusta di metallo per la fusione." },
+            { q: "4. Quali materiali hanno una conducibilità termica (lambda) molto alta?", options: ["I materiali plastici", "I materiali ceramici", "I materiali metallici", "Lo smalto dentale"], correct: 2, explanation: "I metalli possiedono alti valori di lambda, conducendo rapidamente il calore." },
+            { q: "5. A cosa serve conoscere la conducibilità termica in odontotecnica?", options: ["A evitare fastidiose alterazioni di colore", "Perché l'ambiente orale è soggetto a forti sbalzi termici", "Per velocizzare la presa del gesso", "Per ridurre il peso specifico della protesi"], correct: 1, explanation: "Il cavo orale subisce frequenti sbalzi termici da cibi caldi e freddi, rendendo cruciale valutare la conduttività." },
+            { q: "6. Come si definisce la dilatazione termica lineare?", options: ["La variazione di volume con la pressione", "La variazione di lunghezza di un materiale quando la temperatura aumenta di 1 °C", "Il punto in cui il solido diventa gas", "La contrazione alla luce solare"], correct: 1, explanation: "Viene misurata tramite il coefficiente alfa ed esprime la variazione di lunghezza per variazione unitaria di temperatura." },
+            { q: "7. Quali materiali mostrano la maggiore dilatazione termica?", options: ["I materiali plastici", "I metalli preziosi", "I materiali ceramici", "Il titanio puro"], correct: 0, explanation: "I materiali plastici presentano i coefficienti di dilatazione termica più elevati." },
+            { q: "8. Che cos'è la temperatura di fusione?", options: ["La temperatura a cui avviene il passaggio dallo stato solido a liquido", "Il punto di ebollizione della saliva", "La temperatura di cottura della ceramica", "Il tempo di indurimento dell'alginato"], correct: 0, explanation: "Indica il passaggio di stato da solido (cristallino) a liquido." },
+            { q: "9. Quali leghe fondono a temperatura costante come le sostanze pure?", options: ["Le soluzioni solide casuali", "Le leghe eutettiche", "I materiali amorfi", "I polimeri acrilici"], correct: 1, explanation: "Le leghe eutettiche fondono a temperatura costante anziché in un intervallo." },
+            { q: "10. Perché è importante conoscere la temperatura di fusione nella tecnica di fusione a cera persa?", options: ["Per evitare surriscaldamenti o sottoriscaldamenti della lega", "Per accelerare il raffreddamento in acqua", "Per aumentare la densità relativa", "Per pulire il crogiolo"], correct: 0, explanation: "Conoscere la temperatura o l'intervallo di fusione previene difetti strutturali durante la colata." },
+            { q: "11. Come si comportano i materiali isolanti nei confronti della corrente elettrica?", options: ["Conducono la corrente molto rapidamente", "Non conducono corrente", "Conducono solo se riscaldati a 500°C", "Generano elettricità spontanea"], correct: 1, explanation: "Materiali ceramici, plastici ed elastomeri sono eccellenti isolanti elettrici." },
+            { q: "12. Quali sono i materiali semiconduttori tipici citati nel modulo?", options: ["Oro e Argento", "Germanio (Ge) e Silicio (Si)", "Cobalto e Cromo", "Gesso e Alginato"], correct: 1, explanation: "Germanio e Silicio sono semiconduttori con proprietà intermedie." },
+            { q: "13. Quali fenomeni chimici sono considerati 'utili' per un materiale?", options: ["La corrosione profonda", "La reazione che forma una pellicola protettiva superficiale", "Lo scioglimento nei liquidi orali", "L'assorbimento d'acqua incontrollato"], correct: 0, explanation: "Una pellicola protettiva superficiale migliora la resistenza meccanica e la stabilità." },
+            { q: "14. Qual è un principale effetto negativo della corrosione nel cavo orale?", options: ["Il miglioramento dell'estetica", "La riduzione di funzionalità della protesi e il rilascio di metalli tossici", "L'aumento della conducibilità termica", "La diminuzione del peso specifico"], correct: 1, explanation: "La corrosione degrada il manufatto e può rilasciare ioni nocivi per il paziente." },
+            { q: "15. Che cos'è un biomateriale in campo dentale?", options: ["Un materiale biodegradabile usa e getta", "Un materiale impiegato per dispositivi artificiali inseriti nel corpo umano", "Un materiale esclusivo per modelli di studio in gesso", "Una resina fotosensibile per stampanti 3D"], correct: 1, explanation: "Tutti i materiali usati in campo dentale da inserire nel corpo umano sono biomateriali." },
+            { q: "16. Come è evoluto il concetto moderno di biocompatibilità?", options: ["Il materiale non deve solo essere accettato dall'organismo, ma deve svolgere funzioni specifiche all'interno di esso", "Il materiale deve sciogliersi rapidamente nella saliva", "Il materiale non deve avere alcun contatto con i tessuti vivi", "Il materiale deve essere esclusivamente di origine vegetale"], correct: 0, explanation: "Oggi biocompatibilità significa accettazione biologica unita allo svolgimento attivo di funzioni specifiche." },
+            { q: "17. A cosa corrisponde la 'durata in utilizzo' di un materiale?", options: ["Al tempo di presa in bocca", "Alla data di scadenza e alle corrette modalità di conservazione", "Alla garanzia rilasciata dal dentista", "Al tempo di usura masticatoria"], correct: 0, explanation: "La durata in utilizzo è strettamente legata alla scadenza e alla conservazione del prodotto." },
+            { q: "18. Quale problema può causare un eccessivo assorbimento d'acqua in un materiale dentale?", options: ["Il fallimento del procedimento restaurativo", "Il miglioramento della lucentezza", "L'aumento della temperatura di fusione", "La trasformazione in lega eutettica"], correct: 0, explanation: "Un eccessivo assorbimento d'acqua altera le dimensioni e può compromettere il restauro." },
+            { q: "19. Come viene valutata la solubilità dei materiali nei liquidi orali?", options: ["Usando acqua distillata bollente", "Mediante l'utilizzo di saliva sintetica", "Con acidi forti in laboratorio chimico", "Misurando la conducibilità elettrica"], correct: 0, explanation: "La solubilità viene testata in laboratorio impiegando apposita saliva sintetica." },
+            { q: "20. Che cosa rappresenta il tempo di presa e indurimento?", options: ["Il passaggio da una condizione fluida o plastica a una rigida", "Il tempo necessario per fondere il metallo nel cilindro", "Il tempo di raffreddamento della cera", "La durata della seduta alla poltrona"], correct: 0, explanation: "Riguarda materiali come impronte, gessi e rivestimenti che passano da fluidi a rigidi." }
+        ];
+
+        function buildQuiz() {
+            const container = document.getElementById('quizContainer');
+            let html = '';
+            quizData.forEach((item, qIndex) => {
+                html += `<div class="quiz-card">
+                    <h3>${item.q}</h3>
+                    <div class="quiz-options">`;
+                item.options.forEach((opt, oIndex) => {
+                    html += `<button class="option-btn" onclick="checkAnswer(${qIndex}, ${oIndex}, this)">${opt}</button>`;
+                });
+                html += `</div>
+                    <div class="feedback" id="fb-${qIndex}"></div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkAnswer(qIdx, selectedOpt, btnElement) {
+            const question = quizData[qIdx];
+            const optionsContainer = btnElement.parentElement;
+            const buttons = optionsContainer.getElementsByTagName('button');
+            const feedbackEl = document.getElementById(`fb-${qIdx}`);
+
+            // Disabilita tutti i pulsanti della domanda dopo la risposta
+            for(let btn of buttons) {
+                btn.disabled = true;
+                if(Array.from(buttons).indexOf(btn) === question.correct) {
+                    btn.classList.add('correct');
+                }
+            }
+
+            if(selectedOpt === question.correct) {
+                btnElement.classList.add('correct');
+                feedbackEl.className = "feedback show correct-fb";
+                feedbackEl.innerHTML = `<strong>Risposta corretta!</strong> ${question.explanation}`;
+            } else {
+                btnElement.classList.add('wrong');
+                feedbackEl.className = "feedback show wrong-fb";
+                feedbackEl.innerHTML = `<strong>Risposta errata.</strong> ${question.explanation}`;
+            }
+        }
+
+        // CALCOLATORE DI LABORATORIO
+        function calculateAlloy() {
+            const wax = parseFloat(document.getElementById('waxWeight').value);
+            const density = parseFloat(document.getElementById('alloyType').value);
+            const resultBox = document.getElementById('calcResult');
+
+            if(isNaN(wax) || wax <= 0) {
+                alert("Inserisci un peso della cera valido maggiore di zero.");
+                return;
+            }
+
+            const alloyNeeded = wax * density;
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = `Quantità di lega necessaria da pesare e fondere: <span style="font-size: 1.3rem; color: #047857;">${alloyNeeded.toFixed(2)} grammi</span><br>
+            <span style="font-size: 0.85rem; font-weight: normal; color: #065f46;">(Calcolato moltiplicando ${wax} g di cera per il peso specifico di ${density} g/cm³)</span>`;
+        }
+
+        // FUNZIONE PER SCARICARE L'APP OFFLINE
+        function downloadApp() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'odontotecnica_materiali_app.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // GESTIONE TAB
+        function switchTab(tabId) {
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Inizializzazione
+        window.onload = function() {
+            updateCard();
+            buildQuiz();
+        };
+    </script>
+</body>
+</html>

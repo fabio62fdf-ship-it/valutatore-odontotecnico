@@ -1,0 +1,438 @@
+html_content = """<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo Didattico: Polimeri e Materiali Dentali</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #0d9488;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
+        header { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 30px; border-radius: 12px; margin-bottom: 25px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        header h1 { font-size: 2rem; margin-bottom: 10px; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { background-color: #e2e8f0; border: none; padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: #475569; }
+        .tab-btn.active { background-color: var(--primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        .section-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-content.active { display: block; }
+        
+        h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* Canvas Section */
+        .canvas-container { text-align: center; margin-top: 15px; }
+        canvas { background: #0f172a; border-radius: 8px; max-width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        .controls { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .btn { background-color: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .sim-description { margin-top: 15px; font-size: 1.05rem; color: #475569; background: #f1f5f9; padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent); text-align: left; }
+
+        /* Glossary Section */
+        .search-box { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; }
+        .glossary-list { display: grid; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px; }
+        .glossary-item { background: #f8fafc; border-left: 4px solid var(--primary-light); padding: 15px; border-radius: 0 8px 8px 0; border: 1px solid #e2e8f0; border-left-width: 4px; }
+        .glossary-item h3 { color: var(--primary); font-size: 1.1rem; margin-bottom: 5px; }
+        
+        /* Quiz Section */
+        .quiz-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; color: var(--primary); }
+        .options-list { display: grid; gap: 10px; }
+        .option-btn { background: white; border: 2px solid var(--border-color); padding: 12px 15px; text-align: left; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .option-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534; font-weight: bold; }
+        .option-btn.incorrect { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
+        .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; color: #64748b; }
+        .quiz-feedback { margin-top: 15px; padding: 10px; border-radius: 6px; font-weight: 600; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #dcfce7; color: #166534; }
+        .quiz-feedback.incorrect { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Polimeri e Materiali Dentali</h1>
+            <p>Applicazione Didattica Interattiva per Odontotecnici</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('sim')">Simulazione Strutture</button>
+            <button class="tab-btn" onclick="switchTab('glossary')">Glossario e Additivi</button>
+            <button class="tab-btn" onclick="switchTab('quiz')">Maxi Quiz (50 Domande)</button>
+        </div>
+
+        <!-- SEZIONE 1: SIMULAZIONE CANVAS -->
+        <div id="sim" class="section-content active">
+            <h2>Simulazione Visiva delle Strutture Polimeriche</h2>
+            <p>Visualizzazione schematica e pulita di 4 catene polimeriche distinte e del loro livello di interazione o legame.</p>
+            <div class="canvas-container">
+                <canvas id="polyCanvas" width="700" height="380"></canvas>
+                <div class="controls">
+                    <button class="btn" onclick="setStructure('linear')">1. Struttura Lineare</button>
+                    <button class="btn" onclick="setStructure('branched')">2. Struttura Ramificata</button>
+                    <button class="btn" onclick="setStructure('crosslinked')">3. Struttura Reticolata</button>
+                </div>
+                <div class="sim-description" id="simDesc">
+                    <strong>Struttura Lineare:</strong> Le catene polimeriche sono disposte in modo indipendente, senza legami chimici trasversali tra loro (tipo groviglio o fili separati). Possono scorrere reciprocamente se riscaldate (termoplastici).
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 2: GLOSSARIO -->
+        <div id="glossary" class="section-content">
+            <h2>Glossario Tecnico e Additivi Principali</h2>
+            <input type="text" id="glossarySearch" class="search-box" placeholder="Cerca un termine, es. Monomero, Plastificanti, Pigmenti..." onkeyup="filterGlossary()">
+            <div class="glossary-list" id="glossaryContainer"></div>
+        </div>
+
+        <!-- SEZIONE 3: QUIZ -->
+        <div id="quiz" class="section-content">
+            <h2>Batteria di 50 Quiz Rigorosi</h2>
+            <div id="quiz-container">
+                <div class="quiz-meta">
+                    <span id="quiz-progress">Domanda 1 di 50</span>
+                    <span id="quiz-score">Punteggio: 0</span>
+                </div>
+                <div class="quiz-card">
+                    <div class="question-text" id="q-text">Caricamento domanda...</div>
+                    <div class="options-list" id="q-options"></div>
+                    <div class="quiz-feedback" id="q-feedback"></div>
+                </div>
+                <button class="btn" id="next-btn" onclick="nextQuestion()" style="display:none; width: 100%;">Prossima Domanda</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestione Tab
+        function switchTab(tabId) {
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'sim') drawSimulation();
+        }
+
+        // --- SIMULAZIONE CANVAS PULITA (4 Catene) ---
+        const canvas = document.getElementById('polyCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentStructure = 'linear';
+
+        function setStructure(type) {
+            currentStructure = type;
+            const desc = document.getElementById('simDesc');
+            if(type === 'linear') {
+                desc.innerHTML = "<strong>Struttura Lineare:</strong> Le 4 catene polimeriche sono distinte e non interagiscono con legami covalenti. Possono scorrere le une sulle altre, rendendo il materiale modellabile a caldo (termoplastico).";
+            } else if(type === 'branched') {
+                desc.innerHTML = "<strong>Struttura Ramificata:</strong> Dalle catene principali si dipartono delle catene laterali (diramazioni). Questo impedisce un impaccamento ravvicinato, riducendo la densità e la cristallinità del polimero.";
+            } else {
+                desc.innerHTML = "<strong>Struttura Reticolata (Cross-linked):</strong> Le catene sono unite stabilmente da legami covalenti trasversali (nodi di connessione). Il materiale forma un'unica rete tridimensionale rigida e insolubile (termoindurenti o elastomeri).";
+            }
+            drawSimulation();
+        }
+
+        function drawSimulation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Definiamo 4 catene ondulate (coordinate di base)
+            let baseChains = [
+                { y: 80, color: '#3b82f6' },
+                { y: 160, color: '#0ea5e9' },
+                { y: 240, color: '#14b8a6' },
+                { y: 320, color: '#6366f1' }
+            ];
+
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            baseChains.forEach((c, idx) => {
+                ctx.strokeStyle = c.color;
+                ctx.beginPath();
+                
+                // Disegna catena principale ondulata
+                let points = [];
+                for(let x = 60; x <= 640; x += 40) {
+                    let yOffset = Math.sin(x * 0.02 + idx) * 15;
+                    let ptX = x;
+                    let ptY = c.y + yOffset;
+                    points.push({x: ptX, y: ptY});
+                }
+
+                // Traccia la linea principale
+                points.forEach((p, i) => {
+                    if(i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                });
+                ctx.stroke();
+
+                // Disegna i monomeri (pallini lungo la catena)
+                points.forEach(p => {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                // AGGIUNTA RAMIFICAZIONI (Se tipo branched)
+                if(currentStructure === 'branched') {
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 3;
+                    // Aggiungiamo ramificazioni su punti specifici della catena
+                    [2, 6, 10].forEach(pIdx => {
+                        if(points[pIdx]) {
+                            let pt = points[pIdx];
+                            let branchLen = 45;
+                            let bDir = (idx % 2 === 0) ? -1 : 1;
+                            let endX = pt.x + 15;
+                            let endY = pt.y + (branchLen * bDir);
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(pt.x, pt.y);
+                            ctx.lineTo(endX, endY);
+                            ctx.stroke();
+
+                            // Nodo terminale diramazione
+                            ctx.fillStyle = '#fef3c7';
+                            ctx.beginPath();
+                            ctx.arc(endX, endY, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                    });
+                    ctx.lineWidth = 4; // Ripristina spessore
+                }
+            });
+
+            // AGGIUNTA LEGAMI TRASVERSALI (Se tipo crosslinked)
+            if(currentStructure === 'crosslinked') {
+                ctx.strokeStyle = '#f43f5e';
+                ctx.lineWidth = 3;
+                // Collega ponti verticali tra la catena 0-1, 1-2, 2-3 in punti specifici
+                let bridgeXCoords = [180, 340, 500];
+                bridgeXCoords.forEach(bx => {
+                    // Troviamo approssimativamente le altezze delle catene a quella coordinata x
+                    for(let i = 0; i < 3; i++) {
+                        let y1 = baseChains[i].y + Math.sin(bx * 0.02 + i) * 15;
+                        let y2 = baseChains[i+1].y + Math.sin(bx * 0.02 + (i+1)) * 15;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(bx, y1);
+                        ctx.lineTo(bx, y2);
+                        ctx.stroke();
+
+                        // Nodi di connessione covalente
+                        ctx.fillStyle = '#ffe4e6';
+                        ctx.beginPath();
+                        ctx.arc(bx, (y1+y2)/2, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            // Etichetta stato
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '13px Segoe UI';
+            ctx.fillText("Visualizzazione schematica: 4 catene polimeriche", 20, 30);
+        }
+
+        // --- GLOSSARIO E ADDITIVI ---
+        const glossaryData = [
+            { term: "Monomero", definition: "Molecola a basso peso molecolare, spesso insatura, capace di reagire per dare origine a una macromolecola (polimero) tramite reazione di polimerizzazione." },
+            { term: "Polimero", definition: "Grande macromolecola risultante dall'unione covalente di più unità strutturali ripetitive (merI) derivate dai monomeri." },
+            { term: "Grado di polimerizzazione (DP)", definition: "Numero medio di unità monomeriche che compongono la catena macromolecolare. Determina il peso molecolare e le proprietà meccaniche." },
+            { term: "Polimeri Termoplastici", definition: "Polimeri a struttura lineare o ramificata che rammolliscono per riscaldamento e induriscono per raffreddamento, reversibilmente e senza alterazione chimica." },
+            { term: "Polimeri Termoindurenti", definition: "Polimeri a struttura tridimensionale fortemente reticolata (cross-linked) che, una volta induriti per azione termica o chimica, non possono più essere fusi o rimodellati." },
+            { term: "Elastomeri", definition: "Polimeri caratterizzati da legami trasversali sparsi che conferiscono straordinaria elasticità e deformabilità reversibile (es. gomme per impronte)." },
+            { term: "Temperatura di Transizione Vetrosa (Tg)", definition: "Intervallo di temperatura in cui un polimero passa da uno stato rigido e fragile ('vetroso') a uno stato flessibile o gommoso." },
+            { term: "Plastificanti (Additivo)", definition: "Sostanze organiche a basso peso molecolare (es. ftalati) aggiunte alle resine per ridurre le forze intermolecolari, abbassare la Tg e aumentare flessibilità e lavorabilità." },
+            { term: "Inibitori / Stabilizzanti (Additivo)", definition: "Sostanze chimiche (es. idrochinone) aggiunte in minima percentuale ai monomeri per impedire polimerizzazioni spontanee indesiderate durante lo stoccaggio." },
+            { term: "Iniziatori / Attivatori (Additivo)", definition: "Sostanze (es. perossido di benzoile o amine terziarie) che si attivano con il calore, la luce o per via chimica generando i radicali liberi necessari ad avviare la polimerizzazione." },
+            { term: "Pigmenti e Coloranti (Additivo)", definition: "Ossidi metallici inorganici aggiunti alle resine polimeriche per riprodurre fedelmente le diverse tonalità cromatiche della mucosa gengivale e dei denti naturali." },
+            { term: "Cariche Inorganiche (Additivo)", definition: "Particelle di vetro, quarzo o silice silanizzate aggiunte alle resine composite per aumentare la resistenza all'usura, la durezza e ridurre la retrazione volumetrica." },
+            { term: "Agenti Opacizzanti (Additivo)", definition: "Sostanze (es. biossido di titanio, $TiO_2$) inserite in piccolissime dosi per regolare la traslucenza del materiale ed evitare l'effetto 'piatto' o trasparente della protesi." },
+            { term: "MMA (Metilmetacrilato)", definition: "Monomero liquido volatile e pungente utilizzato storicamente per la fabbricazione e riparazione di protesi mobili in resina acrilica." },
+            { term: "PMMA (Polimetilmetacrilato)", definition: "Resina acrilica rigida ampiamente usata in odontotecnica per basi protesiche, denti artificiali e provvisori fissi." },
+            { term: "Retrazione da Polimerizzazione", definition: "Contrazione volumetrica che si verifica quando i monomeri si uniscono in catene polimeriche, riducendo lo spazio intermolecolare." }
+        ];
+
+        function renderGlossary() {
+            const container = document.getElementById('glossaryContainer');
+            container.innerHTML = glossaryData.map(item => `
+                <div class="glossary-item">
+                    <h3>${item.term}</h3>
+                    <p>${item.definition}</p>
+                </div>
+            `).join('');
+        }
+
+        function filterGlossary() {
+            const query = document.getElementById('glossarySearch').value.toLowerCase();
+            const container = document.getElementById('glossaryContainer');
+            const filtered = glossaryData.filter(item => 
+                item.term.toLowerCase().includes(query) || item.definition.toLowerCase().includes(query)
+            );
+            container.innerHTML = filtered.length ? filtered.map(item => `
+                <div class="glossary-item">
+                    <h3>${item.term}</h3>
+                    <p>${item.definition}</p>
+                </div>
+            `).join('') : '<p>Nessun termine trovato.</p>';
+        }
+
+        // --- QUIZ (50 DOMANDE) ---
+        const rawQuestions = [
+            { q: "Cos'è un monomero?", options: ["Una macromolecola complessa", "Una piccola molecola capace di legarsi per formare un polimero", "Un catalizzatore a freddo", "Un sale inorganico inerte"], correct: 1 },
+            { q: "Cosa descrive il Grado di Polimerizzazione (DP)?", options: ["La temperatura di fusione", "Il numero di unità monomeriche nella catena", "Il colore della resina polimerizzata", "Il tempo di indurimento"], correct: 1 },
+            { q: "Qual è la principale caratteristica dei polimeri termoplastici?", options: ["Si degradano se riscaldati", "Possono essere fusi e rimodellati più volte", "Formano una rete tridimensionale indivisibile", "Non temono i solventi organici"], correct: 1 },
+            { q: "Cosa differenzia i termoindurenti dai termoplastici?", options: ["I termoindurenti possiedono una fitta rete di legami trasversali (cross-link)", "I termoindurenti si sciolgono facilmente con il calore", "I termoplastici sono più duri dei metalli", "Non vi sono differenze chimiche"], correct: 0 },
+            { q: "Cos'è la Temperatura di Transizione Vetrosa (Tg)?", options: ["La temperatura a cui il polimero brucia", "Il passaggio dallo stato vetroso/rigido a quello gommoso/flessibile", "Il punto di ebollizione del monomero", "La temperatura di stoccaggio frigorifero"], correct: 1 },
+            { q: "Quale materiale è un tipico esempio di elastomero in odontotecnica?", options: ["PMMA per protesi", "Silicone per impronte", "Lega cromo-cobalto", "Ceramica feldspatica"], correct: 1 },
+            { q: "A cosa serve l'inibitore nelle resine autopolimerizzanti?", options: ["Ad accelerare la reazione", "A impedire la polimerizzazione prematura durante la conservazione", "A dare colore rosa gengivale", "A eliminare la porosità"], correct: 1 },
+            { q: "Cos'è il PMMA?", options: ["Polimetilmetacrilato", "Polimero metallico multifunzionale", "Perossido di metile e ammoniaca", "Polietilene ad alta densità"], correct: 0 },
+            { q: "Qual è l'effetto principale della retrazione da polimerizzazione?", options: ["Espansione del manufatto", "Contrazione volumetrica e tensioni interne", "Aumento della resistenza a trazione", "Scioglimento della resina"], correct: 1 },
+            { q: "Cosa si intende per copolimerizzazione?", options: ["La miscelazione di due polimeri già formati", "La reazione simultanea di due o più monomeri diversi", "Il riciclo di protesi vecchie", "La polimerizzazione in assenza di ossigeno"], correct: 1 },
+            { q: "Qual è la funzione dei plastificanti nelle resine?", options: ["Aumentare la durezza superficiale", "Ridurre le forze intermolecolari e aumentare la flessibilità", "Accelerare il tempo di presa", "Prevenire la crescita batterica"], correct: 1 },
+            { q: "Quale agente chimico viene comunemente usato per la vulcanizzazione delle gomme?", options: ["Zolfo", "Acido cloridrico", "Idrochinone", "Ossido di zinco puro"], correct: 0 },
+            { q: "Che tipo di legame unisce i monomeri in una catena polimerica?", options: ["Legame ionico forte", "Legame covalente", "Legame a idrogeno debole", "Forze di Van der Waals"], correct: 1 },
+            { q: "Cosa succede se si supera la temperatura di ebollizione del MMA durante l'acrilazione in mûfle?", options: ["La resina diventa trasparente", "Si formano bolle e porosità da vaporizzazione", "Il gesso si scioglie completamente", "Il dente artificiale si fonde"], correct: 1 },
+            { q: "Quale catalizzatore attiva comunemente le resine autopolimerizzanti a freddo?", options: ["Perossido di benzoile e ammina terziaria", "Luce ultravioletta profonda", "Acqua distillata a 100°C", "Radiazione gamma"], correct: 0 },
+            { q: "Cosa definisce la struttura 'ramificata' di un polimero?", options: ["Catene laterali attaccate alla catena principale", "Una grhiglia metallica interna", "Catene perfettamente parallele", "Assenza totale di legami"], correct: 0 },
+            { q: "Quale resina viene impiegata per la realizzazione di mascherine trasparenti estetiche (termoformatura)?", options: ["PMMA termoindurente", "Gomma polisolfurica", "Glicole poliestere / PET-G termoplastico", "Resina epossidica bicomponente"], correct: 2 },
+            { q: "Cosa causa la porosità da contrazione nelle basi protesiche?", options: ["Eccesso di monomero nella miscela polvere/liquido", "Raffreddamento troppo rapido in acqua fredda", "Insufficienza di pressione durante la polimerizzazione", "Entrambe le risposte b e c"], correct: 3 },
+            { q: "Qual è il principale vantaggio dei polimeri rinforzati con fibre di vetro rispetto al PMMA non rinforzato?", options: ["Maggiore resistenza alla flessione e alla fatica", "Costo di produzione azzerato", "Lavorabilità manuale illimitata", "Trasparenza ottica perfetta"], correct: 0 },
+            { q: "Come si definisce un polimero composto da un solo tipo di unità monomerica?", options: ["Copolimero", "Omopolimero", "Terpolimero", "Polimero ibrido"], correct: 1 },
+            { q: "Quale proprietà meccanica diminuisce all'aumentare dei plastificanti in una resina?", options: ["Flessibilità", "Resistenza meccanica e rigidità", "Resilienza", "Lavorabilità"], correct: 1 },
+            { q: "Qual è lo scopo del ciclo di polimerizzazione termica a mûfle in acqua?", options: ["Portare a termine la conversione dei monomeri residui in modo graduale e sicuro", "Sciogliere il gesso del modello", "Sterilizzare la protesi finita", "Asciugare il gesso prima della muffolatura"], correct: 0 },
+            { q: "Cosa caratterizza le resine composite fotopolimerizzabili?", options: ["Richiedono una lampada a luce visibile (blu) per attivare la polimerizzazione", "Polimerizzano spontaneamente all'aria aperta in 5 minuti", "Non contengono carica inorganica", "Sono esclusivamente termoplastiche"], correct: 0 },
+            { q: "Quale componente dei composite funge da rinforzo strutturale rigido?", options: ["Matrice resinosa organica", "Particelle di carica inorganica (vetro, silice, ceramica)", "Inibitore di polimerizzazione", "Pigmenti colorati"], correct: 1 },
+            { q: "Cosa indica l'acronimo CAD/CAM applicato ai dischi di polimeri (es. PMMA o PEEK)?", options: ["Computer-Aided Design / Computer-Aided Manufacturing", "Controllo Automatico Denti / Ceramica Avanzata Modulare", "Casting and Dental Materials", "Ciclo di Attivazione Dinamico / Cottura A Media Muffled"], correct: 0 },
+            { q: "Cos'è il PEEK in odontotecnica?", options: ["Un polimero ad alte prestazioni (polietereeterchetone) usato per strutture protesiche metal-free", "Una cera per intarsi ad alta fusione", "Un gesso extra-duro di tipo IV", "Un legante per rivestimenti metallici"], correct: 0 },
+            { q: "Qual è l'effetto di un eccesso di liquido (monomero) nella miscela per protesi mobili?", options: ["Maggiore retrazione e maggiore porosità", "Indurimento immediato senza presa", "Riduzione drastica della retrazione", "Aumento della durezza superficiale"], correct: 0 },
+            { q: "Perché i polimeri termoindurenti non possono essere rifusi?", options: ["Perché i legami incrociati (cross-links) impediscono lo scorrimento delle catene", "Perché contengono troppa acqua", "Perché fondono a temperature inferiori a zero", "Perché perdono i pigmenti colorati"], correct: 0 },
+            { q: "Qual è la funzione del gesso nei confronti della resina durante la muffolatura?", options: ["Costruire lo stampo negativo che racchiude il modello e la cera da sostituire", "Reagire chimicamente con il monomero", "Fungere da catalizzatore termico", "Rendere la protesi flessibile"], correct: 0 },
+            { q: "Cosa si intende per 'conversione' in una resina polimerizzata?", options: ["La percentuale di doppi legami monomerici trasformati in legami singoli polimerici", "La trasformazione della resina in metallo", "Il cambio di colore della protesi", "La scadenza del materiale"], correct: 0 },
+            { q: "Quale tra questi materiali elastomerici per impronte ha la peggiore stabilità dimensionale nel tempo?", options: ["Idrocolloidi reversibili (agar)", "Siliconi di condensazione", "Siliconi di addizione", "Polieteri"], correct: 0 },
+            { q: "Qual è il sottoprodotto tipico della reazione dei siliconi di condensazione?", options: ["Alcol etilico", "Acqua", "Gas idrogeno", "Nessun sottoprodotto"], correct: 0 },
+            { q: "Perché i siliconi di addizione sono i più stabili dimensionalmente?", options: ["Perché non liberano sottoprodotti volatili durante la reticolazione", "Perché contengono platino liquido", "Perché sono termoindurenti", "Perché si ritirano del 10% subito"], correct: 0 },
+            { q: "Cosa succede ai guanti in lattice se si maneggiano i siliconi di addizione prima della presa?", options: ["Inibizione della polimerizzazione del silicone a causa dello zolfo/lattice", "Reazione esplosiva", "Cambio di colore istantaneo", "Nessun effetto collaterale"], correct: 0 },
+            { q: "Qual è la caratteristica dei polieteri?", options: ["Idrofilia elevata ma rigidità notevole dopo l'indurimento", "Scarsa precisione e sapore gradevole", "Idrofobia assoluta", "Incompatibilità totale con il gesso"], correct: 0 },
+            { q: "Cosa sono le resine acetaliche?", options: ["Polimeri termoplastici usati per ganci estetici e protesi flessibili parziali", "Cementi provvisori all'ossido di zinco", "Siliconi pesanti per impronte", "Leganti per ceramiche integrali"], correct: 0 },
+            { q: "Qual è il principale vantaggio dei provvisori stampati in 3D (resine fotopolimeriche) rispetto al metodo tradizionale?", options: ["Velocità di produzione, precisione digitale e minor consumo di materiale", "Maggiore resistenza meccanica assoluta", "Assenza totale di monomero residuo", "Costo delle stampanti pari a zero"], correct: 0 },
+            { q: "Quale test misura la resistenza all'impatto di una resina protesica?", options: ["Prova di resilienza (Charpy o Izod)", "Test di durezza Vickers", "Prova di trazione monoassiale", "Test di solubilità in acqua"], correct: 0 },
+            { q: "Cosa provoca il rilascio di monomero residuo nei tessuti orali?",options: ["Possibili reazioni allergiche o irritazioni gengivali", "Rigenerazione rapida dell'osso alveolare", "Aumento della salivazione benefica", "Nessun effetto biologico"], correct: 0 },
+            { q: "Come si pulisce correttamente una protesi in PMMA per evitare danni strutturali?", options: ["Usando detergenti specifici non abrasivi e spazzolini morbidi (evitando acqua bollente)", "Con acido cloridrico al 10%", "Facendola bollire ogni sera", "Con carta vetrata fine"], correct: 0 },
+            { q: "Quale tipo di polimerizzazione si ottiene con energia termica esterna (forno o bagno d'acqua)?", options: ["Termopolimerizzazione", "Autopolimerizzazione chimica", "Fotopolimerizzazione", "Polimerizzazione a microonde"], correct: 0 },
+            { q: "Qual è la funzione del biossido di titanio spesso aggiunto nelle resine per basi protesiche?", options: ["Agire come pigmento opacizzante per simulare le sfumature della mucosa", "Aumentare la durezza al taglio", "Eliminare la retrazione", "Agire da catalizzatore"], correct: 0 },
+            { q: "Cosa indica il termine 'viscoelasticità' tipico dei polimeri?", options: ["Il comportamento che combina caratteristiche di elasticità solida e viscosità fluida", "La capacità di condurre elettricità", "La solubilità in solventi polari", "La resistenza al fuoco"], correct: 0 },
+            { q: "Perché i denti artificiali in resina acrilica si legano chimicamente alla base della protesi?", options: ["Per la presenza di monomero fresco che ammorbidisce la colletto del dente e co-polimerizza", "Per la presenza di perni metallici di ritenzione", "Per incollaggio con cianoacrilato", "Per adesione elettrostatica"], correct: 0 },
+            { q: "Cosa sono gli idrocolloidi irreversibili (alginati)?", options: ["Materiali da impronta a base di sali di acido alginico derivati da alghe marine", "Resine sintetiche rigide", "Cere per impronte ococlusali", "Materiali per ribasatura"], correct: 0 },
+            { q: "Qual è il fenomeno del 'sineresi' negli alginati?", options: ["Espulsione di acqua in superficie con conseguente contrazione dell'impronta se lasciata all'aria", "Assorbimento d'acqua e rigonfiamento", "Fusione termica del colloide", "Cristallizzazione totale"], correct: 0 },
+            { q: "Cos'è l'imbibizione in un materiale da impronta idrofilo?", options: ["L'assorbimento di umidità/acqua se immerso, con conseguente rigonfiamento", "La perdita di liquidi", "La reazione di presa", "La dissoluzione in bocca"], correct: 0 },
+            { q: "Qual è il limite principale dei materiali acrilici autopolimerizzanti rispetto a quelli termopolimerizzati?", options: ["Maggiore porosità residua e minore resistenza meccanica", "Colore permanentemente nero", "Impossibilità di essere riparati", "Necessità di temperature di cottura di 200°C"], correct: 0 },
+            { q: "Cosa sono i monomeri bifunzionali o multifunzionali nelle resine composite?", options: ["Monomeri con due o più gruppi reattivi capaci di formare reti reticolate tridimensionali stabili", "Monomeri tossici vietati per legge", "Solventi di pulizia", "Pigmenti fluorescenti"], correct: 0 },
+            { q: "Quale parametro clinico/laboratorio è fondamentale rispettare quando si cola un'impronta in silicone di addizione?", options: ["Può essere colata anche a distanza di giorni grazie all'eccellente stabilità dimensionale", "Deve essere colata tassativamente entro 5 minuti", "Deve essere conservata in acqua bollente", "Non può mai essere colata in gesso"], correct: 0 }
+        ];
+
+        let quizData = [];
+        let currentQuestionIdx = 0;
+        let score = 0;
+
+        function initQuiz() {
+            quizData = rawQuestions.map(item => {
+                let options = item.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+                options.sort(() => Math.random() - 0.5);
+                let newCorrectIdx = options.findIndex(opt => opt.originalIndex === item.correct);
+                return {
+                    q: item.q,
+                    options: options.map(o => o.text),
+                    correct: newCorrectIdx
+                };
+            });
+            quizData.sort(() => Math.random() - 0.5);
+            currentQuestionIdx = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if(currentQuestionIdx >= quizData.length) {
+                document.getElementById('quiz-container').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h2>Quiz Completato!</h2>
+                        <p style="font-size: 1.3rem; margin: 20px 0;">Punteggio finale: <strong>${score} / ${quizData.length}</strong></p>
+                        <button class="btn" onclick="initQuiz()">Ricomincia Quiz</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const qObj = quizData[currentQuestionIdx];
+            document.getElementById('quiz-progress').innerText = `Domanda ${currentQuestionIdx + 1} di ${quizData.length}`;
+            document.getElementById('quiz-score').innerText = `Punteggio: ${score}`;
+            document.getElementById('q-text').innerText = qObj.q;
+
+            const optsContainer = document.getElementById('q-options');
+            optsContainer.innerHTML = qObj.options.map((opt, idx) => `
+                <button class="option-btn" onclick="checkAnswer(${idx})" id="opt-${idx}">${opt}</button>
+            `).join('');
+
+            const feedback = document.getElementById('q-feedback');
+            feedback.className = 'quiz-feedback';
+            feedback.innerText = '';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function checkAnswer(selectedIdx) {
+            const qObj = quizData[currentQuestionIdx];
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const feedback = document.getElementById('q-feedback');
+            if(selectedIdx === qObj.correct) {
+                document.getElementById(`opt-${selectedIdx}`).classList.add('correct');
+                feedback.innerText = "Risposta corretta!";
+                feedback.className = "quiz-feedback show correct";
+                score++;
+                document.getElementById('quiz-score').innerText = `Punteggio: ${score}`;
+            } else {
+                document.getElementById(`opt-${selectedIdx}`).classList.add('incorrect');
+                document.getElementById(`opt-${qObj.correct}`).classList.add('correct');
+                feedback.innerText = "Risposta errata.";
+                feedback.className = "quiz-feedback show incorrect";
+            }
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            loadQuestion();
+        }
+
+        window.onload = function() {
+            renderGlossary();
+            initQuiz();
+            drawSimulation();
+        };
+    </script>
+</body>
+</html>
+"""
+
+import os
+file_path = "/mnt/data/App_Didattica_Polimeri_Odontotecnica.html"
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+print("File aggiornato con successo:", file_path)

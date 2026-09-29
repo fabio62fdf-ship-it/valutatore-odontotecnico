@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Valutatore Seconda Prova IP20 - Odontotecnico (Offline iOS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        body { overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
+        @media print {
+            header, nav, #evalBtn, .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            #tab-risultati { display: block !important; }
+            .print-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-28">
+
+    <!-- HEADER -->
+    <header class="bg-indigo-900 text-white shadow-xl sticky top-0 z-50 border-b border-indigo-700">
+        <div class="max-w-4xl mx-auto p-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-tooth text-amber-400 text-xl"></i>
+                <div>
+                    <h1 class="text-xs sm:text-sm font-bold leading-tight">Valutatore 2ª Prova Odontotecnico</h1>
+                    <p class="text-indigo-200 text-[10px]">I.P.S.I.S. “Gaslini Meucci” - Genova (Ottimizzato iOS)</p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-700 text-white text-[10px] font-bold py-1 px-2.5 rounded-lg border border-emerald-500 flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-bolt text-amber-300"></i>
+                <span>100% Offline (No API)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVEGACIÓN TABS -->
+    <nav class="bg-indigo-950 text-white sticky top-[57px] z-40 shadow-md">
+        <div class="max-w-4xl mx-auto grid grid-cols-3 text-center text-[11px] font-bold">
+            <button onclick="switchTab('tab-traccia')" id="nav-traccia" class="py-2.5 border-b-2 border-amber-400 text-amber-300 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-file-lines"></i> 1. Traccia / Caso
+            </button>
+            <button onclick="switchTab('tab-risposte')" id="nav-risposte" class="py-2.5 border-b-2 border-transparent text-slate-300 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-microphone-lines"></i> 2. Risposte / Quesiti
+            </button>
+            <button onclick="switchTab('tab-risultati')" id="nav-risultati" class="py-2.5 border-b-2 border-transparent text-slate-300 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-square-poll-vertical"></i> 3. Esito Ministeriale
+            </button>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-4xl mx-auto px-3 py-4 space-y-4">
+
+        <!-- PESTAÑA 1: TRACCIA -->
+        <section id="tab-traccia" class="space-y-3">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+                <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-open text-indigo-600"></i>
+                    Traccia della Seconda Prova o Caso Clinico
+                </h2>
+
+                <label class="w-full cursor-pointer bg-slate-50 hover:bg-indigo-50 text-indigo-700 border border-dashed border-indigo-300 text-[11px] font-semibold py-2 px-3 rounded-lg text-center transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-arrow-up text-indigo-600"></i>
+                    <span>Carica Traccia (PDF o TXT)</span>
+                    <input type="file" id="fileInput" accept=".pdf,.txt" class="hidden" onchange="handleFileUpload(event)">
+                </label>
+
+                <div id="loadingPdfStatus" class="hidden text-[11px] bg-indigo-50 text-indigo-800 p-2 rounded-lg border border-indigo-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-notch animate-spin text-indigo-600"></i>
+                    <span id="pdfStatusText">Estrazione testo dal PDF in corso...</span>
+                </div>
+
+                <textarea id="sourceText" rows="6" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-slate-700 text-xs leading-relaxed custom-scrollbar bg-white" placeholder="Incolla qui la traccia d'esame, i dati del paziente, la prescrizione medica o le richieste di laboratorio..."></textarea>
+
+                <!-- SEVERIDAD -->
+                <div class="space-y-1 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                    <label class="block text-[10px] font-extrabold text-amber-900 uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-sliders text-amber-600"></i> Grado di Severità della Commissione
+                    </label>
+                    <select id="severitySelect" class="w-full bg-white border border-amber-300 rounded-lg p-1.5 text-xs font-bold text-slate-800 focus:outline-none">
+                        <option value="molto_severo">🔴 Molto Severo (Rigoroso su materiali, leghe e norme tecniche)</option>
+                        <option value="severo">🟠 Severo (Esigente nei dettagli procedurali e sequenze operative)</option>
+                        <option value="normale" selected>🟢 Normale (Standard d'Esame di Stato 5° Anno)</option>
+                        <option value="obiettivi_minimi">🔵 Obiettivi Minimi (Inclusivo BES / DSA - Tollerante)</option>
+                    </select>
+                </div>
+
+                <!-- CONFIGURACIÓN DE QUESITOS -->
+                <div class="space-y-2 pt-2 border-t border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-indigo-900 uppercase">Quesiti / Punti della Prova</h3>
+                        <div class="flex items-center gap-1 text-[11px] font-bold text-slate-600">
+                            <span>Num. Quesiti:</span>
+                            <select id="questionCount" onchange="updateQuestionCount(this.value)" class="bg-slate-100 border border-slate-300 rounded px-1.5 py-0.5 text-xs font-bold">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="questionsContainer" class="space-y-3 max-h-[35vh] overflow-y-auto pr-1 custom-scrollbar"></div>
+                </div>
+
+                <button onclick="switchTab('tab-risposte')" class="w-full py-2.5 bg-indigo-900 hover:bg-indigo-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2">
+                    <span>Procedi alle Risposte dello Studente</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: RESPUESTAS -->
+        <section id="tab-risposte" class="hidden space-y-3">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                        <i class="fa-solid fa-microphone-lines text-indigo-600"></i>
+                        Soluzioni o Esposizione dello Studente
+                    </h2>
+                    <span id="micStatusBanner" class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                        📱 Pronto per inserimento tastiera iOS
+                    </span>
+                </div>
+
+                <div id="answersContainer" class="space-y-4 max-h-[55vh] overflow-y-auto pr-1 custom-scrollbar"></div>
+
+                <button onclick="evaluateExamLocally()" id="evalBtn" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-microchip text-amber-300"></i>
+                    <span>Valuta Prova con Motore Locale Offline</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: RESULTADOS -->
+        <section id="tab-risultati" class="hidden space-y-3">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4 print-card">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800">Esito Valutazione 2ª Prova (Locale)</h2>
+                        <p class="text-[10px] text-slate-500">I.P.S.I.S. “Gaslini Meucci” - Indirizzo Odontotecnico</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] font-bold uppercase text-slate-400">Punteggio Totale</div>
+                        <span id="totalScore" class="text-3xl font-extrabold text-indigo-600">0</span>
+                        <span class="text-slate-400 font-bold text-xs"> / 20</span>
+                    </div>
+                </div>
+
+                <!-- DESGLOSE DE INDICADORES OFICIALES -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-900">
+                            <span>1. Conoscenze (Max 6)</span>
+                            <span id="score1" class="px-2 py-0.5 bg-indigo-100 rounded-full text-indigo-800">0/6</span>
+                        </div>
+                        <p id="feedback1" class="text-[11px] text-slate-600 italic leading-snug"></p>
+                    </div>
+
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-900">
+                            <span>2. Analisi e Soluzione (Max 7)</span>
+                            <span id="score2" class="px-2 py-0.5 bg-indigo-100 rounded-full text-indigo-800">0/7</span>
+                        </div>
+                        <p id="feedback2" class="text-[11px] text-slate-600 italic leading-snug"></p>
+                    </div>
+
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-900">
+                            <span>3. Completezza e Coerenza (Max 4)</span>
+                            <span id="score3" class="px-2 py-0.5 bg-indigo-100 rounded-full text-indigo-800">0/4</span>
+                        </div>
+                        <p id="feedback3" class="text-[11px] text-slate-600 italic leading-snug"></p>
+                    </div>
+
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-900">
+                            <span>4. Linguaggio Tecnico (Max 3)</span>
+                            <span id="score4" class="px-2 py-0.5 bg-indigo-100 rounded-full text-indigo-800">0/3</span>
+                        </div>
+                        <p id="feedback4" class="text-[11px] text-slate-600 italic leading-snug"></p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 space-y-1">
+                    <h3 class="font-bold text-indigo-900 text-[11px] uppercase flex items-center gap-1">
+                        <i class="fa-solid fa-comments"></i> Giudizio Complessivo della Commissione
+                    </h3>
+                    <p id="overallComment" class="text-[11px] text-indigo-900 leading-relaxed"></p>
+                </div>
+
+                <button onclick="window.print()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 no-print">
+                    <i class="fa-solid fa-print text-amber-400"></i>
+                    <span>Stampa / Esporta Verbale (PDF)</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BOTÓN FLOTANTE DE DESCARGA -->
+    <button onclick="guardarComoArchivo()" class="fixed bottom-3 right-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold py-2.5 px-4 rounded-full shadow-2xl flex items-center gap-2 z-50 border border-slate-700 transition-all active:scale-95 no-print">
+        <i class="fa-solid fa-floppy-disk text-amber-400 text-xs"></i>
+        <span>💾 SALVA RISORSA .HTML</span>
+    </button>
+
+    <script>
+        const AppState = {
+            count: 3,
+            questions: Array(5).fill(''),
+            answers: Array(5).fill('')
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFormFields();
+        });
+
+        function switchTab(tabId) {
+            ['tab-traccia', 'tab-risposte', 'tab-risultati'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+
+            ['nav-traccia', 'nav-risposte', 'nav-risultati'].forEach(id => {
+                document.getElementById(id).className = "py-2.5 border-b-2 border-transparent text-slate-300 transition-all flex items-center justify-center gap-1";
+            });
+            document.getElementById('nav-' + tabId.replace('tab-', '')).className = "py-2.5 border-b-2 border-amber-400 text-amber-300 transition-all flex items-center justify-center gap-1";
+        }
+
+        function updateQuestionCount(newVal) {
+            AppState.count = parseInt(newVal);
+            renderFormFields();
+        }
+
+        function updateQuestionText(index, value) {
+            AppState.questions[index] = value;
+            const titleElem = document.getElementById(`a_qtitle_${index + 1}`);
+            if (titleElem) {
+                titleElem.innerText = value.trim() ? value.trim() : `(Quesito ${index + 1})`;
+            }
+        }
+
+        function updateAnswerText(index, value) {
+            AppState.answers[index] = value;
+        }
+
+        function renderFormFields() {
+            const qContainer = document.getElementById('questionsContainer');
+            const aContainer = document.getElementById('answersContainer');
+
+            let qHtml = '';
+            let aHtml = '';
+
+            for (let i = 0; i < AppState.count; i++) {
+                qHtml += `
+                    <div class="space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <label class="block text-[10px] font-bold text-indigo-900 uppercase">Quesito ${i + 1}</label>
+                        <textarea oninput="updateQuestionText(${i}, this.value)" rows="2" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white resize-none" placeholder="Descrivi il quesito o la richiesta tecnica...">${AppState.questions[i]}</textarea>
+                    </div>
+                `;
+
+                aHtml += `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                                <span class="bg-indigo-900 text-amber-400 w-5 h-5 rounded-full flex items-center justify-center text-[10px]">${i + 1}</span>
+                                <span id="a_qtitle_${i + 1}" class="truncate max-w-[200px]">${AppState.questions[i] || 'Quesito ' + (i+1)}</span>
+                            </div>
+                        </div>
+                        <textarea id="ans_textarea_${i}" oninput="updateAnswerText(${i}, this.value)" class="w-full h-28 p-2.5 border border-slate-300 rounded-lg text-slate-800 text-xs leading-relaxed bg-white" placeholder="Scrivi la risposta o usa la dettatura vocale della tastiera iOS...">${AppState.answers[i]}</textarea>
+                    </div>
+                `;
+            }
+            qContainer.innerHTML = qHtml;
+            aContainer.innerHTML = aHtml;
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const sourceText = document.getElementById('sourceText');
+            const loadingPdfStatus = document.getElementById('loadingPdfStatus');
+            const pdfStatusText = document.getElementById('pdfStatusText');
+
+            if (file.name.toLowerCase().endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = e => { sourceText.value = e.target.result; };
+                reader.readAsText(file, 'UTF-8');
+            } else if (file.name.toLowerCase().endsWith('.pdf')) {
+                loadingPdfStatus.classList.remove('hidden');
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                    const pdf = await loadingTask.promise;
+                    let fullText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        pdfStatusText.innerText = `Pagina ${i} di ${pdf.numPages}...`;
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        fullText += textContent.items.map(item => item.str).join(' ') + '\n\n';
+                    }
+                    sourceText.value = fullText.trim();
+                } catch (error) {
+                    alert("Errore nell'estrazione del PDF su questo dispositivo. Prova a copiare e incollare il testo manualmente.");
+                } finally {
+                    loadingPdfStatus.classList.add('hidden');
+                }
+            }
+        }
+
+        function evaluateExamLocally() {
+            for (let i = 0; i < AppState.count; i++) {
+                const ta = document.getElementById(`ans_textarea_${i}`);
+                if (ta) AppState.answers[i] = ta.value;
+            }
+
+            const sourceText = document.getElementById('sourceText').value.trim();
+            const severity = document.getElementById('severitySelect').value;
+
+            if (!sourceText) {
+                alert("Inserisci la traccia della seconda prova o il caso clinico.");
+                switchTab('tab-traccia');
+                return;
+            }
+
+            let questionsData = [];
+            let totalLength = 0;
+            for (let i = 0; i < AppState.count; i++) {
+                const qText = AppState.questions[i].trim();
+                const aText = AppState.answers[i].trim();
+                if (!qText) {
+                    alert(`Inserisci il testo del Quesito ${i + 1}.`);
+                    switchTab('tab-traccia');
+                    return;
+                }
+                if (!aText) {
+                    alert(`Inserisci la risposta per il Quesito ${i + 1}.`);
+                    return;
+                }
+                questionsData.push({ question: qText, answer: aText });
+                totalLength += aText.length;
+            }
+
+            const keywordList = [
+                "impronta", "gesso", "articolatore", "occlusione", "cera", "colata", "modello", 
+                "protesi", "corona", "ponte", "lega", "ceramica", "resina", "cad", "cam", 
+                "fresatura", "rifinitura", "lucidatura", "muflola", "stampaggio", "scheletrato", 
+                "componente", "estetica", "funzionale", "biocompatibile", "implantare", "abutment"
+            ];
+
+            let matchedKeywords = 0;
+            const combinedAnswers = questionsData.map(q => q.answer.toLowerCase()).join(' ');
+            keywordList.forEach(kw => {
+                if (combinedAnswers.includes(kw)) matchedKeywords++;
+            });
+
+            let severityMultiplier = 1.0;
+            if (severity === 'molto_severo') severityMultiplier = 0.8;
+            if (severity === 'severo') severityMultiplier = 0.9;
+            if (severity === 'obiettivi_minimi') severityMultiplier = 1.2;
+
+            let rawScore1 = Math.min(6, Math.max(0, Math.round((matchedKeywords / 6) * 6 * severityMultiplier)));
+            let rawScore2 = Math.min(7, Math.max(0, Math.round((matchedKeywords / 8) * 7 * severityMultiplier)));
+            
+            let lengthFactor = Math.min(1, totalLength / (AppState.count * 150));
+            let rawScore3 = Math.min(4, Math.max(0, Math.round(lengthFactor * 4 * severityMultiplier)));
+            let rawScore4 = Math.min(3, Math.max(0, Math.round((matchedKeywords / (AppState.count * 3)) * 3 * severityMultiplier)));
+
+            const s1 = rawScore1;
+            const s2 = rawScore2;
+            const s3 = rawScore3;
+            const s4 = rawScore4;
+            const total = s1 + s2 + s3 + s4;
+
+            document.getElementById('score1').innerText = `${s1}/6`;
+            document.getElementById('feedback1').innerText = s1 >= 4 ? "Conoscenze teoriche discrete dei materiali e delle procedure." : "Conoscenze lacunose o insufficienti dei principi teorici di base.";
+            
+            document.getElementById('score2').innerText = `${s2}/7`;
+            document.getElementById('feedback2').innerText = s2 >= 4 ? "Analisi del caso clinico condotta con coerenza e logica professionale." : "Soluzione tecnica inadeguata o carente nei passaggi procedurali fondamentali.";
+            
+            document.getElementById('score3').innerText = `${s3}/4`;
+            document.getElementById('feedback3').innerText = s3 >= 3 ? "Esposizione completa e aderente alle richieste della traccia." : "Svolgimento frammentario o incompleto rispetto ai quesiti posti.";
+            
+            document.getElementById('score4').innerText = `${s4}/3`;
+            document.getElementById('feedback4').innerText = s4 >= 2 ? "Buon uso della terminologia specifica del settore." : "Linguaggio povero e carente di termini tecnici appropriati all'indirizzo.";
+
+            let giudizioTesto = "";
+            if (total >= 14) {
+                giudizioTesto = `Valutazione brillante (modalità ${severity}). Ottima padronanza delle competenze tecnico-professionali dell'indirizzo Odontotecnico.`;
+            } else if (total >= 12) {
+                giudizioTesto = `Valutazione sufficiente (modalità ${severity}). Raggiunti gli obiettivi minimi della seconda prova.`;
+            } else if (total >= 10) {
+                giudizioTesto = `Valutazione parzialmente insufficiente (modalità ${severity}). Lacune evidenti nella risoluzione tecnica e nei materiali.`;
+            } else {
+                giudizioTesto = `Valutazione gravemente insufficiente (modalità ${severity}). Gravi carenze nelle competenze professionali e nella sequenza logico-operativa.`;
+            }
+
+            document.getElementById('totalScore').innerText = total;
+            document.getElementById('overallComment').innerText = giudizioTesto;
+
+            switchTab('tab-risultati');
+        }
+
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'valutatore_odontotecnico_ios.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

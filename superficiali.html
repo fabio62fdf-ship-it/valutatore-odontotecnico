@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Interactivo: Propiedades Superficiales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">💧</span>
+            <div>
+                <h1 class="font-bold text-lg text-white">Propiedades Superficiales en Odontotecnica</h1>
+                <p class="text-xs text-slate-400">Laboratorio Interactivo &bull; Atlas y Autoevaluación</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="cambiarIdioma('it')" id="btn-it" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white transition shadow-sm">IT</button>
+            <button onclick="cambiarIdioma('es')" id="btn-es" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">ES</button>
+            <button onclick="cambiarIdioma('en')" id="btn-en" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">EN</button>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- COLUMNA IZQUIERDA: ATLAS / TEORÍA -->
+        <section class="lg:col-span-1 bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+            <div>
+                <div class="flex items-center space-x-2 text-blue-400 mb-4">
+                    <span class="text-xl">📚</span>
+                    <h2 class="font-bold text-base tracking-wide uppercase text-blue-300" id="ui-atlas-title">Atlas Temático</h2>
+                </div>
+                <p class="text-sm text-slate-300 mb-6 leading-relaxed" id="ui-atlas-desc">
+                    Esplora i concetti chiave legati alle proprietà superficiali dei materiali dentali prima di affrontare il test di verifica interattivo.
+                </p>
+
+                <!-- LISTA DE TEMAS -->
+                <div class="space-y-3" id="lista-temas">
+                    <button onclick="mostrarTema(0)" class="w-full text-left p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-center justify-between group">
+                        <span id="t-title-0">1. Bagnabilità e Angolo di Contatto</span>
+                        <span class="text-xs text-blue-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                    <button onclick="mostrarTema(1)" class="w-full text-left p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-center justify-between group">
+                        <span id="t-title-1">2. Rugosità e Placca Batterica</span>
+                        <span class="text-xs text-blue-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                    <button onclick="mostrarTema(2)" class="w-full text-left p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-center justify-between group">
+                        <span id="t-title-2">3. Tensione Superficiale e Adesión</span>
+                        <span class="text-xs text-blue-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                    <button onclick="mostrarTema(3)" class="w-full text-left p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-center justify-between group">
+                        <span id="t-title-3">4. Dureza Superficial y Tratamientos</span>
+                        <span class="text-xs text-blue-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+                <span id="ui-modo-label">Modo Activo:</span>
+                <span class="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20" id="ui-badge-mode">Teoría & Test (10 Q)</span>
+            </div>
+        </section>
+
+        <!-- COLUMNA DERECHA: CONTENIDO DINÁMICO (ATLAS O TEST) -->
+        <section class="lg:col-span-2 bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+            
+            <!-- VISTA TEORÍA / ATLAS -->
+            <div id="vista-teoria" class="space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                    <h3 id="teoria-titulo" class="text-xl font-bold text-white flex items-center gap-2">
+                        <span>💡</span> Bagnabilità e Angolo di Contatto
+                    </h3>
+                    <button onclick="activarTest()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg transition flex items-center gap-2">
+                        <span id="ui-btn-goto-test">Vai al Test Interattivo (10)</span> &rarr;
+                    </button>
+                </div>
+                <div id="teoria-contenido" class="text-slate-300 text-sm leading-relaxed space-y-4">
+                    <!-- Contenido inyectado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- VISTA TEST INTERACTIVO (10 PREGUNTAS) -->
+            <div id="vista-test" class="hidden space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30" id="contador-preguntas">Pregunta 1 / 10</span>
+                        <h3 class="font-bold text-white text-sm md:text-base" id="ui-test-header">Test de Autoevaluación Avanzada</h3>
+                    </div>
+                    <button onclick="activarTeoria()" class="text-xs text-slate-400 hover:text-white underline transition" id="ui-btn-back-atlas">
+                        &larr; Volver al Atlas
+                    </button>
+                </div>
+
+                <!-- ENUNCIADO DE LA PREGUNTA -->
+                <div>
+                    <h4 id="pregunta-texto" class="text-base md:text-lg font-semibold text-white leading-snug">
+                        <!-- Enunciado -->
+                    </h4>
+                </div>
+
+                <!-- OPCIONES DE RESPUESTA -->
+                <div class="grid grid-cols-1 gap-3" id="opciones-contenedor">
+                    <!-- Botones de opciones A, B, C, D -->
+                </div>
+
+                <!-- FEEDBACK & NAVEGACIÓN -->
+                <div class="pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                    <div id="feedback-box" class="text-xs font-medium text-slate-400">
+                        Selecciona una opción para validar tu respuesta.
+                    </div>
+                    <button id="btn-siguiente" onclick="siguientePregunta()" class="hidden px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-lg flex items-center gap-2">
+                        <span id="ui-btn-next">Siguiente Pregunta</span> &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA RESULTADOS FINALES -->
+            <div id="vista-resultados" class="hidden text-center py-12 space-y-6">
+                <div class="inline-flex p-4 bg-blue-500/10 text-blue-400 rounded-full text-4xl mb-2 border border-blue-500/20">🏆</div>
+                <h3 class="text-2xl font-bold text-white" id="res-titulo">¡Test Completado con Éxito!</h3>
+                <p class="text-slate-300 text-sm max-w-md mx-auto" id="res-desc">
+                    Has finalizado las 10 preguntas avanzadas sobre propiedades superficiales en materiales dentales.
+                </p>
+                <div class="text-3xl font-extrabold text-blue-400" id="res-puntuacion">
+                    Puntuación: 0 / 10
+                </div>
+                <div class="pt-4 flex justify-center gap-4">
+                    <button onclick="reiniciarTest()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg transition" id="ui-btn-retry">
+                        Repetir Test
+                    </button>
+                    <button onclick="activarTeoria()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs rounded-xl transition" id="ui-btn-review-atlas">
+                        Revisar Atlas
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-800">
+        Atlas Interactivo de Propiedades Superficiales &bull; Diseñado para Educación Técnico-Profesional
+    </footer>
+
+    <!-- BOTÓN DE DESCARGA FLOTANTE (REQUISITO ESTricto) -->
+    <button onclick="guardarComoArchivo()" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 border border-blue-400/30 transition transform hover:scale-105">
+        <span>💾 GUARDAR RECURSO .HTML</span>
+    </button>
+
+    <!-- SCRIPT JAVASCRIPT INTEGRADO -->
+    <script>
+        // ESTADO DE IDIOMA Y DATOS
+        let idiomaActual = 'it'; // Por defecto italiano según contexto del usuario
+
+        const textosUI = {
+            it: {
+                atlasTitle: "Atlante Tematico",
+                atlasDesc: "Esplora i concetti chiave legati alle proprietà superficiali dei materiali dentali prima di affrontare il test di verifica interattivo.",
+                modoLabel: "Modalità Attiva:",
+                badgeMode: "Teoria & Test (10 Q)",
+                btnGotoTest: "Vai al Test Interattivo (10)",
+                testHeader: "Test di Autovalutazione Avanzata",
+                btnBackAtlas: "← Torna all'Atlante",
+                btnNext: "Prossima Domanda",
+                resTitle: "Test Completato con Successo!",
+                resDesc: "Hai completato tutte le 10 domande avanzate sulle proprietà superficiali dei materiali dentali.",
+                btnRetry: "Ripeti il Test",
+                btnReviewAtlas: "Rivedi l'Atlante",
+                selectOptionMsg: "Seleziona un'opzione per verificare la risposta.",
+                correctFeedback: "Risposta esatta! Ottimo lavoro.",
+                incorrectFeedback: "Risposta errata. Rivedi il concetto nell'atlante."
+            },
+            es: {
+                atlasTitle: "Atlas Temático",
+                atlasDesc: "Explora los conceptos clave relacionados con las propiedades superficiales de los materiales dentales antes de realizar el test interactivo.",
+                modoLabel: "Modo Activo:",
+                badgeMode: "Teoría & Test (10 Q)",
+                btnGotoTest: "Ir al Test Interactivo (10)",
+                testHeader: "Test de Autoevaluación Avanzada",
+                btnBackAtlas: "← Volver al Atlas",
+                btnNext: "Siguiente Pregunta",
+                resTitle: "¡Test Completado con Éxito!",
+                resDesc: "Has finalizado las 10 preguntas avanzadas sobre propiedades superficiales en materiales dentales.",
+                btnRetry: "Repetir Test",
+                btnReviewAtlas: "Revisar Atlas",
+                selectOptionMsg: "Selecciona una opción para validar tu respuesta.",
+                correctFeedback: "¡Respuesta exacta! Excelente trabajo.",
+                incorrectFeedback: "Respuesta incorrecta. Revisa el concepto en el atlas."
+            },
+            en: {
+                atlasTitle: "Thematic Atlas",
+                atlasDesc: "Explore key concepts related to surface properties of dental materials before taking the interactive verification test.",
+                modoLabel: "Active Mode:",
+                badgeMode: "Theory & Test (10 Q)",
+                btnGotoTest: "Go to Interactive Test (10)",
+                testHeader: "Advanced Self-Assessment Test",
+                btnBackAtlas: "← Back to Atlas",
+                btnNext: "Next Question",
+                resTitle: "Test Successfully Completed!",
+                resDesc: "You have completed all 10 advanced questions on surface properties in dental materials.",
+                btnRetry: "Retest",
+                btnReviewAtlas: "Review Atlas",
+                selectOptionMsg: "Select an option to validate your answer.",
+                correctFeedback: "Exact answer! Great job.",
+                incorrectFeedback: "Incorrect answer. Review the concept in the atlas."
+            }
+        };
+
+        const temasAtlas = {
+            it: [
+                {
+                    titulo: "1. Bagnabilità e Angolo di Contatto",
+                    html: `<p>La <strong>bagnabilità</strong> misura la capacità di un liquido di estendersi su una superficie solida. È determinata dall'<strong>angolo di contatto ($\\theta$)</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li><strong>Ottima bagnabilità:</strong> Angolo basso o vicino a $0^\\circ$ (es. adesivi dentinali, impronte idrofile). Il liquido bagna e penetra nei micrometrici recessi.</li>
+                             <li><strong>Scarsa bagnabilità:</strong> Angolo elevato ($>90^\\circ$, es. superfici fortemente idrofobe o cere), con gocce sferiche che non bagnano il substrato.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "2. Rugosità e Placca Batterica",
+                    html: `<p>La rugosità superficiale ($R_a$) influenza direttamente la biologia orale. Se il valore supera la soglia critica di <strong>$0.2\\ \\mu\\text{m}$</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Si verifica un forte incremento dell'adesione e maturazione precoce del <strong>biofilm batterico</strong>.</li>
+                             <li>Aumenta drasticamente il rischio di infiammazione parodontale e carie secondaria attorno ai margini protesici.</li>
+                             <li>Il corretto lucidamento meccanico riduce l'energia superficiale libera, favorendo l'effetto autolimpiante.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "3. Tensione Superficiale e Adesione",
+                    html: `<p>Per ottenere un'adesione chimico-meccanica ottimale (es. cementazione adesiva), la <strong>tensione superficiale del liquido adesivo</strong> deve essere inferiore all'<strong>energia superficiale libera del substrato solido</strong> (smalto o dentina condizionata):</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Ciò garantisce lo spandimento spontaneo (*wetting*) e la penetrazione nei tubuli dentinari aperti.</li>
+                             <li>I solventi volatili (etere, acetone, etanolo) riducono la tensione superficiale e veicolano i monomeri resinosi.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "4. Dureza Superficial y Tratamientos",
+                    html: `<p>La durezza superficiale (misurata con scale come <strong>Vickers</strong> o <strong>Knoop</strong>) esprime la resistenza alla deformazione plastica permanente o al rayado:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Trattamenti meccanici superficiali come il <strong>sabbiatura con ossido di alluminio</strong> aumentano l'area superficiale attiva e puliscono gli ossidi.</li>
+                             <li>Il condizionamento acido (es. acido fluoridrico su ceramiche vetrose) crea microretenzioni selettive della fase vetrosa.</li>
+                           </ul>`
+                }
+            ],
+            es: [
+                {
+                    titulo: "1. Mojabilidad y Ángulo de Contacto",
+                    html: `<p>La <strong>mojabilidad</strong> mide la capacidad de un líquido para extenderse sobre un sólido. Viene dictada por el <strong>ángulo de contacto ($\\theta$)</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li><strong>Alta mojabilidad:</strong> Ángulo bajo o cercano a $0^\\circ$ (adhesivos dentinarios, siliconas hidrófilas), permitiendo capilaridad y extensión total.</li>
+                             <li><strong>Baja mojabilidad:</strong> Ángulo superior a $90^\\circ$ (ceras, superficies repelentes), formando gotas esféricas sin interacción íntima.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "2. Rugosidad y Placa Bacteriana",
+                    html: `<p>La rugosidad superficial ($R_a$) es crítica en clínica. Si se supera el límite crítico de <strong>$0.2\\ \\mu\\text{m}$</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Se acelera la retención y maduración del <strong>biofilm bacteriano</strong>.</li>
+                             <li>Se incrementa el riesgo periodontal y de caries secundaria en los márgenes de restauraciones indirectas.</li>
+                             <li>El pulido especular reduce drásticamente la energía superficial y facilita la higiene oral.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "3. Tensión Superficial y Adhesión",
+                    html: `<p>Para asegurar una correcta adhesión, la <strong>tensión superficial del líquido</strong> debe ser menor que la <strong>energía superficial del sustrato</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Esto permite el empapamiento (*wetting*) completo de los túbulos dentinarios acondicionados.</li>
+                             <li>Los solventes orgánicos optimizan esta propiedad reduciendo la tensión interfacial.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "4. Dureza y Tratamientos Superficiales",
+                    html: `<p>La dureza superficial evaluada mediante <strong>Vickers o Knoop</strong> determina la resistencia al rayado y al desgaste clínico:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>El arenado superficial con $Al_2O_3$ incrementa el área de contacto micromecánica en metales y zirconio.</li>
+                             <li>El grabado ácido disuelve selectivamente fases cristalinas o vítreas para habilitar enlaces químicos y físicos.</li>
+                           </ul>`
+                }
+            ],
+            en: [
+                {
+                    titulo: "1. Wettability and Contact Angle",
+                    html: `<p><strong>Wettability</strong> measures a liquid's ability to spread over a solid surface, dictated by the <strong>contact angle ($\\theta$)</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li><strong>High wettability:</strong> Low angle close to $0^\\circ$ (dentin adhesives, hydrophilic elastomers), allowing broad capillary spread.</li>
+                             <li><strong>Low wettability:</strong> Angle $>90^\\circ$ (waxes, hydrophobic surfaces), forming distinct spherical droplets.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "2. Roughness and Bacterial Plaque",
+                    html: `<p>Surface roughness ($R_a$) directly impacts oral health. Exceeding the critical threshold of <strong>$0.2\\ \\mu\\text{m}$</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Accelerates <strong>bacterial biofilm</strong> retention and early maturation.</li>
+                             <li>Increases periodontal inflammation risks and secondary decay around crown margins.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "3. Surface Tension and Adhesion",
+                    html: `<p>For optimal bonding, the <strong>liquid adhesive's surface tension</strong> must be lower than the <strong>solid substrate's free surface energy</strong>:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Ensures spontaneous wetting and complete penetration into exposed dentin tubules.</li>
+                           </ul>`
+                },
+                {
+                    titulo: "4. Hardness and Surface Treatments",
+                    html: `<p>Surface hardness via <strong>Vickers or Knoop</strong> scales measures resistance to permanent plastic indentation and scratching:</p>
+                           <ul class="list-disc pl-5 space-y-2 text-xs">
+                             <li>Air-particle abrasion ($Al_2O_3$) increases micromechanical retention and cleans surface oxides.</li>
+                           </ul>`
+                }
+            ]
+        };
+
+        // 10 PREGUNTAS AVANZADAS CON 4 OPCIONES (A, B, C, D) Y POSICIÓN ALEATORIA DE LA CORRECTA
+        const preguntasDB = [
+            {
+                q: {
+                    it: "Quale condizione fisico-chimica deve soddisfare un liquido per assicurare un'eccellente bagnabilità sulla superficie di un substrato solido?",
+                    es: "¿Qué condición físico-química debe cumplir un líquido para asegurar una excelente mojabilidad sobre la superficie de un sustrato sólido?",
+                    en: "What physico-chemical condition must a liquid meet to ensure excellent wettability on a solid substrate surface?"
+                },
+                opciones: {
+                    it: [
+                        "Presentare un angolo di contatto elevato superiore a 90 gradi per respingere i fluidi orali.",
+                        "Sviluppare un angolo di contatto basso o vicino a 0 gradi, permettendo al liquido di estendersi ampiamente.",
+                        "Incrementare bruscamente la sua tensione superficiale interna tramite additivi idrofobi.",
+                        "Possedere una viscosità dinamica molto elevata per frenare la dispersione capillare."
+                    ],
+                    es: [
+                        "Presentar un ángulo de contacto elevado superior a 90 grados para repeler los fluidos orales.",
+                        "Desarrollar un ángulo de contacto bajo o cercano a 0 grados, permitiendo que el líquido se extienda ampliamente.",
+                        "Incrementar bruscamente su tensión superficial interna mediante aditivos hidrófobos.",
+                        "Poseer una viscosidad dinámica muy elevada para frenar la dispersión capilar."
+                    ],
+                    en: [
+                        "Present a high contact angle greater than 90 degrees to repel oral fluids.",
+                        "Develop a low contact angle close to 0 degrees, allowing the liquid to spread broadly.",
+                        "Abruptly increase its internal surface tension via hydrophobic additives.",
+                        "Possess very high dynamic viscosity to halt capillary dispersion."
+                    ]
+                },
+                correcta: 1 // Índice B
+            },
+            {
+                q: {
+                    it: "Durante la lucidatura di un composite, si supera il limite di rugosità superficiale consigliato (Ra > 0.2 µm). Quale conseguenza biologica diretta si genera?",
+                    es: "Durante el pulido de un composite, se excede el límite de rugosidad superficial recomendado (Ra > 0.2 µm). ¿Qué consecuencia biológica directa se genera?",
+                    en: "During composite polishing, the recommended surface roughness limit (Ra > 0.2 µm) is exceeded. What direct biological consequence is generated?"
+                },
+                opciones: {
+                    it: [
+                        "Riduzione drastica dell'energia superficiale con effetto autopulente immediato.",
+                        "Diminuzione dell'usura per attrito occlusale contro i denti antagonisti.",
+                        "Ritenzione accelerata di placca batterica, maturazione precoce del biofilm e rischio parodontale.",
+                        "Inibizione totale della corrosione galvanica nei margini cavitari."
+                    ],
+                    es: [
+                        "Reducción drástica de la energía superficial con efecto autolimpiante inmediato.",
+                        "Disminución del desgaste por fricción oclusal frente a los dientes antagonistas.",
+                        "Retención acelerada de placa bacteriana, maduración precoz del biofilm e incremento del riesgo periodontal.",
+                        "Inhibición total de la corrosión galvánica en los márgenes cavitarios."
+                    ],
+                    en: [
+                        "Drastic reduction of surface energy with immediate self-cleaning effect.",
+                        "Decrease in occlusal friction wear against antagonist teeth.",
+                        "Accelerated bacterial plaque retention, early biofilm maturation, and periodontal risk.",
+                        "Total inhibition of galvanic corrosion at cavitary margins."
+                    ]
+                },
+                correcta: 2 // Índice C
+            },
+            {
+                q: {
+                    it: "Nell'applicazione di un adesivo dentinale, perché è critico che l'adesivo possieda una tensione superficiale inferiore all'energia superficiale della dentina?",
+                    es: "En la aplicación de un adhesivo dentinario, ¿por qué es crítico que el adhesivo posea una tensión superficial menor que la energía superficial de la dentina?",
+                    en: "In dentin adhesive application, why is it critical that the adhesive has lower surface tension than dentin's surface energy?"
+                },
+                opciones: {
+                    it: [
+                        "Per garantire la corretta penetrazione e l'inzuppamento completo (wetting) all'interno dei tubuli dentinali.",
+                        "Per evitare l'evaporazione prematura dei solventi volatili come l'acetone.",
+                        "Per neutralizzare il pH acido dei monomeri resinosi non polimerizzati.",
+                        "Per impedire la formazione di legami covalenti con il collagene demineralizzato."
+                    ],
+                    es: [
+                        "Para garantizar la correcta penetración y el empapamiento completo (wetting) dentro de los túbulos dentinarios.",
+                        "Para evitar la evaporación prematura de los solventes volátiles como la acetona.",
+                        "Para neutralizar el pH ácido de los monómeros resinosos no polimerizados.",
+                        "Para impedir la formación de enlaces covalentes con el colágeno desmineralizado."
+                    ],
+                    en: [
+                        "To guarantee proper penetration and complete wetting inside exposed dentin tubules.",
+                        "To prevent premature evaporation of volatile solvents like acetone.",
+                        "To neutralize the acidic pH of unpolymerized resin monomers.",
+                        "To prevent covalent bonding with demineralized collagen."
+                    ]
+                },
+                correcta: 0 // Índice A
+            },
+            {
+                q: {
+                    it: "Valutando la resistenza all'indentazione superficiale (microdurezza Vickers o Knoop), quale proprietà specifica viene misurata?",
+                    es: "Evaluando la resistencia a la indentación superficial (microdureza Vickers o Knoop), ¿qué propiedad específica se mide?",
+                    en: "Evaluating resistance to surface indentation (Vickers or Knoop microhardness), what specific property is measured?"
+                },
+                opciones: {
+                    it: [
+                        "L'energia totale assorbita prima della frattura fragile per impatto.",
+                        "Il modulo di elasticità longitudinale sotto sforzi di compressione.",
+                        "La velocità di propagazione di onde ultrasoniche attraverso la rete polimerica.",
+                        "La capacità del materiale di resistere alla deformazione plastica permanente o al graffio localizzato."
+                    ],
+                    es: [
+                        "La energía total absorbida antes de la fractura frágil por impacto.",
+                        "El módulo de elasticidad longitudinal bajo esfuerzos de compresión.",
+                        "La velocidad de propagación de ondas ultrasónicas a través de la red polimérica.",
+                        "La capacidad del material para resistir la deformación plástica permanente o el rayado localizado."
+                    ],
+                    en: [
+                        "Total energy absorbed before brittle impact fracture.",
+                        "Longitudinal elastic modulus under compression stresses.",
+                        "Ultrasonic wave propagation velocity through the polymer network.",
+                        "The material's capacity to resist permanent plastic deformation or localized scratching."
+                    ]
+                },
+                correcta: 3 // Índice D
+            },
+            {
+                q: {
+                    it: "Perché si applica acido fluoridrico seguito da silano sulla superficie interna di una ceramica vetrosa prima della cementazione adesiva?",
+                    es: "¿Por qué se aplica ácido fluorhídrico seguido de silano en la superficie interna de una cerámica vítrea antes de la cementación adhesiva?",
+                    en: "Why is hydrofluoric acid followed by silane applied to the internal surface of glass-ceramic before adhesive luting?"
+                },
+                opciones: {
+                    it: [
+                        "Per sciogliere selettivamente la fase vetrosa creando microritenzioni e aumentare l'energia superficiale libera.",
+                        "Per sigillare i micropori superficiali e diminuire drasticamente l'energia superficiale.",
+                        "Per trasformare la struttura cristallina in un ossido metallico amorfo.",
+                        "Per eliminare i pigmenti cromatici interni e aumentare la traslucenza ottica."
+                    ],
+                    es: [
+                        "Para disolver selectivamente la fase vítrea creando microretenciones y aumentar la energía superficial libre.",
+                        "Para sellar los microporos superficiales y disminuir drásticamente la energía superficial.",
+                        "Para transformar la estructura cristalina en un óxido metálico amorfo.",
+                        "Para eliminar los pigmentos cromatici internos y aumentar la traslucencia óptica."
+                    ],
+                    en: [
+                        "To selectively dissolve the glassy phase creating microretentions and increasing free surface energy.",
+                        "To seal surface micropores and drastically decrease surface energy.",
+                        "To transform the crystalline structure into an amorphous metal oxide.",
+                        "To eliminate internal chromatic pigments and increase optical translucency."
+                    ]
+                },
+                correcta: 0 // Índice A
+            },
+            {
+                q: {
+                    it: "Quale fenomeno tribologico predomina quando un restauro in resina subisce usura per contatto diretto dente a dente senza corpo abrasivo intermedio?",
+                    es: "¿Qué fenómeno tribológico predomina cuando una restauración de resina sufre desgaste por contacto directo diente a diente sin cuerpo abrasivo intermedio?",
+                    en: "What tribological phenomenon predominates when a resin restoration suffers wear due to direct tooth-to-tooth contact without an intermediate abrasive body?"
+                },
+                opciones: {
+                    it: [
+                        "Corrosione elettrochimica severa indotta dal pH della saliva.",
+                        "Usura adesiva e per fatica sottosuperficiale generata da cicli di frizione masticatoria.",
+                        "Abrasione tridimensionale massiccia causata da particelle alimentari mineralizzate.",
+                        "Cavitazione ultrasonica dovuta alla turbolenza del flusso salivare."
+                    ],
+                    es: [
+                        "Corrosión electroquímica severa inducida por el pH de la saliva.",
+                        "Desgaste adhesivo y por fatiga subsuperficial generado por ciclos de fricción masticatoria.",
+                        "Abrasión tridimensional masiva causada por partículas alimentarias mineralizadas.",
+                        "Cavitación ultrasónica debida a la turbulencia del flujo salival."
+                    ],
+                    en: [
+                        "Severe electrochemical corrosion induced by saliva pH.",
+                        "Adhesive and subsurface fatigue wear generated by masticatory friction cycles.",
+                        "Massive tridimensional abrasion caused by mineralized food particles.",
+                        "Ultrasonic cavitation due to salivary flow turbulence."
+                    ]
+                },
+                correcta: 1 // Índice B
+            },
+            {
+                q: {
+                    it: "Nel processo di caratterizzazione superficiale per massimizzare la riflessione della luce e la lucentezza speculare, quale parametro fisico va ottimizzato?",
+                    es: "En el proceso de caracterización superficial para maximizar la reflexión de la luz y el brillo especular, ¿qué parámetro físico debe optimizarse?",
+                    en: "In the surface characterization process to maximize light reflection and specular gloss, what physical parameter must be optimized?"
+                },
+                opciones: {
+                    it: [
+                        "Incrementare l'angolo di incidenza della luce alterando l'opalescenza interna.",
+                        "Generare una tessitura macroscopica rugosa in bande orizzontali parallele.",
+                        "Applicare uno strato spesso di smalto autopolimerizzante senza lucidatura meccanica.",
+                        "Ridurre le irregolarità superficiali al di sotto della lunghezza d'onda della luce visibile."
+                    ],
+                    es: [
+                        "Incrementar el ángulo de incidencia de la luz alterando la opalescencia interna.",
+                        "Generar una textura macroscópica rugosa en bandas horizontales paralelas.",
+                        "Aplicar una capa gruesa de esmalte autopolimerizable sin pulido mecánico.",
+                        "Reducir las irregularidades superficiales por debajo de la longitud de onda de la luz visible."
+                    ],
+                    en: [
+                        "Increase the angle of light incidence by altering internal opalescence.",
+                        "Generate a rough macroscopic texture in parallel horizontal bands.",
+                        "Apply a thick self-curing enamel layer without mechanical polishing.",
+                        "Reduce surface irregularities below the wavelength of visible light."
+                    ]
+                },
+                correcta: 3 // Índice D
+            },
+            {
+                q: {
+                    it: "Durante il vaciado di un'impronta in silicone da addizione, la superficie del modello in gesso presenta zone alterate o respinte. Quale alterazione ne è la causa?",
+                    es: "Durante el vaciado de una impresión de silicona por adición, la superficie del modelo en yeso presenta zonas alteradas o repelidas. ¿Qué alteración es la causa?",
+                    en: "During addition silicone impression pouring, the gypsum cast surface shows altered or repelled areas. What alteration caused this?"
+                },
+                opciones: {
+                    it: [
+                        "Presenza di residui di inibitori di polimerizzazione o grassi superficiali che riducono la compatibilità con l'acqua.",
+                        "Eccessivo assorbimento di umidità ambientale che riduce l'idrofilia dell'elastomero.",
+                        "Espansione termica incontrollata generata dalla reazione esotermica del gesso.",
+                        "Contrazione volumetrica per rilascio tardivo di idrogeno gassoso."
+                    ],
+                    es: [
+                        "Presencia de residuos de inhibidores de polimerización o grasas superficiales que reducen la compatibilidad con el agua.",
+                        "Excesivo absorción de humedad ambiental que reduce la hidrofilia del elastómero.",
+                        "Expansión térmica incontrollada generada por la reacción exotérmica del yeso.",
+                        "Contracción volumétrica por liberación tardía de hidrógeno gaseoso."
+                    ],
+                    en: [
+                        "Presence of polymerization inhibitor residues or surface oils reducing water compatibility.",
+                        "Excessive environmental humidity absorption reducing elastomer hydrophilia.",
+                        "Uncontrolled thermal expansion generated by gypsum exothermic reaction.",
+                        "Volumetric contraction due to delayed hydrogen gas release."
+                    ]
+                },
+                correcta: 0 // Índice A
+            },
+            {
+                q: {
+                    it: "Qual è l'obiettivo principale del sabbiaggio superficiale con ossido di alluminio a bassa pressione su una cuffia metallica prima della ceramizzazione?",
+                    es: "¿Cuál es el objetivo principal del arenado superficial con óxido de aluminio a baja presión sobre una cofia metálica antes de la ceramización?",
+                    en: "What is the main goal of low-pressure aluminum oxide air-particle abrasion on a metal coping before porcelain application?"
+                },
+                opciones: {
+                    it: [
+                        "Modificare completamente la composizione cristallografica interna della lega.",
+                        "Diminuire la durezza superficiale del metallo per facilitare l'adattamento manuale.",
+                        "Sigillare ermeticamente i micropori di contrazione generati durante la fusione.",
+                        "Aumentare l'area superficiale di contatto e pulire ossidi per favorire la ritenzione micromecanica."
+                    ],
+                    es: [
+                        "Modificar completamente la composición cristalográfica interna de la aleación.",
+                        "Disminuir la dureza superficial del metal para facilitar el ajuste manual.",
+                        "Sigilar herméticamente los micropores de contracción generados durante la fundición.",
+                        "Aumentar el área superficial de contacto y limpiar óxidos para favorecer la retención micromecánica."
+                    ],
+                    en: [
+                        "Completely modify the internal crystallographic composition of the alloy.",
+                        "Decrease metal surface hardness to ease manual fitting.",
+                        "Hermetically seal contraction micropores generated during casting.",
+                        "Increase contact surface area and clean oxides to favor micromechanical retention."
+                    ]
+                },
+                correcta: 3 // Índice D
+            },
+            {
+                q: {
+                    it: "Negli impianti dentali in titanio, quali caratteristiche topografiche e chimiche della superficie favoriscono l'adesione cellulare e l'osteointegrazione precoce?",
+                    es: "En los implantes dentales de titanio, ¿qué características topográficas y químicas de la superficie favorecen la adhesión celular y la osteointegración temprana?",
+                    en: "In titanium dental implants, what topographical and chemical surface features favor cellular adhesion and early osseointegration?"
+                },
+                opciones: {
+                    it: [
+                        "Una microrrugosità controllata combinata con un carattere idrofilo che promuove la bagnabilità e la cascata di coagulazione.",
+                        "Una superficie completamente liscia, lucidata a specchio e idrofoba per evitare l'assorbimento proteico.",
+                        "Un rivestimento superficiale organico basato su paraffine ad alto peso molecolare.",
+                        "L'assenza totale di ossidi di titanio passivi nello strato più esterno."
+                    ],
+                    es: [
+                        "Una microrrugosidad controlada combinada con un carácter hidrófilo que promueve la mojabilidad y la cascada de coagulación.",
+                        "Una superficie completamente lisa, pulida a espejo e hidrófoba para evitar la adsorción proteica.",
+                        "Un revestimiento superficial orgánico basado en parafinas de alto peso molecular.",
+                        "La ausencia total de óxidos de titanio pasivos en la capa más externa."
+                    ],
+                    en: [
+                        "Controlled microroughness combined with a hydrophilic character promoting wettability and coagulation cascade.",
+                        "A completely smooth, mirror-polished and hydrophobic surface to avoid protein adsorption.",
+                        "An organic surface coating based on high molecular weight paraffins.",
+                        "Total absence of passive titanium oxides in the outermost layer."
+                    ]
+                },
+                correcta: 0 // Índice A
+            }
+        ];
+
+        // VARIABLES DE CONTROL DEL TEST
+        let indicePreguntaActual = 0;
+        let puntuacion = 0;
+        let respuestaSeleccionada = false;
+
+        // INICIALIZACIÓN
+        document.addEventListener("DOMContentLoaded", () => {
+            cambiarIdioma('it');
+        });
+
+        // CAMBIO DE IDIOMA
+        function cambiarIdioma(lang) {
+            idiomaActual = lang;
+            
+            // Botones UI idioma
+            ['it', 'es', 'en'].forEach(l => {
+                const btn = document.getElementById(`btn-${l}`);
+                if (l === lang) {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white transition shadow-sm";
+                } else {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+                }
+            });
+
+            // Textos estáticos
+            const t = textosUI[lang];
+            document.getElementById("ui-atlas-title").innerText = t.atlasTitle;
+            document.getElementById("ui-atlas-desc").innerText = t.atlasDesc;
+            document.getElementById("ui-modo-label").innerText = t.modoLabel;
+            document.getElementById("ui-badge-mode").innerText = t.badgeMode;
+            document.getElementById("ui-btn-goto-test").innerText = t.btnGotoTest;
+            document.getElementById("ui-test-header").innerText = t.testHeader;
+            document.getElementById("ui-btn-back-atlas").innerText = t.btnBackAtlas;
+            document.getElementById("ui-btn-next").innerText = t.btnNext;
+            document.getElementById("res-titulo").innerText = t.resTitle;
+            document.getElementById("res-desc").innerText = t.resDesc;
+            document.getElementById("ui-btn-retry").innerText = t.btnRetry;
+            document.getElementById("ui-btn-review-atlas").innerText = t.btnReviewAtlas;
+
+            // Actualizar lista de temas del atlas
+            const temas = temasAtlas[lang];
+            temas.forEach((tema, idx) => {
+                document.getElementById(`t-title-${idx}`).innerText = tema.titulo;
+            });
+
+            // Refrescar vista actual
+            mostrarTema(0);
+        }
+
+        // MOSTRAR TEMA EN ATLAS
+        function mostrarTema(idx) {
+            activarTeoria();
+            const tema = temasAtlas[idiomaActual][idx];
+            document.getElementById("teoria-titulo").innerHTML = `<span>💡</span> ${tema.titulo}`;
+            document.getElementById("teoria-contenido").innerHTML = tema.html;
+        }
+
+        // CONTROL DE VISTAS (Teoría vs Test vs Resultados)
+        function activarTeoria() {
+            document.getElementById("vista-teoria").classList.remove("hidden");
+            document.getElementById("vista-test").classList.add("hidden");
+            document.getElementById("vista-resultados").classList.add("hidden");
+        }
+
+        function activarTest() {
+            document.getElementById("vista-teoria").classList.add("hidden");
+            document.getElementById("vista-test").classList.remove("hidden");
+            document.getElementById("vista-resultados").classList.add("hidden");
+            indicePreguntaActual = 0;
+            puntuacion = 0;
+            cargarPregunta();
+        }
+
+        function activarResultados() {
+            document.getElementById("vista-teoria").classList.add("hidden");
+            document.getElementById("vista-test").classList.add("hidden");
+            document.getElementById("vista-resultados").classList.remove("hidden");
+            
+            const t = textosUI[idiomaActual];
+            const maxQ = preguntasDB.length;
+            document.getElementById("res-puntuacion").innerText = `${t.resTitle.includes('Test') ? 'Puntuación / Punteggio' : 'Score'}: ${puntuacion} / ${maxQ}`;
+        }
+
+        // CARGAR PREGUNTA DEL TEST
+        function cargarPregunta() {
+            respuestaSeleccionada = false;
+            const item = preguntasDB[indicePreguntaActual];
+            const maxQ = preguntasDB.length;
+            const t = textosUI[idiomaActual];
+
+            document.getElementById("contador-preguntas").innerText = `Pregunta ${indicePreguntaActual + 1} / ${maxQ}`;
+            document.getElementById("pregunta-texto").innerText = item.q[idiomaActual];
+            document.getElementById("feedback-box").innerText = t.selectOptionMsg;
+            document.getElementById("feedback-box").className = "text-xs font-medium text-slate-400";
+            document.getElementById("btn-siguiente").classList.add("hidden");
+
+            const contenedor = document.getElementById("opciones-contenedor");
+            contenedor.innerHTML = "";
+
+            const opcionesTexto = item.opciones[idiomaActual];
+            const letras = ['A', 'B', 'C', 'D'];
+
+            opcionesTexto.forEach((textoOp, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "w-full text-left p-4 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-start space-x-3 group";
+                btn.innerHTML = `<span class="px-2 py-0.5 rounded bg-slate-800 text-blue-400 text-xs font-bold border border-slate-600">${letras[idx]}</span><span class="flex-grow text-slate-200">${textoOp}</span>`;
+                btn.onclick = () => verificarRespuesta(idx, item.correcta);
+                contenedor.appendChild(btn);
+            });
+        }
+
+        // VERIFICAR RESPUESTA SELECCIONADA
+        function verificarRespuesta(seleccionada, correcta) {
+            if (respuestaSeleccionada) return; // Evitar doble clic
+            respuestaSeleccionada = true;
+
+            const t = textosUI[idiomaActual];
+            const contenedor = document.getElementById("opciones-contenedor");
+            const botones = contenedor.children;
+
+            if (seleccionada === correcta) {
+                puntuacion++;
+                botones[seleccionada].className = "w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                document.getElementById("feedback-box").innerText = t.correctFeedback;
+                document.getElementById("feedback-box").className = "text-xs font-bold text-emerald-400";
+            } else {
+                botones[seleccionada].className = "w-full text-left p-4 rounded-xl bg-rose-500/20 border border-rose-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                botones[correcta].className = "w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                document.getElementById("feedback-box").innerText = t.incorrectFeedback;
+                document.getElementById("feedback-box").className = "text-xs font-bold text-rose-400";
+            }
+
+            // Deshabilitar todos los botones
+            for (let btn of botones) {
+                btn.disabled = true;
+                btn.classList.add("opacity-80", "cursor-not-allowed");
+            }
+
+            // Mostrar botón siguiente
+            document.getElementById("btn-siguiente").classList.remove("hidden");
+        }
+
+        // SIGUIENTE PREGUNTA O FIN
+        function siguientePregunta() {
+            indicePreguntaActual++;
+            if (indicePreguntaActual < preguntasDB.length) {
+                cargarPregunta();
+            } else {
+                activarResultados();
+            }
+        }
+
+        // REINICIAR TEST
+        function reiniciarTest() {
+            activarTest();
+        }
+
+        // SCRIPT DE AUTODESCAGRA OBLIGATORIO (CANVAS)
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'atlas_propiedades_superficiales.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

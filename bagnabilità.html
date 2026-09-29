@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="it" x-data="{ lang: 'it' }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlante Interattivo: Bagnabilità e Superfici in Odontotecnica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .lang-en, .lang-es { display: none; }
+        html[data-lang="en"] .lang-it, html[data-lang="en"] .lang-es { display: none !important; }
+        html[data-lang="en"] .lang-en { display: block !important; }
+        html[data-lang="en"] span.lang-en { display: inline !important; }
+        
+        html[data-lang="es"] .lang-it, html[data-lang="es"] .lang-en { display: none !important; }
+        html[data-lang="es"] .lang-es { display: block !important; }
+        html[data-lang="es"] span.lang-es { display: inline !important; }
+
+        html[data-lang="it"] .lang-en, html[data-lang="it"] .lang-es { display: none !important; }
+        html[data-lang="it"] .lang-it { display: block !important; }
+        html[data-lang="it"] span.lang-it { display: inline !important; }
+    </style>
+</head>
+<body data-lang="it" class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR DI NAVIGAZIONE -->
+    <aside class="w-80 bg-slate-900 text-slate-300 flex flex-col justify-between shadow-xl z-20">
+        <div>
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <div>
+                    <h1 class="text-white font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-droplet text-cyan-400 text-lg"></i>
+                        <span>Atlante Bagnabilità</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-1">
+                        <span class="lang-it">Fisica e Clinica delle Superfici</span>
+                        <span class="lang-es">Física y Clínica de Superficies</span>
+                        <span class="lang-en">Surface Physics & Clinical Lab</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- SELETTORE LINGUA -->
+            <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex justify-center gap-2">
+                <button onclick="changeLanguage('it')" id="lang-btn-it" class="px-3 py-1 rounded text-xs font-bold bg-cyan-500 text-slate-950 transition">IT</button>
+                <button onclick="changeLanguage('es')" id="lang-btn-es" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">ES</button>
+                <button onclick="changeLanguage('en')" id="lang-btn-en" class="px-3 py-1 rounded text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">EN</button>
+            </div>
+
+            <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-210px)]">
+                <button onclick="switchTab('tab-fisica')" id="btn-tab-fisica" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                    <i class="fa-solid fa-atom w-5 text-center"></i> 
+                    <span class="lang-it">1. Fisica: Liquido vs Solido</span>
+                    <span class="lang-es">1. Física: Líquido vs Sólido</span>
+                    <span class="lang-en">1. Physics: Liquid vs Solid</span>
+                </button>
+                <button onclick="switchTab('tab-simulatore')" id="btn-tab-simulatore" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-sliders w-5 text-center"></i> 
+                    <span class="lang-it">2. Simulatore Angolo Contatto</span>
+                    <span class="lang-es">2. Simulador Ángulo Contacto</span>
+                    <span class="lang-en">2. Contact Angle Simulator</span>
+                </button>
+                <button onclick="switchTab('tab-tensioattivi')" id="btn-tab-tensioattivi" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-flask w-5 text-center"></i> 
+                    <span class="lang-it">3. Tensioattivi & Riduttori</span>
+                    <span class="lang-es">3. Tensioactivos y Reductores</span>
+                    <span class="lang-en">3. Surfactants & Reducers</span>
+                </button>
+                <button onclick="switchTab('tab-modifica')" id="btn-tab-modifica" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i> 
+                    <span class="lang-it">4. Arenatura e Mordenzatura</span>
+                    <span class="lang-es">4. Arenado y Grabado Ácido</span>
+                    <span class="lang-en">4. Sandblasting & Etching</span>
+                </button>
+                <button onclick="switchTab('tab-fallimenti')" id="btn-tab-fallimenti" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i> 
+                    <span class="lang-it">5. Errori Lab (Metallo-Resina)</span>
+                    <span class="lang-es">5. Errores Lab (Metal-Resina)</span>
+                    <span class="lang-en">5. Lab Errors (Metal-Resin)</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 text-center text-xs text-slate-500">
+            Odontotecnica Avanzata &bull; 2026
+        </div>
+    </aside>
+
+    <!-- AREA PRINCIPALE -->
+    <main class="flex-1 overflow-y-auto p-8 relative pb-28">
+        
+        <!-- SEZIONE 1: FISICA SUPERFICIALE -->
+        <div id="tab-fisica" class="tab-content space-y-6">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full">
+                    <span class="lang-it">Fondamenti Fisici</span>
+                    <span class="lang-es">Fundamentos Físicos</span>
+                    <span class="lang-en">Physical Foundations</span>
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-3 mb-4">
+                    <span class="lang-it">Interazione tra Superfici Liquide e Solide</span>
+                    <span class="lang-es">Interacción entre Superficies Líquidas y Sólidas</span>
+                    <span class="lang-en">Interaction Between Liquid and Solid Surfaces</span>
+                </h2>
+                <p class="text-slate-600 leading-relaxed mb-4">
+                    <span class="lang-it">Nello stato solido e liquido, le molecole interne subiscono forze attrattive equilibrate. Al contrario, le molecole superficiali risentono di una forza risultante orientata verso l'interno. Nei liquidi questo genera la <strong>tensione superficiale</strong> (comportamento a membrana elastica), mentre nei solidi definisce l'<strong>energia superficiale</strong>[cite: 1].</span>
+                    <span class="lang-es">En los estados sólido y líquido, las moléculas internas experimentan fuerzas atractivas equilibradas. Por el contrario, las moléculas superficiales sufren una fuerza resultante orientada hacia el interior. En los líquidos esto genera la <strong>tensión superficial</strong> (comportamiento de membrana elástica), mientras que en los sólidos define la <strong>energía superficial</strong>[cite: 1].</span>
+                    <span class="lang-en">In solid and liquid states, internal molecules experience balanced attractive forces. Conversely, surface molecules experience a resultant inward force. In liquids, this generates <strong>surface tension</strong> (elastic membrane behavior), while in solids it defines <strong>surface energy</strong>[cite: 1].</span>
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-water text-cyan-600"></i> 
+                            <span class="lang-it">Tensione Superficiale (Liquidi)</span>
+                            <span class="lang-es">Tensión Superficial (Líquidos)</span>
+                            <span class="lang-en">Surface Tension (Liquids)</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <span class="lang-it">Forza che tende a mantenere minima la superficie libera del liquido[cite: 1]. Più alta è la tensione, meno il liquido riesce a bagnare il solido. Diminuisce all'aumentare della temperatura[cite: 1].</span>
+                            <span class="lang-es">Fuerza que tiende a mantener mínima la superficie libre del líquido[cite: 1]. Cuanto mayor es la tensión, menos puede el líquido mojar el sólido. Disminuye al aumentar la temperatura[cite: 1].</span>
+                            <span class="lang-en">Force that tends to keep the free surface of the liquid to a minimum[cite: 1]. The higher the tension, the less the liquid can wet the solid. It decreases as temperature increases[cite: 1].</span>
+                        </p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-cube text-cyan-600"></i> 
+                            <span class="lang-it">Energia Superficial (Solidi)</span>
+                            <span class="lang-es">Energía Superficial (Sólidos)</span>
+                            <span class="lang-en">Surface Energy (Solids)</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <span class="lang-it">Le particelle superficiali di un solido possiedono energia maggiore rispetto a quelle interne[cite: 1]. Un'alta energia superficiale facilita l'attrazione e l'estensione dei fluidi odontotecnici (es. adesivi, gessi, monomeri).</span>
+                            <span class="lang-es">Las partículas superficiales de un sólido poseen mayor energía que las internas[cite: 1]. Una alta energía superficial facilita la atracción y extensión de los fluidos odontotécnicos (ej. adhesivos, yesos, monómeros).</span>
+                            <span class="lang-en">The surface particles of a solid possess higher energy than internal ones[cite: 1]. High surface energy facilitates the attraction and spreading of dental fluids (e.g., adhesives, gypsums, monomers).</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 2: SIMULATORE ANGOLO DI CONTATTO -->
+        <div id="tab-simulatore" class="tab-content space-y-6 hidden">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full">
+                    <span class="lang-it">Simulatore Interattivo</span>
+                    <span class="lang-es">Simulador Interactivo</span>
+                    <span class="lang-en">Interactive Simulator</span>
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-3 mb-4">
+                    <span class="lang-it">Angolo di Contatto ($\theta$) e Bagnabilità</span>
+                    <span class="lang-es">Ángulo de Contacto ($\theta$) y Mojabilidad</span>
+                    <span class="lang-en">Contact Angle ($\theta$) and Wettability</span>
+                </h2>
+                <p class="text-slate-600 text-sm mb-6">
+                    <span class="lang-it">L'angolo di contatto è l'angolo formato tra la superficie solida e la tangente alla goccia liquida[cite: 1]. Più l'angolo è basso (< 90°), maggiore è la bagnabilità; se è alto (> 90°), il liquido respinge la superficie[cite: 1].</span>
+                    <span class="lang-es">El ángulo de contacto es el ángulo formado entre la superficie sólida y la tangente a la gota líquida[cite: 1]. Cuanto menor sea el ángulo (< 90°), mayor será la mojabilidad; si es alto (> 90°), el líquido repele la superficie[cite: 1].</span>
+                    <span class="lang-en">The contact angle is the angle formed between the solid surface and the tangent to the liquid drop. The lower the angle (< 90°), the greater the wettability; if high (> 90°), the liquid repels the surface.</span>
+                </p>
+
+                <!-- Box Simulatore -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <h3 class="font-semibold text-base text-cyan-400 mb-2">
+                            <i class="fa-solid fa-sliders"></i> 
+                            <span class="lang-it">Regola l'Angolo di Contatto</span>
+                            <span class="lang-es">Ajusta el Ángulo de Contacto</span>
+                            <span class="lang-en">Adjust Contact Angle</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">
+                            <span class="lang-it">Sposta il cursore per simulare diversi comportamenti del liquido sul substrato protesico:</span>
+                            <span class="lang-es">Mueve el cursor para simular diferentes comportamientos del líquido en el sustrato protésico:</span>
+                            <span class="lang-en">Move the slider to simulate different liquid behaviors on the prosthetic substrate:</span>
+                        </p>
+                        
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            <span class="lang-it">Angolo:</span> <span class="lang-es">Ángulo:</span> <span class="lang-en">Angle:</span> 
+                            <span id="valore-angolo" class="text-cyan-400 font-bold">35</span>°
+                        </label>
+                        <input type="range" id="slider-angolo" min="10" max="150" value="35" class="w-full accent-cyan-400 mb-4" oninput="aggiornaSimulatore(this.value)">
+                        
+                        <div id="testo-desc-sim" class="text-xs bg-slate-800 p-3.5 rounded-xl border border-slate-700 leading-relaxed text-slate-300">
+                            <strong>Ottima bagnabilità (< 90°):</strong> Il liquido si estende uniformemente. Fondamentale per impronte di precisione e adesione chimica.
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-950 h-52 rounded-xl border border-slate-800 flex flex-col items-center justify-center relative p-4">
+                        <svg width="220" height="130" viewBox="0 0 220 130" class="overflow-visible">
+                            <!-- Linea solido -->
+                            <line x1="10" y1="105" x2="210" y2="105" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+                            <!-- Goccia dinamica -->
+                            <path id="goccia-path" d="M 110 30 Q 140 105 200 105 Q 20 105 80 105 Z" fill="#38bdf8" opacity="0.9"/>
+                        </svg>
+                        <div id="badge-stato-goccia" class="mt-3 text-xs font-bold text-cyan-300 px-3 py-1 bg-cyan-950/80 rounded-full border border-cyan-800">
+                            Alta Bagnabilità (Idrofilia)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 3: TENSIOATTIVI -->
+        <div id="tab-tensioattivi" class="tab-content space-y-6 hidden">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold px-3 py-1 bg-amber-100 text-amber-700 rounded-full">
+                    <span class="lang-it">Additivi Chimici</span>
+                    <span class="lang-es">Aditivos Químicos</span>
+                    <span class="lang-en">Chemical Additives</span>
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-3 mb-4">
+                    <span class="lang-it">Tensioattivi e Riduttori di Tensione Superficiale</span>
+                    <span class="lang-es">Tensioactivos y Reductores de Tensión Superficial</span>
+                    <span class="lang-en">Surfactants and Surface Tension Reducers</span>
+                </h2>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    <span class="lang-it">I tensioattivi sono molecole dotate di una doppia natura: una parte <strong>lipofila</strong> (affine ai grassi) e una parte <strong>idrofila</strong> (affine all'acqua). Posizionandosi sull'interfaccia, riducono drasticamente la tensione superficiale del liquido.</span>
+                    <span class="lang-es">Los tensioactivos son moléculas con doble naturaleza: una parte <strong>lipófila</strong> (afín a las grasas) y una parte <strong>hidrófila</strong> (afín al agua). Al posicionarse en la interfaz, reducen drásticamente la tensión superficial del líquido.</span>
+                    <span class="lang-en">Surfactants are molecules with a dual nature: a <strong>lipophilic</strong> part (fat-loving) and a <strong>hydrophilic</strong> part (water-loving). By positioning themselves at the interface, they drastically reduce the liquid's surface tension.</span>
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2 text-amber-700">
+                            <span class="lang-it">1. Azione sui Gessi e Rivestimenti</span>
+                            <span class="lang-es">1. Acción en Yesos y Revestimientos</span>
+                            <span class="lang-en">1. Action on Gypsum & Investments</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <span class="lang-it">I liquidi tensioattivi spray spruzzati sulle impronte elastomeriche abbassano la tensione dell'acqua, permettendo al gesso colato di penetrare in ogni micron senza intrappolare bolle d'aria.</span>
+                            <span class="lang-es">Los líquidos tensioactivos en spray rociados sobre las impresiones elastoméricas reducen la tensión del agua, permitiendo que el yeso colado penetre en cada micra sin atrapar burbujas de aire.</span>
+                            <span class="lang-en">Surfactant sprays applied to elastomeric impressions lower water tension, allowing poured gypsum to penetrate every micron without trapping air bubbles.</span>
+                        </p>
+                    </div>
+                    <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2 text-amber-700">
+                            <span class="lang-it">2. Struttura Molecolare</span>
+                            <span class="lang-es">2. Estructura Molecular</span>
+                            <span class="lang-en">2. Molecular Structure</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <span class="lang-it">Si dividono in anionici, cationici e non ionici. La loro conformazione rompe la coesione tra le molecole d'acqua superficiali, favorendo l'espansione e l'adesione.</span>
+                            <span class="lang-es">Se dividen en aniónicos, catiónicos y no iónicos. Su conformación rompe la cohesión entre las moléculas de agua superficiales, favoreciendo la expansión y la adhesión.</span>
+                            <span class="lang-en">They are divided into anionic, cationic, and non-ionic. Their conformation breaks the cohesion between surface water molecules, favoring spreading and adhesion.</span>
+                        </p>
+                    </div>
+                    <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2 text-amber-700">
+                            <span class="lang-it">3. Prevenzione Difetti</span>
+                            <span class="lang-es">3. Prevención de Defectos</span>
+                            <span class="lang-en">3. Defect Prevention</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <span class="lang-it">Evitano la formazione di porosità superficiali nei modelli in gesso e garantiscono l'esatta riproduzione dei margini sottili di monconi e preparazioni protesiche.</span>
+                            <span class="lang-es">Evitan la formación de porosidades superficiales en los modelos de yeso y garantizan la exacta reproducción de los márgenes finos de muñones y preparaciones protésicas.</span>
+                            <span class="lang-en">They prevent surface porosities in gypsum models and ensure exact reproduction of fine margins of dies and prosthetic preparations.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 4: ARENATURA E MORDENZATURA -->
+        <div id="tab-modifica" class="tab-content space-y-6 hidden">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+                    <span class="lang-it">Trattamenti di Superficie</span>
+                    <span class="lang-es">Tratamientos de Superficie</span>
+                    <span class="lang-en">Surface Treatments</span>
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-3 mb-4">
+                    <span class="lang-it">Arenatura e Mordenzatura: Aumentare l'Energia Superficiale</span>
+                    <span class="lang-es">Arenado y Grabado Ácido: Aumentar la Energía Superficial</span>
+                    <span class="lang-en">Sandblasting & Etching: Increasing Surface Energy</span>
+                </h2>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    <span class="lang-it">Per fare aderire materiali diversi (es. resina composita su metallo o ceramica su leghe CoCr), le superfici lisce naturali non offrono sufficiente energia o sottosquadri microscopici. Si interviene meccanicamente e chimicamente.</span>
+                    <span class="lang-es">Para hacer adherir materiales diferentes (ej. resina compuesta sobre metal o cerámica sobre aleaciones CoCr), las superficies lisas naturales no ofrecen suficiente energía o retenciones microscópicas. Se interviene mecánica y químicamente.</span>
+                    <span class="lang-en">To bond different materials (e.g., composite resin to metal or ceramic to CoCr alloys), natural smooth surfaces do not offer sufficient energy or microscopic undercuts. Mechanical and chemical interventions are required.</span>
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-slate-50 border border-slate-200 rounded-xl">
+                        <h3 class="font-bold text-slate-900 text-base mb-2 flex items-center gap-2 text-emerald-700">
+                            <i class="fa-solid fa-wind"></i> 
+                            <span class="lang-it">Arenatura (Sabbiatura con $Al_2O_3$)</span>
+                            <span class="lang-es">Arenado (Chorreado con $Al_2O_3$)</span>
+                            <span class="lang-en">Sandblasting (with $Al_2O_3$)</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                            <span class="lang-it">Bombardamento con particelle di ossido di alluminio ad alta pressione. Rimuove contaminanti, ossidi superficiali passivi e crea una rugosità meccanica che aumenta l'area di contatto effettiva.</span>
+                            <span class="lang-es">Bombardeo con partículas de óxido de aluminio a alta presión. Elimina contaminantes, óxidos superficiales pasivos y crea una rugosidad mecánica que aumenta el área de contacto efectiva.</span>
+                            <span class="lang-en">Bombardment with aluminum oxide particles at high pressure. Removes contaminants, passive surface oxides, and creates mechanical roughness that increases the effective contact area.</span>
+                        </p>
+                        <span class="text-[11px] font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded border border-emerald-200 inline-block">
+                            <span class="lang-it">Applicazione: Preparazione leghe CoCr e Titanio per ceramica o composito.</span>
+                            <span class="lang-es">Aplicación: Preparación de aleaciones CoCr y Titanio para cerámica o composite.</span>
+                            <span class="lang-en">Application: Preparation of CoCr and Titanium alloys for ceramic or composite.</span>
+                        </span>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 border border-slate-200 rounded-xl">
+                        <h3 class="font-bold text-slate-900 text-base mb-2 flex items-center gap-2 text-emerald-700">
+                            <i class="fa-solid fa-vial"></i> 
+                            <span class="lang-it">Mordenzatura Acida</span>
+                            <span class="lang-es">Grabado Ácido</span>
+                            <span class="lang-en">Acid Etching</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                            <span class="lang-it">Uso di acidi specifici (es. acido ortofosforico su smalto o acido fluoridrico su ceramiche vetrose). Dissolve selettivamente microstrutture creando microporisità dove il cemento o l'adesivo penetrano per capillarità.</span>
+                            <span class="lang-es">Uso de ácidos específicos (ej. ácido ortofosfórico en esmalte o ácido fluorhídrico en cerámicas vítreas). Disuelve selectivamente microestructuras creando microporosidades donde el cemento o adhesivo penetran por capilaridad.</span>
+                            <span class="lang-en">Use of specific acids (e.g., orthophosphoric acid on enamel or hydrofluoric acid on glass ceramics). Selectively dissolves microstructures creating microporosities where cement or adhesive penetrates by capillarity.</span>
+                        </p>
+                        <span class="text-[11px] font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded border border-emerald-200 inline-block">
+                            <span class="lang-it">Applicazione: Adesione smalto-dentina e condizionamento faccette in disilicato.</span>
+                            <span class="lang-es">Aplicación: Adhesión esmalte-dentina y acondicionamiento de carillas de disilicato.</span>
+                            <span class="lang-en">Application: Enamel-dentin bonding and conditioning of disilicate veneers.</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEZIONE 5: ERRORI DI LABORATORIO (METALLO-RESINA) -->
+        <div id="tab-fallimenti" class="tab-content space-y-6 hidden">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold px-3 py-1 bg-rose-100 text-rose-700 rounded-full">
+                    <span class="lang-it">Analisi Clinica e del Banco</span>
+                    <span class="lang-es">Análisis Clínico y de Laboratorio</span>
+                    <span class="lang-en">Clinical and Lab Analysis</span>
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-3 mb-4">
+                    <span class="lang-it">Malsana Unione tra Metallo e Resina: Diagnosi di Superficie</span>
+                    <span class="lang-es">Mala Unión entre Metal y Resina: Diagnóstico de Superficie</span>
+                    <span class="lang-en">Poor Metal-Resin Bond: Surface Diagnosis</span>
+                </h2>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    <span class="lang-it">Uno dei problemi più critici in laboratorio è il distacco della resina estetica (o composito) dalle strutture metalliche (es. scheletrati o cappette in CoCr). Questo fallimento è quasi sempre riconducibile a un difetto nelle proprietà superficiali di interfaccia.</span>
+                    <span class="lang-es">Uno de los problemas más críticos en laboratorio es el desprendimiento de la resina estética (o composite) de las estructuras metálicas (ej. esqueléticos o cofias de CoCr). Este fallo se debe casi siempre a un defecto en las propiedades superficiales de interfaz.</span>
+                    <span class="lang-en">One of the most critical lab problems is the detachment of aesthetic resin (or composite) from metal frameworks (e.g., CoCr frameworks). This failure is almost always due to a defect in surface interfacial properties.</span>
+                </p>
+
+                <!-- Simulatore interattivo di diagnosi guasti -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl space-y-4">
+                    <h3 class="text-base font-semibold text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-stethoscope"></i> 
+                        <span class="lang-it">Case Study: Test di Diagnosi del Distacco Metallo-Resina</span>
+                        <span class="lang-es">Caso de Estudio: Test de Diagnóstico de Desprendimiento Metal-Resina</span>
+                        <span class="lang-en">Case Study: Metal-Resin Debonding Diagnostic Test</span>
+                    </h3>
+                    <p class="text-xs text-slate-300">
+                        <span class="lang-it">Durante la prova in bocca, il rivestimento estetico in resina di un ponte si distacca nettamente dalla struttura in CoCr sabbiata. Quali fattori di superficie sono stati trascurati?</span>
+                        <span class="lang-es">Durante la prueba en boca, el revestimiento estético de resina de un puente se desprende nítidamente de la estructura de CoCr arenada. ¿Qué factores superficiales se descuidaron?</span>
+                        <span class="lang-en">During try-in, the resin aesthetic veneer of a bridge cleanly detaches from the sandblasted CoCr framework. What surface factors were neglected?</span>
+                    </p>
+
+                    <div class="space-y-2 pt-2">
+                        <label class="flex items-start gap-3 bg-slate-800 p-3.5 rounded-xl border border-slate-700 cursor-pointer hover:border-rose-400 transition text-xs">
+                            <input type="radio" name="diag" value="err" class="accent-rose-500 mt-0.5">
+                            <span>
+                                <strong class="text-white block mb-0.5">A) Eccessiva temperatura di sinterizzazione della ceramica.</strong>
+                                <span class="text-slate-400">Non c'entra con le leghe metalliche e resine composite dirette.</span>
+                            </span>
+                        </label>
+
+                        <label class="flex items-start gap-3 bg-slate-800 p-3.5 rounded-xl border border-slate-700 cursor-pointer hover:border-rose-400 transition text-xs">
+                            <input type="radio" name="diag" value="ok" class="accent-rose-500 mt-0.5">
+                            <span>
+                                <strong class="text-white block mb-0.5">B) Scarsa bagnabilità e assenza di primer chimico (agente di accoppiamento).</strong>
+                                <span class="text-slate-400">Il metallo sabbiato ha perso energia superficiale per contaminazione o non è stato trattato con un monomero adesivo specifico (es. 4-META o MDP), impedendo l'adesione chimico-meccanica.</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button onclick="validaDiagnosi()" class="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition shadow">
+                        <span class="lang-it">Verifica Diagnosi</span>
+                        <span class="lang-es">Verificar Diagnóstico</span>
+                        <span class="lang-en">Verify Diagnosis</span>
+                    </button>
+                    <div id="risultato-diag" class="text-xs font-semibold mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- BOTTONE DI SALVATAGGIO FLOTTANTE -->
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <button onclick="guardarComoArchivo()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 border-2 border-cyan-400 text-sm">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>💾 GUARDAR RECURSO .HTML</span>
+        </button>
+    </div>
+
+    <!-- SCRIPT APPLICAZIONE -->
+    <script>
+        // Gestione Lingue
+        function changeLanguage(lang) {
+            document.body.setAttribute('data-lang', lang);
+            ['it', 'es', 'en'].forEach(l => {
+                const btn = document.getElementById('lang-btn-' + l);
+                if (l === lang) {
+                    btn.className = "px-3 py-1 rounded text-xs font-bold bg-cyan-500 text-slate-950 transition";
+                } else {
+                    btn.className = "px-3 py-1 rounded text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+                }
+            });
+        }
+
+        // Navigazione Tab
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-cyan-500/15', 'text-cyan-400', 'border', 'border-cyan-500/30');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-cyan-500/15', 'text-cyan-400', 'border', 'border-cyan-500/30');
+            activeBtn.classList.remove('text-slate-400');
+        }
+
+        // Simulatore Angolo di Contatto
+        function aggiornaSimulatore(val) {
+            document.getElementById('valore-angolo').innerText = val;
+            const goccia = document.getElementById('goccia-path');
+            const badge = document.getElementById('badge-stato-goccia');
+            const desc = document.getElementById('testo-desc-sim');
+            let ang = parseInt(val);
+
+            const lang = document.body.getAttribute('data-lang');
+
+            if (ang < 90) {
+                goccia.setAttribute('d', `M 110 ${105 - (ang * 0.45)} Q 140 105 195 105 Q 25 105 80 105 Z`);
+                if (lang === 'es') {
+                    badge.innerText = "Alta Mojabilidad (Hidrofilia / Óptimo)";
+                    desc.innerHTML = "<strong>Excelente mojabilidad (< 90°):</strong> El líquido se extiende. Esencial para impresiones de precisión y adhesión química.";
+                } else if (lang === 'en') {
+                    badge.innerText = "High Wettability (Hydrophilicity / Optimal)";
+                    desc.innerHTML = "<strong>Excellent wettability (< 90°):</strong> Liquid spreads out. Essential for precision impressions and chemical bonding.";
+                } else {
+                    badge.innerText = "Alta Bagnabilità (Idrofilia / Ottimale)";
+                    desc.innerHTML = "<strong>Ottima bagnabilità (< 90°):</strong> Il liquido si estende uniformemente. Fondamentale per impronte di precisione e adesione chimica.";
+                }
+            } else {
+                goccia.setAttribute('d', `M 110 ${105 - (ang * 0.55)} Q 140 105 160 105 Q 60 105 80 105 Z`);
+                if (lang === 'es') {
+                    badge.innerText = "Baja Mojabilidad (Hidrofobia / Repulsión)";
+                    desc.innerHTML = "<strong>Baja mojabilidad (> 90°):</strong> El líquido forma gotas aisladas. Alto riesgo de burbujas en modelos y fallos de sellado.";
+                } else if (lang === 'en') {
+                    badge.innerText = "Low Wettability (Hydrophobicity / Repulsion)";
+                    desc.innerHTML = "<strong>Low wettability (> 90°):</strong> Liquid forms isolated droplets. High risk of bubbles in models and sealing failure.";
+                } else {
+                    badge.innerText = "Bassa Bagnabilità (Idrofobia / Repulsione)";
+                    desc.innerHTML = "<strong>Scarsa bagnabilità (> 90°):</strong> Il liquido forma sfere isolate. Alto rischio di bolle d'aria nei modelli e scarsi margini.";
+                }
+            }
+        }
+
+        // Validazione Quiz Diagnosi
+        function validaDiagnosi() {
+            const sel = document.querySelector('input[name="diag"]:checked');
+            const res = document.getElementById('risultato-diag');
+            const lang = document.body.getAttribute('data-lang');
+
+            if (!sel) {
+                res.className = "text-xs font-semibold text-amber-400 mt-2";
+                res.innerText = lang === 'es' ? "⚠️ Selecciona una opción para verificar." : (lang === 'en' ? "⚠️ Select an option to verify." : "⚠️ Seleziona un'opzione per verificare.");
+                return;
+            }
+
+            if (sel.value === 'ok') {
+                res.className = "text-xs font-semibold text-emerald-400 mt-2";
+                res.innerText = lang === 'es' ? "🎉 ¡Correcto! La contaminación o falta de imprimación rompe la energía superficial y la unión adhesiva." : (lang === 'en' ? "🎉 Correct! Contamination or lack of primer destroys surface energy and adhesive bonding." : "🎉 Corretto! La contaminazione o la mancanza di un primer chimico abbatte l'energia superficiale e l'adesione.");
+            } else {
+                res.className = "text-xs font-semibold text-rose-400 mt-2";
+                res.innerText = lang === 'es' ? "❌ Incorrecto. Revisa los conceptos de tratamiento superficial metal-resina." : (lang === 'en' ? "❌ Incorrect. Review metal-resin surface treatment concepts." : "❌ Errato. Rivedi i concetti di trattamento superficiale metallo-resina.");
+            }
+        }
+
+        // Script obbligatorio per il salvataggio del file HTML
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'atlante_propriet_superficiali.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Avanzato di Legami Chimici</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .atom-glow { box-shadow: 0 0 30px rgba(59, 130, 246, 0.25); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white pb-24">
+
+    <!-- HEADER -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40 px-6 py-4">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-xs uppercase tracking-wider px-2.5 py-1 bg-emerald-500/20 text-emerald-400 font-semibold rounded-full">Laboratorio PDI • Molecole Diatomiche & Composti</span>
+                <h1 class="text-2xl font-bold tracking-tight text-white mt-1">🧪 Simulatore Avanzato di Legami</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-400">Seleziona 2 elementi (anche uguali come H2, O2, N2)</span>
+                <button onclick="resetLab()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition-colors font-medium">Reset 🔄</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-6xl mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4">
+        
+        <!-- SELECCIÓN DE ELEMENTOS -->
+        <div class="lg:col-span-4 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col gap-6 shadow-xl">
+            <div>
+                <h2 class="text-lg font-semibold text-blue-400 mb-1">1. Scegli gli Elementi</h2>
+                <p class="text-xs text-slate-400">Puoi cliccare due volte sullo stesso elemento per formare molecole come O2, N2, H2.</p>
+            </div>
+
+            <!-- METALLI -->
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">Metalli</span>
+                <div class="grid grid-cols-4 gap-2" id="metalli-grid"></div>
+            </div>
+
+            <!-- NON METALLI E IDROGENO -->
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-2">Non Metalli & Idrogeno</span>
+                <div class="grid grid-cols-4 gap-2" id="non-metalli-grid"></div>
+            </div>
+
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/40 text-xs text-slate-300">
+                <p class="font-medium text-emerald-300 mb-1">💡 Regola dei legami multipli:</p>
+                I non metalli condividono 1, 2 o 3 coppie di elettroni per formare rispettivamente legami singoli, doppi o tripli.
+            </div>
+        </div>
+
+        <!-- ÁREA DE VISUALIZACIÓN Y SIMULACIÓN -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            
+            <!-- ZONA GRÁFICA -->
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center min-h-[340px] relative overflow-hidden">
+                <div class="absolute top-4 left-4 text-xs text-slate-400 uppercase tracking-widest font-semibold">Area di Simulazione Interattiva</div>
+                
+                <div id="simulation-viewport" class="w-full flex items-center justify-around gap-4 py-8">
+                    <div class="text-center text-slate-500 py-12">
+                        <span class="text-4xl block mb-2">⚛️</span>
+                        <p class="text-sm">Seleziona due atomi (es. O e O, oppure Be e F) per vedere la simulazione.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL DE RESULTADOS -->
+            <div id="result-panel" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <span id="badge-tipo-legame" class="text-xs font-bold px-3 py-1 rounded-full uppercase">---</span>
+                        <h3 id="result-title" class="text-xl font-bold text-white mt-2">Risultato del Legame</h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block">Formula Molecolare</span>
+                        <span id="result-formula" class="text-2xl font-black text-blue-400">---</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 text-sm text-slate-300 border-t border-slate-700/60 pt-4">
+                    <p id="result-desc">---</p>
+                    <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-700/40 text-xs grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div><strong class="text-blue-400">Italiano:</strong> <span id="gloss-it">---</span></div>
+                        <div><strong class="text-emerald-400">English:</strong> <span id="gloss-en">---</span></div>
+                        <div><strong class="text-amber-400">Español:</strong> <span id="gloss-es">---</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-6xl mx-auto w-full px-6 mt-8">
+        <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 text-center text-xs text-slate-400">
+            Simulatore Educativo Avanzato di Chimica • Lavagna Interattiva Multimediale (LIM/PDI)
+        </div>
+    </footer>
+
+    <!-- BOTÓN DE GUARDADO FLOTANTE OBLIGATORIO -->
+    <button onclick="guardarComoArchivo()" class="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition-all transform hover:scale-105 flex items-center gap-2 border border-blue-400/30">
+        💾 GUARDAR RECURSO .HTML
+    </button>
+
+    <!-- SCRIPT -->
+    <script>
+        const elementi = {
+            'Na': { name: 'Sodio', type: 'metal', val: 1, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'K':  { name: 'Potassio', type: 'metal', val: 1, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'Li': { name: 'Litio', type: 'metal', val: 1, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'Ca': { name: 'Calcio', type: 'metal', val: 2, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'Mg': { name: 'Magnesio', type: 'metal', val: 2, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'Be': { name: 'Berillio', type: 'metal', val: 2, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'Ba': { name: 'Bario', type: 'metal', val: 2, color: 'bg-amber-500/20 border-amber-500 text-amber-300' },
+            'H':  { name: 'Idrogeno', type: 'nonmetal', val: 1, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'Cl': { name: 'Cloro', type: 'nonmetal', val: 7, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'F':  { name: 'Fluoro', type: 'nonmetal', val: 7, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'Br': { name: 'Bromo', type: 'nonmetal', val: 7, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'I':  { name: 'Iodio', type: 'nonmetal', val: 7, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'O':  { name: 'Ossigeno', type: 'nonmetal', val: 6, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'S':  { name: 'Zolfo', type: 'nonmetal', val: 6, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+            'N':  { name: 'Azoto', type: 'nonmetal', val: 5, color: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' }
+        };
+
+        let selectedElements = [];
+
+        function initElements() {
+            const metalliGrid = document.getElementById('metalli-grid');
+            const nonMetalliGrid = document.getElementById('non-metalli-grid');
+
+            for (let [key, el] of Object.entries(elementi)) {
+                const btn = document.createElement('button');
+                btn.className = `p-3 rounded-xl border text-center font-bold transition-all hover:scale-105 flex flex-col items-center justify-center gap-1 ${el.color}`;
+                btn.innerHTML = `<span class="text-base">${key}</span><span class="text-[10px] opacity-75 font-normal">${el.name}</span>`;
+                btn.onclick = () => selectElement(key);
+                btn.id = `btn-${key}-${Math.random()}`;
+                btn.setAttribute('data-key', key);
+
+                if (el.type === 'metal') {
+                    metalliGrid.appendChild(btn);
+                } else {
+                    nonMetalliGrid.appendChild(btn);
+                }
+            }
+        }
+
+        function selectElement(key) {
+            if (selectedElements.length >= 2) {
+                clearSelectionUI();
+                selectedElements = [];
+            }
+
+            selectedElements.push(key);
+            highlightUI();
+
+            if (selectedElements.length === 2) {
+                calculateBond();
+            } else {
+                resetView();
+            }
+        }
+
+        function highlightUI() {
+            const allBtns = document.querySelectorAll('[data-key]');
+            allBtns.forEach(b => {
+                if(selectedElements.includes(b.getAttribute('data-key'))) {
+                    b.classList.add('ring-4', 'ring-white');
+                }
+            });
+        }
+
+        function clearSelectionUI() {
+            const allBtns = document.querySelectorAll('[data-key]');
+            allBtns.forEach(b => b.classList.remove('ring-4', 'ring-white'));
+        }
+
+        function calculateBond() {
+            const e1Key = selectedElements[0];
+            const e2Key = selectedElements[1];
+            const e1 = elementi[e1Key];
+            const e2 = elementi[e2Key];
+
+            const viewport = document.getElementById('simulation-viewport');
+            const resultPanel = document.getElementById('result-panel');
+            const badge = document.getElementById('badge-tipo-legame');
+            const title = document.getElementById('result-title');
+            const formula = document.getElementById('result-formula');
+            const desc = document.getElementById('result-desc');
+            const glossIt = document.getElementById('gloss-it');
+            const glossEn = document.getElementById('gloss-en');
+            const glossEs = document.getElementById('gloss-es');
+
+            resultPanel.classList.remove('hidden');
+
+            let bondType = "";
+            let bondVisual = "—";
+            let formulaText = "";
+            let descriptionText = "";
+            let gIt = "", gEn = "", gEs = "";
+
+            let e1Display = e1Key;
+            let e2Display = e2Key;
+
+            if (e1.type === 'metal' && e2.type === 'metal') {
+                bondType = "Legame Metallico / Lega";
+                badge.className = "text-xs font-bold px-3 py-1 rounded-full uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30";
+                bondVisual = "Mare di Fermi 🌊";
+                formulaText = `${e1Key}-${e2Key}`;
+                descriptionText = `Due metalli formano una lega con elettroni delocalizzati nel 'mare di Fermi', conferendo conducibilità termica ed elettrica.`;
+                gIt = "Legame Metallico / Mare di elettroni";
+                gEn = "Metallic Bond / Electron sea";
+                gEs = "Enlace Metálico / Mar de electrones";
+            } 
+            else if (e1.type === 'metal' && e2.type === 'nonmetal') {
+                bondType = "Legame Ionico";
+                badge.className = "text-xs font-bold px-3 py-1 rounded-full uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                bondVisual = "⚡ Trasferimento";
+                
+                if(e1.val === 2 && e2.val === 7) {
+                    formulaText = e1Key + e2Key + "2";
+                } else if(e1.val === 1 && e2.val === 7) {
+                    formulaText = e1Key + e2Key;
+                } else if(e1.val === 2 && e2.val === 1) {
+                    formulaText = e1Key + e2Key + "2";
+                } else if(e1.val === 1 && e2.val === 2) {
+                    formulaText = e1Key + "2" + e2Key;
+                } else {
+                    formulaText = e1Key + e2Key;
+                }
+
+                const charge1 = e1.val === 2 ? '2+' : '+';
+                const charge2 = e2.val === 7 ? '-' : (e2.val === 6 ? '2-' : '-');
+                e1Display = `${e1Key}<sup>${charge1}</sup>`;
+                e2Display = `${e2Key}<sup>${charge2}</sup>`;
+
+                descriptionText = `${e1.name} cede elettroni a ${e2.name}, formando il catione ${e1Key}<sup>${charge1}</sup> e l'anione ${e2Key}<sup>${charge2}</sup> attratti da forze elettrostatiche.`;
+                gIt = "Legame Ionico / Catione / Anione";
+                gEn = "Ionic Bond / Cation / Anion";
+                gEs = "Enlace Iónico / Catión / Catión";
+            }
+            else {
+                if (e1Key === e2Key) {
+                    if (e1Key === 'H' || e1Key === 'Cl' || e1Key === 'F' || e1Key === 'Br' || e1Key === 'I') {
+                        bondType = "Legame Covalente Singolo Omopolare";
+                        bondVisual = "— (Singolo)";
+                        formulaText = e1Key + "2";
+                        descriptionText = `Due atomi di ${e1.name} condividono una singola coppia di elettroni (legame singolo simmetrico) formando una molecola stabile.`;
+                    } else if (e1Key === 'O' || e1Key === 'S') {
+                        bondType = "Legame Covalente Doppio Omopolare";
+                        bondVisual = "═ (Doppio)";
+                        formulaText = e1Key + "2";
+                        descriptionText = `Due atomi di ${e1.name} condividono due coppie di elettroni (legame doppio) per raggiungere l'ottetto.`;
+                    } else if (e1Key === 'N') {
+                        bondType = "Legame Covalente Triplo Omopolare";
+                        bondVisual = "≡ (Triplo)";
+                        formulaText = "N2";
+                        descriptionText = `Due atomi di azoto condividono tre coppie di elettroni, formando un legame triplo estremamente forte e stabile.`;
+                    } else {
+                        bondType = "Legame Covalente Omopolare";
+                        bondVisual = "—";
+                        formulaText = e1Key + "2";
+                        descriptionText = `Condivisione simmetrica di coppie elettroniche tra atomi uguali.`;
+                    }
+                } else {
+                    bondType = "Legame Covalente Eteropolare (Polare)";
+                    bondVisual = "— (Polarizzato)";
+                    formulaText = e1Key + e2Key;
+                    if(e1Key === 'H' && e2Key === 'O') formulaText = "H2O";
+                    descriptionText = `Atomi diversi condividono elettroni. L'elemento più elettronegativo attira maggiormente la nube elettronica.`;
+                }
+
+                badge.className = "text-xs font-bold px-3 py-1 rounded-full uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                gIt = "Legame Covalente / Singolo / Doppio / Triplo";
+                gEn = "Covalent Bond / Single / Double / Triple";
+                gEs = "Enlace Covalente / Simple / Doble / Triple";
+            }
+
+            badge.innerText = bondType;
+            title.innerText = `Interazione tra ${e1.name} (${e1Key}) e ${e2.name} (${e2Key})`;
+            formula.innerHTML = formulaText;
+            desc.innerHTML = descriptionText;
+            glossIt.innerText = gIt;
+            glossEn.innerText = gEn;
+            glossEs.innerText = gEs;
+
+            viewport.innerHTML = `
+                <div class="flex flex-col items-center p-4 bg-slate-900/60 rounded-2xl border border-slate-700/60 w-36 atom-glow">
+                    <span class="text-3xl font-black text-amber-400">${e1Display}</span>
+                    <span class="text-xs text-slate-400 mt-1">${e1.name}</span>
+                </div>
+                <div class="flex flex-col items-center justify-center px-4">
+                    <span class="text-xl font-black text-blue-400 text-center">${bondVisual}</span>
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase mt-1">Tipo di Legame</span>
+                </div>
+                <div class="flex flex-col items-center p-4 bg-slate-900/60 rounded-2xl border border-slate-700/60 w-36 atom-glow">
+                    <span class="text-3xl font-black text-emerald-400">${e2Display}</span>
+                    <span class="text-xs text-slate-400 mt-1">${e2.name}</span>
+                </div>
+            `;
+        }
+
+        function resetView() {
+            document.getElementById('simulation-viewport').innerHTML = `
+                <div class="text-center text-slate-500 py-12">
+                    <span class="text-4xl block mb-2">⚛️</span>
+                    <p class="text-sm">Seleziona un secondo elemento per completare la simulazione.</p>
+                </div>
+            `;
+            document.getElementById('result-panel').classList.add('hidden');
+        }
+
+        function resetLab() {
+            clearSelectionUI();
+            selectedElements = [];
+            resetView();
+        }
+
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'simulatore_legami.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = initElements;
+    </script>
+</body>
+</html>

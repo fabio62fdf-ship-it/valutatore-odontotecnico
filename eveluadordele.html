@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Examen Oral MCER (A1-C2) - DELE, SIELE, Cambridge, DELF, CELI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js for radar chart visual evaluation -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-indigo-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Evaluador de Prueba Oral MCER <span class="text-xs bg-indigo-600/80 text-indigo-200 px-2 py-0.5 rounded-md font-mono">A1–C2</span>
+                    </h1>
+                    <p class="text-xs text-slate-300">Rúbricas Oficiales: DELE/SIELE 🇪🇸 • Cambridge 🇬🇧 • DELF/DALF 🇫🇷 • CELI/CILS 🇮🇹</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions & API Key Indicator -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <button onclick="openApiKeyModal()" id="apiKeyBadge" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-key text-amber-400" id="keyIcon"></i>
+                    <span id="keyStatusText">Configurar Clave API Gemini</span>
+                </button>
+
+                <button onclick="toggleWakeLock()" id="wakeLockBtn" title="Mantener pantalla encendida durante la prueba" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-sun text-slate-400" id="wakeLockIcon"></i>
+                    <span class="hidden sm:inline">WakeLock</span>
+                </button>
+
+                <button onclick="saveApplicationHtml()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Guardar App .HTML</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[61px] z-30">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-2 overflow-x-auto custom-scrollbar text-xs font-semibold">
+            <button onclick="switchTab('tab-config')" id="btn-tab-config" class="tab-btn py-3 px-4 border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-solid fa-sliders"></i> 1. Configuración & Tareas
+            </button>
+            <button onclick="switchTab('tab-exam')" id="btn-tab-exam" class="tab-btn py-3 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-solid fa-microphone-lines"></i> 2. Ejecución de la Prueba
+            </button>
+            <button onclick="switchTab('tab-results')" id="btn-tab-results" class="tab-btn py-3 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-solid fa-chart-pie"></i> 3. Informe de Evaluación IA
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- ================= TAB 1: CONFIGURACIÓN Y GENERACIÓN DE TAREAS ================= -->
+        <section id="tab-config" class="space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Config Panel -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5 lg:col-span-1">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-gear text-indigo-600"></i> Parámetros del Examen
+                        </h2>
+                        <span class="text-[11px] font-mono bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">MCER / CEFR</span>
+                    </div>
+
+                    <!-- Idioma Objetivo -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Idioma del Examen</label>
+                        <select id="langSelect" onchange="onLanguageOrLevelChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="es-ES" data-lang="es" data-exam="DELE / SIELE" selected>🇪🇸 Español (Rúbrica DELE / SIELE)</option>
+                            <option value="en-US" data-lang="en" data-exam="Cambridge / IELTS / TOEFL">🇬🇧 English (Cambridge / IELTS Rubric)</option>
+                            <option value="fr-FR" data-lang="fr" data-exam="DELF / DALF">🇫🇷 Français (Grille DELF / DALF)</option>
+                            <option value="it-IT" data-lang="it" data-exam="CELI / CILS / PLIDA">🇮🇹 Italiano (Griglia CELI / CILS / PLIDA)</option>
+                        </select>
+                    </div>
+
+                    <!-- Nivel MCER -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Nivel Objetivo (MCER / CEFR)</label>
+                        <div class="grid grid-cols-6 gap-1.5" id="levelGrid">
+                            <button onclick="selectLevel('A1')" id="lvl-A1" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200">A1</button>
+                            <button onclick="selectLevel('A2')" id="lvl-A2" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200">A2</button>
+                            <button onclick="selectLevel('B1')" id="lvl-B1" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200">B1</button>
+                            <button onclick="selectLevel('B2')" id="lvl-B2" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-indigo-600 text-white border-indigo-600 shadow-md">B2</button>
+                            <button onclick="selectLevel('C1')" id="lvl-C1" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200">C1</button>
+                            <button onclick="selectLevel('C2')" id="lvl-C2" class="lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200">C2</button>
+                        </div>
+                    </div>
+
+                    <!-- Nivel & Modelo Info -->
+                    <div id="levelInfoBox" class="bg-indigo-50/70 border border-indigo-100 p-3.5 rounded-xl text-xs space-y-1">
+                        <div class="flex items-center justify-between text-indigo-950 font-bold">
+                            <span id="infoTitle">Nivel B2 - Usuario Independiente Avanzado</span>
+                            <span id="infoExamBadge" class="bg-indigo-200 text-indigo-900 text-[10px] px-2 py-0.5 rounded font-bold">DELE B2</span>
+                        </div>
+                        <p id="infoDesc" class="text-slate-600 text-[11px] leading-relaxed">
+                            El candidato debe ser capaz de argumentar fluidamente, expresar opiniones justificadas sobre temas complejos, manejar conectores del discurso y corregir sus propios errores espontáneamente.
+                        </p>
+                    </div>
+
+                    <!-- Clave API Quick Input -->
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Clave API de Gemini</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="sidebarApiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <button onclick="saveApiKeyFromSidebar()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all">Guardar</button>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Se guarda de forma segura únicamente en tu navegador.</p>
+                    </div>
+                </div>
+
+                <!-- Task Generation / Customization Panel -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5 lg:col-span-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-500"></i> Estructura de la Prueba Oral
+                            </h2>
+                            <p class="text-xs text-slate-500">Genera una prueba simulada completa adaptada a la rúbrica oficial o personalízala manualmente.</p>
+                        </div>
+                        <button onclick="generateExamWithGemini()" id="btnGenerateExam" class="bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Generar Prueba con IA</span>
+                        </button>
+                    </div>
+
+                    <!-- Tareas Lista -->
+                    <div id="tasksSetupContainer" class="space-y-4">
+                        <!-- Tarea 1 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-700 uppercase tracking-wide">Tarea 1: Monólogo / Presentación Breve</span>
+                                <span class="text-[10px] text-slate-500 font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded">Tiempo sugerido: 2-3 min</span>
+                            </div>
+                            <input type="text" id="task1_title" value="Presentación de una experiencia o punto de vista sobre el impacto de la tecnología en la vida diaria." class="w-full font-semibold text-xs text-slate-800 bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500">
+                            <textarea id="task1_desc" rows="2" class="w-full text-xs text-slate-600 bg-white border border-slate-300 rounded-lg p-2 leading-relaxed" placeholder="Puntos a incluir en la exposición...">Describa su postura, mencione ventajas y desventajas principales y proponga una conclusión estructurada.</textarea>
+                        </div>
+
+                        <!-- Tarea 2 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-700 uppercase tracking-wide">Tarea 2: Descripción de Situación / Opinión Guiada</span>
+                                <span class="text-[10px] text-slate-500 font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded">Tiempo sugerido: 3-4 min</span>
+                            </div>
+                            <input type="text" id="task2_title" value="Análisis de una propuesta de cambio sociocultural o laboral." class="w-full font-semibold text-xs text-slate-800 bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500">
+                            <textarea id="task2_desc" rows="2" class="w-full text-xs text-slate-600 bg-white border border-slate-300 rounded-lg p-2 leading-relaxed" placeholder="Puntos a incluir...">Elegir entre dos opciones presentadas, argumentar la preferencia con ejemplos concretos y responder a hipotéticas objeciones.</textarea>
+                        </div>
+
+                        <!-- Tarea 3 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-700 uppercase tracking-wide">Tarea 3: Debate Informal / Conversación e Interacción</span>
+                                <span class="text-[10px] text-slate-500 font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded">Tiempo sugerido: 3-4 min</span>
+                            </div>
+                            <input type="text" id="task3_title" value="Intercambio de opiniones sobre encuestas o titulares controvertidos." class="w-full font-semibold text-xs text-slate-800 bg-white border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500">
+                            <textarea id="task3_desc" rows="2" class="w-full text-xs text-slate-600 bg-white border border-slate-300 rounded-lg p-2 leading-relaxed" placeholder="Puntos a incluir...">Expresar acuerdo o desacuerdo formal, negociar soluciones y mantener una postura con matices y léxico preciso.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button onclick="confirmTasksAndProceed()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow flex items-center gap-2 transition-all">
+                            <span>Confirmar Tareas y Comenzar Examen</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: EJECUCIÓN DE LA PRUEBA ORAL ================= -->
+        <section id="tab-exam" class="hidden space-y-6">
+            
+            <!-- Context Banner -->
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-4 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="examLangFlag" class="text-xl">🇪🇸</span>
+                        <h2 id="examBannerTitle" class="font-bold text-sm sm:text-base">Examen DELE / SIELE - Nivel B2</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-0.5">Graba tu voz mediante el micrófono o añade grabaciones de tu teléfono para evaluarte con IA.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-center bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span class="block text-[10px] text-slate-400 font-semibold uppercase">Tiempo Total</span>
+                        <span id="globalTimer" class="font-mono text-sm font-bold text-amber-400">00:00</span>
+                    </div>
+                    <button onclick="evaluateExamWithAI()" id="btnEvaluateExam" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all transform hover:scale-105">
+                        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                        <span>EVALUAR PRUEBA COMPLETA CON IA</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Box Errores Mic/HTTP -->
+            <div id="micErrorBox" class="hidden p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-xl text-xs text-amber-900">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+                    <div>
+                        <p class="font-bold mb-0.5" id="micErrorTitle">Aviso del Sistema</p>
+                        <p id="micErrorDetail" class="leading-relaxed">Asegúrate de permitir el acceso al micrófono en el navegador o usa la transcripción / carga manual.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-tabs for Tasks -->
+            <div class="flex space-x-2 border-b border-slate-200">
+                <button onclick="switchExamTaskTab(1)" id="taskTabBtn1" class="task-tab-btn py-2.5 px-4 font-bold text-xs border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px]">1</span> Tarea 1
+                </button>
+                <button onclick="switchExamTaskTab(2)" id="taskTabBtn2" class="task-tab-btn py-2.5 px-4 font-bold text-xs border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">2</span> Tarea 2
+                </button>
+                <button onclick="switchExamTaskTab(3)" id="taskTabBtn3" class="task-tab-btn py-2.5 px-4 font-bold text-xs border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">3</span> Tarea 3
+                </button>
+            </div>
+
+            <!-- Task Display Cards -->
+            <div class="space-y-6">
+                <!-- Loop generated panels for Tarea 1, 2, 3 -->
+                <div id="taskPanel1" class="task-panel bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100">
+                        <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wide">Instrucciones de la Tarea 1</span>
+                        <h3 id="display_task1_title" class="font-bold text-sm text-slate-900 mt-0.5">Cargando Tarea 1...</h3>
+                        <p id="display_task1_desc" class="text-xs text-slate-600 mt-1 leading-relaxed">...</p>
+                    </div>
+
+                    <!-- Recording & Speech Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Left: Live Microphone Controls -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-microphone text-emerald-600"></i> Reconocimiento Vocale en Vivo
+                                </span>
+                                <span id="recStatus1" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-slate-300"></span> Inactivo
+                                </span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button id="micBtn1" onclick="toggleLiveMic(1)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-microphone"></i>
+                                    <span id="micBtnText1">Grabar / Transcribir</span>
+                                </button>
+                                <button onclick="clearText(1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all" title="Limpiar texto">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-500">Reconoce el idioma seleccionado automáticamente en tiempo real.</p>
+                        </div>
+
+                        <!-- Right: Audio File Attachment -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-audio text-indigo-600"></i> Archivo Audio Adjunto
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-semibold">WAV, MP3, M4A, WEBM</span>
+                            </div>
+
+                            <input type="file" id="audioFileInput1" accept="audio/*" onchange="handleAudioUpload(1, this.files)" class="hidden">
+                            <div class="flex items-center gap-2">
+                                <label for="audioFileInput1" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs py-2.5 px-4 rounded-xl cursor-pointer flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-upload"></i>
+                                    <span id="audioFileName1">Cargar Audio Grabado</span>
+                                </label>
+                                <button onclick="removeAudio(1)" id="btnRemoveAudio1" class="hidden bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all" title="Eliminar Audio">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="audioPlayerContainer1" class="hidden pt-1">
+                                <audio id="audioPlayer1" controls class="w-full h-8 rounded-lg"></audio>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transcription / Text Response Area -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-wide">Trascripción / Respuesta de la Tarea 1</label>
+                            <span class="text-[11px] text-slate-400 font-mono" id="wordCount1">0 palabras</span>
+                        </div>
+                        <textarea id="task_response_1" oninput="updateWordCount(1)" rows="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 leading-relaxed focus:ring-2 focus:ring-indigo-500 focus:outline-none custom-scrollbar" placeholder="Aquí aparecerá la transcripción en vivo de lo que hables o puedes escribir / corregir tu respuesta directamente..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tarea 2 Panel -->
+                <div id="taskPanel2" class="task-panel hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100">
+                        <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wide">Instrucciones de la Tarea 2</span>
+                        <h3 id="display_task2_title" class="font-bold text-sm text-slate-900 mt-0.5">Cargando Tarea 2...</h3>
+                        <p id="display_task2_desc" class="text-xs text-slate-600 mt-1 leading-relaxed">...</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-microphone text-emerald-600"></i> Reconocimiento Vocale en Vivo
+                                </span>
+                                <span id="recStatus2" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-slate-300"></span> Inactivo
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="micBtn2" onclick="toggleLiveMic(2)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-microphone"></i>
+                                    <span id="micBtnText2">Grabar / Transcribir</span>
+                                </button>
+                                <button onclick="clearText(2)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-audio text-indigo-600"></i> Archivo Audio Adjunto
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-semibold">WAV, MP3, M4A</span>
+                            </div>
+                            <input type="file" id="audioFileInput2" accept="audio/*" onchange="handleAudioUpload(2, this.files)" class="hidden">
+                            <div class="flex items-center gap-2">
+                                <label for="audioFileInput2" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs py-2.5 px-4 rounded-xl cursor-pointer flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-upload"></i>
+                                    <span id="audioFileName2">Cargar Audio Grabado</span>
+                                </label>
+                                <button onclick="removeAudio(2)" id="btnRemoveAudio2" class="hidden bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="audioPlayerContainer2" class="hidden pt-1">
+                                <audio id="audioPlayer2" controls class="w-full h-8 rounded-lg"></audio>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-wide">Trascripción / Respuesta de la Tarea 2</label>
+                            <span class="text-[11px] text-slate-400 font-mono" id="wordCount2">0 palabras</span>
+                        </div>
+                        <textarea id="task_response_2" oninput="updateWordCount(2)" rows="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 leading-relaxed focus:ring-2 focus:ring-indigo-500 focus:outline-none custom-scrollbar" placeholder="Respuesta de la Tarea 2..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tarea 3 Panel -->
+                <div id="taskPanel3" class="task-panel hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100">
+                        <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wide">Instrucciones de la Tarea 3</span>
+                        <h3 id="display_task3_title" class="font-bold text-sm text-slate-900 mt-0.5">Cargando Tarea 3...</h3>
+                        <p id="display_task3_desc" class="text-xs text-slate-600 mt-1 leading-relaxed">...</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-microphone text-emerald-600"></i> Reconocimiento Vocale en Vivo
+                                </span>
+                                <span id="recStatus3" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-slate-300"></span> Inactivo
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="micBtn3" onclick="toggleLiveMic(3)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-microphone"></i>
+                                    <span id="micBtnText3">Grabar / Transcribir</span>
+                                </button>
+                                <button onclick="clearText(3)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-audio text-indigo-600"></i> Archivo Audio Adjunto
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-semibold">WAV, MP3, M4A</span>
+                            </div>
+                            <input type="file" id="audioFileInput3" accept="audio/*" onchange="handleAudioUpload(3, this.files)" class="hidden">
+                            <div class="flex items-center gap-2">
+                                <label for="audioFileInput3" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs py-2.5 px-4 rounded-xl cursor-pointer flex items-center justify-center gap-2 transition-all">
+                                    <i class="fa-solid fa-upload"></i>
+                                    <span id="audioFileName3">Cargar Audio Grabado</span>
+                                </label>
+                                <button onclick="removeAudio(3)" id="btnRemoveAudio3" class="hidden bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs py-2.5 px-3 rounded-xl transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="audioPlayerContainer3" class="hidden pt-1">
+                                <audio id="audioPlayer3" controls class="w-full h-8 rounded-lg"></audio>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-wide">Trascripción / Respuesta de la Tarea 3</label>
+                            <span class="text-[11px] text-slate-400 font-mono" id="wordCount3">0 palabras</span>
+                        </div>
+                        <textarea id="task_response_3" oninput="updateWordCount(3)" rows="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 leading-relaxed focus:ring-2 focus:ring-indigo-500 focus:outline-none custom-scrollbar" placeholder="Respuesta de la Tarea 3..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: INFORME DE EVALUACIÓN IA ================= -->
+        <section id="tab-results" class="hidden space-y-6">
+            
+            <div id="noResultsAlert" class="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center space-y-3">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-800">No hay evaluación generada aún</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">Ve a la pestaña "2. Ejecución de la Prueba", completa tus respuestas grabadas o escritas y presiona "EVALUAR PRUEBA COMPLETA CON IA".</p>
+                <button onclick="switchTab('tab-exam')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all">
+                    Ir a la Prueba Oral
+                </button>
+            </div>
+
+            <div id="evaluationResultsContent" class="hidden space-y-6">
+                <!-- Top Summary Header -->
+                <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 text-center md:text-left">
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <span id="reportLangBadge" class="bg-indigo-600 text-indigo-100 text-xs font-bold px-2.5 py-0.5 rounded-md">DELE B2</span>
+                            <span id="reportDate" class="text-xs text-slate-400 font-mono">2026-07-27</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold tracking-tight">Dictamen de Evaluación Oficial IA</h2>
+                        <p id="reportVerdictSummary" class="text-xs text-slate-300 max-w-xl leading-relaxed">...</p>
+                    </div>
+
+                    <!-- Global Score Badge -->
+                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center min-w-[180px]">
+                        <span class="text-[10px] uppercase font-bold text-indigo-200 block tracking-widest">Resultado Global</span>
+                        <div class="flex items-baseline justify-center gap-1 my-1">
+                            <span id="reportScore" class="text-4xl font-black text-amber-400">0</span>
+                            <span class="text-slate-400 font-bold text-sm">/ 100</span>
+                        </div>
+                        <span id="reportStatusBadge" class="inline-block text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-500 text-slate-950">
+                            APTO / PASS
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 2 Columns: Radar Chart & Rubric Breakdown -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Radar Chart & Quick Metrics -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1 space-y-4">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-chart-radar text-indigo-600"></i> Perfil de Competencias MCER
+                        </h3>
+                        <div class="w-full h-64 flex items-center justify-center">
+                            <canvas id="rubricRadarChart"></canvas>
+                        </div>
+                        
+                        <div id="quickRubricScores" class="space-y-2 text-xs pt-2 border-t border-slate-100">
+                            <!-- Dynamic rubric items score bars -->
+                        </div>
+                    </div>
+
+                    <!-- Detailed Criterion Breakdown -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 space-y-5">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass-chart text-amber-500"></i> Análisis Detallado por Criterios de la Rúbrica
+                        </h3>
+
+                        <div id="criteriaDetailedContainer" class="space-y-4">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corrections, Corrections & Actionable Feedback -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Strengths & Corrections -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-emerald-700 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i> Correcciones Morfosintácticas y Léxicas
+                        </h3>
+                        <ul id="correctionsList" class="space-y-2 text-xs text-slate-700 leading-relaxed custom-scrollbar max-h-60 overflow-y-auto">
+                            <!-- Injected by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Action Plan for Next CEFR Level -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-indigo-700 uppercase tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye"></i> Plan de Mejora para Alcanzar el Siguiente Nivel
+                        </h3>
+                        <div id="improvementPlan" class="text-xs text-slate-700 leading-relaxed space-y-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-500"></i> Configuración Clave API Gemini
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Para realizar la evaluación de las pruebas con la inteligencia artificial oficial de Gemini, introduce tu clave API. La clave se almacena localmente en tu navegador.
+            </p>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Clave API de Google Gemini</label>
+                <input type="password" id="modalApiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+                <button onclick="saveApiKeyFromModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow">Guardar Clave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white space-y-4">
+        <div class="w-14 h-14 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+        <p id="loadingText" class="text-sm font-bold tracking-wide">Analizando discurso según rúbrica oficial...</p>
+        <p class="text-xs text-slate-300">Esto puede tomar unos segundos.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-8">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>Diseñado para evaluadores y estudiantes de idiomas 💡 • DELE, SIELE, Cambridge, DELF, CELI</p>
+            <p class="text-[11px] text-slate-400">Funciona con la API Gemini y Web Speech API</p>
+        </div>
+    </footer>
+
+    <script>
+        // App State
+        const AppState = {
+            apiKey: localStorage.getItem('gemini_api_key') || '',
+            language: 'es-ES',
+            langCode: 'es',
+            examName: 'DELE / SIELE',
+            level: 'B2',
+            wakeLock: null,
+            timerInterval: null,
+            secondsElapsed: 0,
+            activeExamTask: 1,
+            recognition: null,
+            isRecording: false,
+            activeMicTask: null,
+            tasks: {
+                1: { title: '', desc: '', text: '', audioFile: null, audioUrl: '' },
+                2: { title: '', desc: '', text: '', audioFile: null, audioUrl: '' },
+                3: { title: '', desc: '', text: '', audioFile: null, audioUrl: '' }
+            },
+            evaluation: null
+        };
+
+        // CEFR Level Descriptions Data
+        const CEFR_DESCRIPTIONS = {
+            A1: {
+                title: "Nivel A1 - Acceso / Principante",
+                desc: "Comprende e utiliza expresiones cotidianas muy frecuentes para satisfacer necesidades inmediatas. Puede presentarse a sí mismo y interactuar de forma sencilla si la otra persona habla despacio."
+            },
+            A2: {
+                title: "Nivel A2 - Plataforma / Básico",
+                desc: "Comprende frases e expresiones de uso frecuente relacionadas con áreas de experiencia relevantes (información personal, compras, lugares). Describe en términos sencillos aspectos de su pasado y entorno."
+            },
+            B1: {
+                title: "Nivel B1 - Umbral / Intermedio",
+                desc: "Comprende los puntos principales de textos claros sobre asuntos conocidos. Se desenvuelve en la mayoría de las situaciones y produce textos sencillos y coherentes sobre temas de interés personal."
+            },
+            B2: {
+                title: "Nivel B2 - Avanzado / Usuario Independiente",
+                desc: "Entiende las ideas principales de textos complejos. Relacionándose con hablantes nativos con un grado suficiente de fluidez y naturalidad sin esfuerzo excesivo."
+            },
+            C1: {
+                title: "Nivel C1 - Dominio Operativo / Eficaz",
+                desc: "Comprende una amplia variedad de textos extensos y con cierto nivel de exigencia. Expresa ideas de forma fluida y espontánea sin muestras evidentes de esfuerzo para encontrar la expresión adecuada."
+            },
+            C2: {
+                title: "Nivel C2 - Maestría / Competencia Casi Nativa",
+                desc: "Comprende con facilidad prácticamente todo lo que oye o lee. Reconstruye la información y los argumentos procedentes de diversas fuentes y se expresa espontáneamente con gran fluidez y precisión."
+            }
+        };
+
+        // Official Rubrics by Exam / Language
+        const EXAM_RUBRICS = {
+            es: {
+                name: "DELE / SIELE",
+                criteria: [
+                    { id: "c1", name: "Alcance y Variedad Léxica", weight: 20 },
+                    { id: "c2", name: "Corrección Gramatical", weight: 20 },
+                    { id: "c3", name: "Fluidez y Pronunciación", weight: 20 },
+                    { id: "c4", name: "Coherencia y Cohesión Discursiva", weight: 20 },
+                    { id: "c5", name: "Cumplimiento de la Tarea e Interacción", weight: 20 }
+                ]
+            },
+            en: {
+                name: "Cambridge / IELTS",
+                criteria: [
+                    { id: "c1", name: "Grammatical Range & Accuracy", weight: 20 },
+                    { id: "c2", name: "Lexical Resource & Vocabulary", weight: 20 },
+                    { id: "c3", name: "Pronunciation & Intonation", weight: 20 },
+                    { id: "c4", name: "Fluency & Coherence", weight: 20 },
+                    { id: "c5", name: "Interactive Communication & Task Achievement", weight: 20 }
+                ]
+            },
+            fr: {
+                name: "DELF / DALF",
+                criteria: [
+                    { id: "c1", name: "Correction Morphosyntaxique (Grammaire)", weight: 20 },
+                    { id: "c2", name: "Richesse du Vocabulaire (Lexique)", weight: 20 },
+                    { id: "c3", name: "Phonétique, Prononciation et Intonation", weight: 20 },
+                    { id: "c4", name: "Cohérence et Cohésion du Discours", weight: 20 },
+                    { id: "c5", name: "Réalisation de la Tâche et Capacité d'Échange", weight: 20 }
+                ]
+            },
+            it: {
+                name: "CELI / CILS / PLIDA",
+                criteria: [
+                    { id: "c1", name: "Correttezza Morfosintattica", weight: 20 },
+                    { id: "c2", name: "Ricchezza e Adeguatezza Lessicale", weight: 20 },
+                    { id: "c3", name: "Pronuncia, Intonazione e Fluidità", weight: 20 },
+                    { id: "c4", name: "Struttura e Coerenza del Discorso", weight: 20 },
+                    { id: "c5", name: "Efficacia Comunicativa e Rispetto della Traccia", weight: 20 }
+                ]
+            }
+        };
+
+        let radarChartInstance = null;
+
+        // On Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initApiKey();
+            onLanguageOrLevelChange();
+            updateTaskTitlesInDOM();
+        });
+
+        function initApiKey() {
+            if (AppState.apiKey) {
+                document.getElementById('sidebarApiKeyInput').value = AppState.apiKey;
+                document.getElementById('modalApiKeyInput').value = AppState.apiKey;
+                updateApiKeyBadge(true);
+            } else {
+                updateApiKeyBadge(false);
+            }
+        }
+
+        function updateApiKeyBadge(isValid) {
+            const statusText = document.getElementById('keyStatusText');
+            const icon = document.getElementById('keyIcon');
+            if (isValid) {
+                statusText.innerText = 'API Gemini Lista';
+                statusText.className = 'text-emerald-400 font-bold';
+                icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            } else {
+                statusText.innerText = 'Configurar Clave API';
+                statusText.className = 'text-amber-400 font-bold';
+                icon.className = 'fa-solid fa-key text-amber-400';
+            }
+        }
+
+        function openApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.add('hidden');
+        }
+
+        function saveApiKeyFromModal() {
+            const val = document.getElementById('modalApiKeyInput').value.trim();
+            if (val) {
+                AppState.apiKey = val;
+                localStorage.setItem('gemini_api_key', val);
+                document.getElementById('sidebarApiKeyInput').value = val;
+                updateApiKeyBadge(true);
+                closeApiKeyModal();
+            }
+        }
+
+        function saveApiKeyFromSidebar() {
+            const val = document.getElementById('sidebarApiKeyInput').value.trim();
+            if (val) {
+                AppState.apiKey = val;
+                localStorage.setItem('gemini_api_key', val);
+                document.getElementById('modalApiKeyInput').value = val;
+                updateApiKeyBadge(true);
+                alert("¡Clave API guardada con éxito!");
+            }
+        }
+
+        function selectLevel(lvl) {
+            AppState.level = lvl;
+            document.querySelectorAll('.lvl-btn').forEach(btn => {
+                btn.className = 'lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-slate-50 text-slate-700 hover:bg-indigo-50 border-slate-200';
+            });
+            const selBtn = document.getElementById(`lvl-${lvl}`);
+            if (selBtn) {
+                selBtn.className = 'lvl-btn py-2 text-center rounded-lg border text-xs font-bold transition-all bg-indigo-600 text-white border-indigo-600 shadow-md';
+            }
+            onLanguageOrLevelChange();
+        }
+
+        function onLanguageOrLevelChange() {
+            const select = document.getElementById('langSelect');
+            const selectedOpt = select.options[select.selectedIndex];
+            
+            AppState.language = select.value;
+            AppState.langCode = selectedOpt.getAttribute('data-lang');
+            AppState.examName = selectedOpt.getAttribute('data-exam');
+
+            // Update Info Box
+            const info = CEFR_DESCRIPTIONS[AppState.level];
+            document.getElementById('infoTitle').innerText = `${info.title}`;
+            document.getElementById('infoExamBadge').innerText = `${AppState.examName} ${AppState.level}`;
+            document.getElementById('infoDesc').innerText = info.desc;
+
+            // Update Exam Banner in Tab 2
+            const flagMap = { es: '🇪🇸', en: '🇬🇧', fr: '🇫🇷', it: '🇮🇹' };
+            document.getElementById('examLangFlag').innerText = flagMap[AppState.langCode] || '🌐';
+            document.getElementById('examBannerTitle').innerText = `Examen ${AppState.examName} - Nivel ${AppState.level}`;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('section[id^="tab-"]').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-indigo-600', 'text-indigo-600');
+            }
+        }
+
+        function confirmTasksAndProceed() {
+            AppState.tasks[1].title = document.getElementById('task1_title').value.trim();
+            AppState.tasks[1].desc = document.getElementById('task1_desc').value.trim();
+
+            AppState.tasks[2].title = document.getElementById('task2_title').value.trim();
+            AppState.tasks[2].desc = document.getElementById('task2_desc').value.trim();
+
+            AppState.tasks[3].title = document.getElementById('task3_title').value.trim();
+            AppState.tasks[3].desc = document.getElementById('task3_desc').value.trim();
+
+            updateTaskTitlesInDOM();
+            startGlobalTimer();
+            switchTab('tab-exam');
+        }
+
+        function updateTaskTitlesInDOM() {
+            for (let i = 1; i <= 3; i++) {
+                const tTitle = AppState.tasks[i].title || `Tarea ${i}`;
+                const tDesc = AppState.tasks[i].desc || `Descripción de la Tarea ${i}`;
+                const elTitle = document.getElementById(`display_task${i}_title`);
+                const elDesc = document.getElementById(`display_task${i}_desc`);
+                if (elTitle) elTitle.innerText = tTitle;
+                if (elDesc) elDesc.innerText = tDesc;
+            }
+        }
+
+        function switchExamTaskTab(taskNum) {
+            AppState.activeExamTask = taskNum;
+            document.querySelectorAll('.task-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`taskPanel${taskNum}`).classList.remove('hidden');
+
+            document.querySelectorAll('.task-tab-btn').forEach(b => {
+                b.classList.remove('border-indigo-600', 'text-indigo-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            const btn = document.getElementById(`taskTabBtn${taskNum}`);
+            if (btn) {
+                btn.classList.remove('border-transparent', 'text-slate-500');
+                btn.classList.add('border-indigo-600', 'text-indigo-600');
+            }
+        }
+
+        async function generateExamWithGemini() {
+            if (!AppState.apiKey) {
+                openApiKeyModal();
+                return;
+            }
+
+            showLoading("Generando propuesta de prueba oral con Gemini IA...");
+
+            const systemPrompt = `Eres un diseñador experto en exámenes oficiales de idiomas para el nivel MCER ${AppState.level} en ${AppState.examName}. Debes generar 3 tareas de examen oral realistas y adaptadas al nivel ${AppState.level}.
+Responde EXCLUSIVAMENTE con un objeto JSON válido con la siguiente estructura:
+{
+  "task1": { "title": "...", "desc": "..." },
+  "task2": { "title": "...", "desc": "..." },
+  "task3": { "title": "...", "desc": "..." }
+}`;
+
+            const userQuery = `Genera un examen completo de 3 tareas para el nivel ${AppState.level} en el idioma ${AppState.language}. Redacta los títulos e instrucciones en el idioma objetivo (${AppState.language}).`;
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${AppState.apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                };
+
+                const res = await fetchWithRetry(apiUrl, payload);
+                const data = await res.json();
+                
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (jsonText) {
+                    const parsed = JSON.parse(jsonText);
+                    if (parsed.task1) {
+                        document.getElementById('task1_title').value = parsed.task1.title;
+                        document.getElementById('task1_desc').value = parsed.task1.desc;
+                    }
+                    if (parsed.task2) {
+                        document.getElementById('task2_title').value = parsed.task2.title;
+                        document.getElementById('task2_desc').value = parsed.task2.desc;
+                    }
+                    if (parsed.task3) {
+                        document.getElementById('task3_title').value = parsed.task3.title;
+                        document.getElementById('task3_desc').value = parsed.task3.desc;
+                    }
+                    alert("¡Nuevas tareas generadas con éxito por la IA!");
+                }
+            } catch (err) {
+                console.error("Error al generar tareas:", err);
+                alert("Error al conectar con la API de Gemini. Revisa tu clave API.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function toggleLiveMic(taskNum) {
+            if (AppState.isRecording && AppState.activeMicTask === taskNum) {
+                stopLiveMic();
+            } else {
+                if (AppState.isRecording) stopLiveMic();
+                startLiveMic(taskNum);
+            }
+        }
+
+        function startLiveMic(taskNum) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showMicError("Tu navegador no soporta Web Speech API para trascripción automática. Puedes escribir manualmente o cargar un audio.");
+                return;
+            }
+
+            try {
+                const rec = new SpeechRecognition();
+                rec.continuous = true;
+                rec.interimResults = true;
+                rec.lang = AppState.language;
+
+                rec.onstart = () => {
+                    AppState.isRecording = true;
+                    AppState.activeMicTask = taskNum;
+                    updateMicUI(taskNum, true);
+                    hideMicError();
+                };
+
+                rec.onresult = (e) => {
+                    let transcript = '';
+                    for (let i = 0; i < e.results.length; i++) {
+                        transcript += e.results[i][0].transcript + ' ';
+                    }
+                    const ta = document.getElementById(`task_response_${taskNum}`);
+                    if (ta) {
+                        ta.value = transcript.trim();
+                        updateWordCount(taskNum);
+                    }
+                };
+
+                rec.onerror = (e) => {
+                    console.warn("Error microfono:", e.error);
+                    showMicError(`Error de micrófono (${e.error}). Comprueba permisos de audio en tu navegador.`);
+                    stopLiveMic();
+                };
+
+                rec.onend = () => {
+                    if (AppState.isRecording && AppState.activeMicTask === taskNum) {
+                        try { rec.start(); } catch(err) { stopLiveMic(); }
+                    }
+                };
+
+                AppState.recognition = rec;
+                rec.start();
+            } catch(err) {
+                console.error("Error al iniciar micrófono:", err);
+                showMicError("No se pudo iniciar el reconocimiento de voz.");
+            }
+        }
+
+        function stopLiveMic() {
+            AppState.isRecording = false;
+            if (AppState.recognition) {
+                try { AppState.recognition.stop(); } catch(e){}
+                AppState.recognition = null;
+            }
+            if (AppState.activeMicTask) {
+                updateMicUI(AppState.activeMicTask, false);
+                AppState.activeMicTask = null;
+            }
+        }
+
+        function updateMicUI(taskNum, active) {
+            const btn = document.getElementById(`micBtn${taskNum}`);
+            const btnText = document.getElementById(`micBtnText${taskNum}`);
+            const status = document.getElementById(`recStatus${taskNum}`);
+
+            if (active) {
+                btn.className = "flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 transition-all animate-pulse";
+                btnText.innerText = "Detener Grabación";
+                status.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> <span class="text-rose-600 font-bold">Escuchando...</span>`;
+            } else {
+                btn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow flex items-center justify-center gap-2 transition-all";
+                btnText.innerText = "Grabar / Transcribir";
+                status.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-300"></span> Inactivo`;
+            }
+        }
+
+        function handleAudioUpload(taskNum, files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            AppState.tasks[taskNum].audioFile = file;
+
+            const url = URL.createObjectURL(file);
+            AppState.tasks[taskNum].audioUrl = url;
+
+            document.getElementById(`audioFileName${taskNum}`).innerText = file.name;
+            document.getElementById(`btnRemoveAudio${taskNum}`).classList.remove('hidden');
+            
+            const player = document.getElementById(`audioPlayer${taskNum}`);
+            player.src = url;
+            document.getElementById(`audioPlayerContainer${taskNum}`).classList.remove('hidden');
+        }
+
+        function removeAudio(taskNum) {
+            AppState.tasks[taskNum].audioFile = null;
+            AppState.tasks[taskNum].audioUrl = '';
+            document.getElementById(`audioFileName${taskNum}`).innerText = "Cargar Audio Grabado";
+            document.getElementById(`btnRemoveAudio${taskNum}`).classList.add('hidden');
+            document.getElementById(`audioPlayerContainer${taskNum}`).classList.add('hidden');
+            document.getElementById(`audioFileInput${taskNum}`).value = '';
+        }
+
+        function clearText(taskNum) {
+            document.getElementById(`task_response_${taskNum}`).value = '';
+            updateWordCount(taskNum);
+        }
+
+        function updateWordCount(taskNum) {
+            const text = document.getElementById(`task_response_${taskNum}`).value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById(`wordCount${taskNum}`).innerText = `${words} palabras`;
+        }
+
+        function showMicError(msg) {
+            const box = document.getElementById('micErrorBox');
+            document.getElementById('micErrorDetail').innerText = msg;
+            box.classList.remove('hidden');
+        }
+
+        function hideMicError() {
+            document.getElementById('micErrorBox').classList.add('hidden');
+        }
+
+        async function evaluateExamWithAI() {
+            if (AppState.isRecording) stopLiveMic();
+
+            // Save text responses
+            for (let i = 1; i <= 3; i++) {
+                AppState.tasks[i].text = document.getElementById(`task_response_${i}`).value.trim();
+            }
+
+            const task1Text = AppState.tasks[1].text;
+            const task2Text = AppState.tasks[2].text;
+            const task3Text = AppState.tasks[3].text;
+
+            if (!task1Text && !task2Text && !task3Text) {
+                alert("Por favor realiza al menos una grabación o escribe una respuesta en las tareas antes de solicitar la evaluación.");
+                return;
+            }
+
+            if (!AppState.apiKey) {
+                openApiKeyModal();
+                return;
+            }
+
+            showLoading("Evaluando desempeño oral con Rúbrica Oficial...");
+
+            const examRubric = EXAM_RUBRICS[AppState.langCode] || EXAM_RUBRICS.es;
+            const criteriaList = examRubric.criteria.map(c => `- ${c.name}`).join('\n');
+
+            const systemPrompt = `Eres un examinador oficial certificado de ${AppState.examName} para el marco europeo (MCER/CEFR).
+Tu objetivo es evaluar exhaustivamente el desempeño oral de un candidato para el Nivel ${AppState.level} en idioma ${AppState.language}.
+
+Debes evaluar según estos 5 criterios de la rúbrica oficial:
+${criteriaList}
+
+Asigna a cada criterio una puntuación de 0 a 100.
+Calcula un puntaje global medio de 0 a 100 y determina el dictamen ("APTO / PASS" si alcanza el estándar del nivel ${AppState.level}, o "NO APTO / NOT YET" si está por debajo).
+
+Debes devolver EXCLUSIVAMENTE un objeto JSON válido con la siguiente estructura:
+{
+  "totalScore": 85,
+  "status": "APTO",
+  "verdictSummary": "Resumen ejecutivo en español del desempeño oral global...",
+  "criteriaScores": [
+    { "id": "c1", "name": "${examRubric.criteria[0].name}", "score": 85, "feedback": "Análisis específico..." },
+    { "id": "c2", "name": "${examRubric.criteria[1].name}", "score": 80, "feedback": "Análisis específico..." },
+    { "id": "c3", "name": "${examRubric.criteria[2].name}", "score": 90, "feedback": "Análisis específico..." },
+    { "id": "c4", "name": "${examRubric.criteria[3].name}", "score": 85, "feedback": "Análisis específico..." },
+    { "id": "c5", "name": "${examRubric.criteria[4].name}", "score": 88, "feedback": "Análisis específico..." }
+  ],
+  "corrections": [
+    "Punto a corregir / Sugerencia de gramática o vocabulario 1",
+    "Punto a corregir / Sugerencia de gramática o vocabulario 2"
+  ],
+  "improvementPlan": "Recomendaciones concretas y estructuradas para consolidar el nivel ${AppState.level} y avanzar al siguiente nivel."
+}`;
+
+            const userQuery = `Examen Oficial: ${AppState.examName} (${AppState.level}) - Idioma: ${AppState.language}.
+
+[TAREA 1: ${AppState.tasks[1].title}]
+Instrucciones: ${AppState.tasks[1].desc}
+Transcripción/Respuesta Candidato: ${task1Text || "[Sin respuesta formal en Tarea 1]"}
+
+[TAREA 2: ${AppState.tasks[2].title}]
+Instrucciones: ${AppState.tasks[2].desc}
+Transcripción/Respuesta Candidato: ${task2Text || "[Sin respuesta formal en Tarea 2]"}
+
+[TAREA 3: ${AppState.tasks[3].title}]
+Instrucciones: ${AppState.tasks[3].desc}
+Transcripción/Respuesta Candidato: ${task3Text || "[Sin respuesta formal en Tarea 3]"}`;
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${AppState.apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                };
+
+                const res = await fetchWithRetry(apiUrl, payload);
+                const data = await res.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    AppState.evaluation = JSON.parse(jsonText);
+                    renderEvaluationReport();
+                    switchTab('tab-results');
+                } else {
+                    throw new Error("Respuesta de la IA con estructura inesperada.");
+                }
+            } catch (err) {
+                console.error("Error durante la evaluación:", err);
+                alert("Ocurrió un error al procesar la evaluación con la IA. Verifica tu conexión o clave API.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderEvaluationReport() {
+            const evalData = AppState.evaluation;
+            if (!evalData) return;
+
+            document.getElementById('noResultsAlert').classList.add('hidden');
+            document.getElementById('evaluationResultsContent').classList.remove('hidden');
+
+            document.getElementById('reportLangBadge').innerText = `${AppState.examName} ${AppState.level}`;
+            document.getElementById('reportDate').innerText = new Date().toISOString().split('T')[0];
+            document.getElementById('reportVerdictSummary').innerText = evalData.verdictSummary || '';
+            document.getElementById('reportScore').innerText = evalData.totalScore || 0;
+
+            const statusBadge = document.getElementById('reportStatusBadge');
+            if (evalData.status === "APTO" || evalData.totalScore >= 60) {
+                statusBadge.innerText = "APTO / PASSED";
+                statusBadge.className = "inline-block text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-400 text-slate-950";
+            } else {
+                statusBadge.innerText = "NO APTO / NOT YET";
+                statusBadge.className = "inline-block text-xs font-extrabold px-3 py-1 rounded-full bg-rose-500 text-white";
+            }
+
+            // Quick Scores Bar
+            const quickBox = document.getElementById('quickRubricScores');
+            quickBox.innerHTML = '';
+            
+            const labels = [];
+            const scores = [];
+
+            evalData.criteriaScores.forEach(c => {
+                labels.push(c.name);
+                scores.push(c.score);
+
+                const item = document.createElement('div');
+                item.className = "space-y-1";
+                item.innerHTML = `
+                    <div class="flex justify-between text-[11px] font-bold">
+                        <span class="text-slate-700 truncate max-w-[200px]">${c.name}</span>
+                        <span class="text-indigo-600 font-mono">${c.score}/100</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: ${c.score}%"></div>
+                    </div>
+                `;
+                quickBox.appendChild(item);
+            });
+
+            // Detailed Breakdown
+            const detBox = document.getElementById('criteriaDetailedContainer');
+            detBox.innerHTML = '';
+            evalData.criteriaScores.forEach((c, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-xs text-slate-800">${idx + 1}. ${c.name}</h4>
+                        <span class="text-xs font-extrabold font-mono px-2 py-0.5 rounded ${c.score >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${c.score} / 100 pt</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">${c.feedback}</p>
+                `;
+                detBox.appendChild(card);
+            });
+
+            // Corrections
+            const corrUl = document.getElementById('correctionsList');
+            corrUl.innerHTML = '';
+            if (evalData.corrections && evalData.corrections.length > 0) {
+                evalData.corrections.forEach(corr => {
+                    const li = document.createElement('li');
+                    li.className = "flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200";
+                    li.innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-500 mt-0.5"></i> <span>${corr}</span>`;
+                    corrUl.appendChild(li);
+                });
+            } else {
+                corrUl.innerHTML = `<li class="text-slate-400 italic">No se detectaron errores graves en el uso lingüístico.</li>`;
+            }
+
+            // Improvement Plan
+            document.getElementById('improvementPlan').innerText = evalData.improvementPlan || 'Continúa practicando con exposiciones orales estructuradas.';
+
+            // Render Chart
+            renderRadarChart(labels, scores);
+        }
+
+        function renderRadarChart(labels, scores) {
+            const ctx = document.getElementById('rubricRadarChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Desempeño (${AppState.level})`,
+                        data: scores,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        pointBackgroundColor: 'rgba(245, 158, 11, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(99, 102, 241, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
+                            grid: { color: 'rgba(203, 213, 225, 0.5)' },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        async function fetchWithRetry(url, payload, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) return res;
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                }
+                await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+            }
+        }
+
+        function startGlobalTimer() {
+            clearInterval(AppState.timerInterval);
+            AppState.secondsElapsed = 0;
+            AppState.timerInterval = setInterval(() => {
+                AppState.secondsElapsed++;
+                const mins = String(Math.floor(AppState.secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(AppState.secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('globalTimer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        async function toggleWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    if (!AppState.wakeLock) {
+                        AppState.wakeLock = await navigator.wakeLock.request('screen');
+                        document.getElementById('wakeLockIcon').className = "fa-solid fa-sun text-amber-400 animate-spin";
+                        alert("WakeLock activado: La pantalla permanecerá encendida durante la prueba.");
+                    } else {
+                        await AppState.wakeLock.release();
+                        AppState.wakeLock = null;
+                        document.getElementById('wakeLockIcon').className = "fa-solid fa-sun text-slate-400";
+                    }
+                } catch (err) {
+                    console.warn("WakeLock Error:", err);
+                }
+            } else {
+                alert("WakeLock no soportado en este navegador.");
+            }
+        }
+
+        function showLoading(msg) {
+            document.getElementById('loadingText').innerText = msg;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function saveApplicationHtml() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'evaluador_mcer_dele_multilingue.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

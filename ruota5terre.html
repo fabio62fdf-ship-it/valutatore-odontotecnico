@@ -1,0 +1,735 @@
+html_content = '''<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Ruota della Fortuna dell'Accompagnatore Turistico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-weight: 300;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        #left-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #wheel-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+            margin-bottom: 20px;
+        }
+
+        #pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 32px solid #ff4757;
+            z-index: 10;
+            filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.4));
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-color: #333;
+        }
+
+        #spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: #fff;
+            color: #333;
+            border: 5px solid #ff4757;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        #spin-btn:hover {
+            background: #f1f2f6;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        #spin-btn:disabled {
+            background: #ccc;
+            border-color: #999;
+            cursor: not-allowed;
+            transform: translate(-50%, -50%);
+        }
+
+        #scoreboard {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .player-card.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #2ed573;
+            transform: scale(1.05);
+        }
+
+        .player-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2ed573;
+        }
+
+        #right-panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            min-height: 420px;
+        }
+
+        #status-box {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border-left: 5px solid #ffa502;
+            font-weight: 500;
+        }
+
+        #question-box {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #f1f2f6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+            padding-left: 25px;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .option-btn.correct {
+            background: #2ed573 !important;
+            border-color: #2ed573 !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background: #ff4757 !important;
+            border-color: #ff4757 !important;
+            color: white;
+            opacity: 0.8;
+        }
+
+        #info-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 1.2rem;
+            color: #a4b0be;
+            text-align: center;
+            flex-grow: 1;
+            padding: 40px;
+            border: 2px dashed rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        /* Pioggia di ombrellini */
+        .umbrella {
+            position: fixed;
+            top: -50px;
+            font-size: 2.5rem;
+            z-index: 999;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        #victory-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 900;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .victory-title {
+            font-size: 4rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.6);
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .victory-msg {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .restart-btn {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(46,213,115,0.4);
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>La Ruota della Fortuna</h1>
+    <h2>Edizione: Corso Accompagnatore Turistico</h2>
+
+    <div id="game-container">
+        <div id="left-panel">
+            <div id="pointer"></div>
+            <div id="wheel-container">
+                <canvas id="wheel" width="420" height="420"></canvas>
+                <button id="spin-btn" onclick="spinWheel()">GIRA</button>
+            </div>
+
+            <div id="scoreboard">
+                <div id="card-p1" class="player-card active">
+                    <div class="player-name">Giocatore 1</div>
+                    <div id="score-p1" class="player-score">0</div>
+                </div>
+                <div id="card-p2" class="player-card">
+                    <div class="player-name">Giocatore 2</div>
+                    <div id="score-p2" class="player-score">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="right-panel">
+            <div id="status-box">Benvenuti! Giocatore 1, tocca a te girare la ruota.</div>
+            
+            <div id="info-box">
+                Gira la ruota per determinare il valore in palio o l'effetto speciale per la prossima domanda!
+            </div>
+
+            <div id="question-box">
+                <div id="q-text" class="question-text">Testo della domanda?</div>
+                <div class="options-container">
+                    <button id="opt0" class="option-btn" onclick="checkAnswer(0)"></button>
+                    <button id="opt1" class="option-btn" onclick="checkAnswer(1)"></button>
+                    <button id="opt2" class="option-btn" onclick="checkAnswer(2)"></button>
+                    <button id="opt3" class="option-btn" onclick="checkAnswer(3)"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="victory-screen">
+        <div class="victory-title">VITTORIA!</div>
+        <div id="victory-msg" class="victory-msg">Giocatore X ha vinto il gioco!</div>
+        <button class="restart-btn" onclick="resetGame()">Gioca Ancora</button>
+    </div>
+
+    <script>
+        const sectors = [
+            { label: "BANCAROTTA", value: "BANKRUPT", color: "#2c3e50", textCol: "#ffffff" },
+            { label: "300 PUNTI", value: 300, color: "#ff9f43", textCol: "#ffffff" },
+            { label: "100 PUNTI", value: 100, color: "#10ac84", textCol: "#ffffff" },
+            { label: "0 PUNTI", value: 0, color: "#ee5253", textCol: "#ffffff" },
+            { label: "400 PUNTI", value: 400, color: "#2e86de", textCol: "#ffffff" },
+            { label: "200 PUNTI", value: 200, color: "#9b59b6", textCol: "#ffffff" },
+            { label: "500 PUNTI", value: 500, color: "#01cbc6", textCol: "#ffffff" },
+            { label: "150 PUNTI", value: 150, color: "#ff6b6b", textCol: "#ffffff" },
+            { label: "0 PUNTI", value: 0, color: "#ee5253", textCol: "#ffffff" },
+            { label: "350 PUNTI", value: 350, color: "#1dd1a1", textCol: "#ffffff" },
+            { label: "250 PUNTI", value: 250, color: "#f39c12", textCol: "#ffffff" },
+            { label: "450 PUNTI", value: 450, color: "#34495e", textCol: "#ffffff" }
+        ];
+
+        const questionDatabase = [
+            { q: "Qual è la popolazione ufficiale registrata per il comune di La Spezia?", a: "92.711 abitanti", o: ["85.320 abitanti", "99.450 abitanti", "74.120 abitanti"] },
+            { q: "Quanti gradini in mattoni rossi compongono la scalinata Lardarina a Corniglia?", a: "377 gradini", o: ["420 gradini", "250 gradini", "312 gradini"] },
+            { q: "Quanti abitanti conta ufficialmente la frazione di Corniglia?", a: "Circa 200", o: ["Circa 500", "Circa 750", "Circa 100"] },
+            { q: "Qual è la popolazione del comune di Riomaggiore?", a: "1.292 abitanti", o: ["1.540 abitanti", "980 abitanti", "2.100 abitanti"] },
+            { q: "Qual è il nome della famosa statua situata a Monterosso eretta nel 1910?", a: "Statua del Gigante di Minerbi", o: ["Statua del Nettuno Ligure", "Il Grande Atlante", "Il Colosso di Monterosso"] },
+            { q: "Qual è la lunghezza esatta dichiarata per la Via dell'Amore?", a: "810 metri", o: ["1.200 metri", "500 metri", "950 metri"] },
+            { q: "Quale altezza sul livello del mare raggiunge indicativamente la Via dell'Amore?", a: "25-30 metri", o: ["10-15 metri", "40-50 metri", "5-8 metri"] },
+            { q: "Qual è la larghezza massima della Via dell'Amore indicata nelle schede?", a: "3,0 metri", o: ["2,0 metri", "4,5 metri", "1,8 metri"] },
+            { q: "Quale santo dà il nome alla chiesa principale di Riomaggiore e Monterosso?", a: "San Giovanni Battista", o: ["San Pietro Apostolo", "Santa Margherita", "San Giorgio"] },
+            { q: "Quale elemento storico difensivo caratterizzava Manarola ed è oggi inglobato nelle case?", a: "Il Bastione dell'antico castello", o: ["La Torre Saracena", "Il Ponte Levatoio", "Il Fossato Medievale"] },
+            { q: "Qual è la popolazione stimata per la frazione di Manarola?", a: "Circa 350 abitanti", o: ["Circa 150 abitanti", "Circa 600 abitanti", "Circa 800 abitanti"] },
+            { q: "A quale santo è dedicata la chiesa parrocchiale di Corniglia?", a: "San Pietro", o: ["San Giovanni", "San Lorenzo", "Santa Margherita"] },
+            { q: "Qual è la popolazione del comune di Vernazza riportata nei testi?", a: "758 abitanti", o: ["1.200 abitanti", "430 abitanti", "910 abitanti"] },
+            { q: "Come si chiama la torre del Castello Doria situata a Vernazza?", a: "Il Belforte", o: ["La Lanterna", "La Torretta", "Il Bastione"] },
+            { q: "Qual è la popolazione ufficiale del comune di Monterosso?", a: "1.350 abitanti", o: ["1.980 abitanti", "890 abitanti", "2.400 abitanti"] },
+            { q: "Qual è l'esatta popolazione indicata per Portovenere?", a: "3.250 abitanti", o: ["5.100 abitanti", "2.340 abitanti", "4.200 abitanti"] },
+            { q: "Quale celebre chiesa si trova arroccata sulla punta di Portovenere?", a: "Chiesa di San Pietro", o: ["Chiesa di San Giorgio", "Cattedrale di Cristo Re", "Chiesa di Santa Margherita"] },
+            { q: "Come si chiama il castello che domina il borgo di Portovenere?", a: "Castello Doria", o: ["Castello San Giorgio", "Castello del Belforte", "Il Bastione"] },
+            { q: "Qual è l'estensione superficiale dell'isola Palmaria?", a: "189 ettari", o: ["250 ettari", "95 ettari", "310 ettari"] },
+            { q: "Quanti abitanti ufficiali conta la località di Monesteroli?", a: "2 abitanti", o: ["15 abitanti", "0 abitanti", "45 abitanti"] },
+            { q: "Da quanti scalini in pietra è composta la spettacolare scalinata di Monesteroli?", a: "1100 scalini", o: ["850 scalini", "1500 scalini", "620 scalini"] },
+            { q: "In che anno il territorio delle Cinque Terre è diventato ufficialmente Parco Nazionale?", a: "1999", o: ["1995", "2003", "1989"] },
+            { q: "Qual è l'estensione della superficie terrestre del Parco delle Cinque Terre?", a: "3.868 ettari (circa 38 km²)", o: ["5.200 ettari", "2.100 ettari", "4.500 ettari"] },
+            { q: "Qual è la popolazione residente totale suddivisa nei borghi storici delle Cinque Terre?", a: "Circa 4.000 abitanti", o: ["Circa 7.500 abitanti", "Circa 2.000 abitanti", "Circa 10.000 abitanti"] },
+            { q: "I 5 storici borghi delle Cinque Terre fanno capo amministrativamente a quanti Comuni?", a: "3 Comuni", o: ["5 Comuni", "2 Comuni", "1 solo Comune"] },
+            { q: "Quali sono i tre Comuni che gestiscono i borghi delle Cinque Terre?", a: "Monterosso, Vernazza e Riomaggiore", o: ["Monterosso, Levanto e La Spezia", "Vernazza, Manarola e Corniglia", "Riomaggiore, Portovenere e Lerici"] },
+            { q: "Quale zona del Comune di La Spezia è inclusa nelle porzioni di territorio del Parco?", a: "Zona Tramonti", o: ["Zona Pegazzano", "Zona Fossamastra", "Zona Chiappa"] },
+            { q: "Con quale promontorio termina a OVEST il territorio delle Cinque Terre?", a: "Punta Mesco", o: ["Punta di Montenero", "Punta Bon Figlio", "Punta del Gigante"] },
+            { q: "Con quale promontorio termina a EST il territorio del Parco delle Cinque Terre?", a: "Punta di Montenero", o: ["Punta Mesco", "Punta Bon Figlio", "Punta Palmaria"] },
+            { q: "Qual è l'orario esatto di partenza del treno Trenitalia FB da Genova programmato nella logistica?", a: "07:10", o: ["07:30", "06:45", "08:00"] },
+            { q: "Qual è il tempo di percorrenza previsto per il viaggio in treno da Genova alla stazione di La Spezia?", a: "64 minuti", o: ["45 minuti", "80 minuti", "55 minuti"] },
+            { q: "A che ora è previsto l'arrivo del treno alla stazione di La Spezia?", a: "08:15", o: ["08:30", "07:55", "08:45"] },
+            { q: "Quanto tempo aggiuntivo è stimato per il trasferimento da Via del Prione al Palacrociere?", a: "+ 30 minuti", o: ["+ 15 minuti", "+ 45 minuti", "+ 10 minuti"] },
+            { q: "Qual è l'orario totale stimato di arrivo al Porto di La Spezia considerando i trasferimenti?", a: "~08:45", o: ["~09:00", "~08:15", "~08:30"] },
+            { q: "A quanto ammonta il 'Margine di Sicurezza' (buffer) prima dell'incontro con il cliente fissato alle 09:00?", a: "15 minuti", o: ["30 minuti", "5 minuti", "20 minuti"] },
+            { q: "A che ora è fissato l'incontro ufficiale con il cliente al porto crociere?", a: "09:00", o: ["09:15", "08:45", "09:30"] },
+            { q: "Quale frase di accoglienza professionale deve pronunciare l'AT all'incontro al porto?", a: "\"Buongiorno, sono il vostro accompagnatore per la giornata. In 5 minuti di passeggiata saremo al battello\"", o: ["\"Benvenuti alle Cinque Terre, seguitemi subito al treno per non fare tardi\"", "\"Salve, avete i voucher pronti per l'imbarco immediato sul battello?\"", "\"Buongiorno, la giornata prevede un cammino a tappe fino a Vernazza\""] },
+            { q: "A che ora è fissato l'inizio dell'imbarco sul battello da La Spezia?", a: "09:15", o: ["09:30", "09:00", "09:45"] },
+            { q: "Durante la navigazione in battello, quale lato è consigliato per una migliore vista della costa?", a: "Il lato destro", o: ["Il lato sinistro", "La poppa", "La prua interna"] },
+            { q: "In quale fascia oraria si svolge la sosta nel borgo di Manarola secondo il programma operativo?", a: "10:45 - 11:45", o: ["10:00 - 11:00", "11:15 - 12:30", "09:45 - 11:15"] },
+            { q: "Verso quale punta panoramica ci si dirige a Manarola per le foto di rito?", a: "Punta Bon Figlio", o: ["Punta Mesco", "Punta di Montenero", "Punta della Marina"] },
+            { q: "In quale piazza di Manarola è prevista la sosta descritta nell'itinerario?", a: "Piazza Cappellini", o: ["Piazza Marconi", "Piazza Garibaldi", "Piazza San Lorenzo"] },
+            { q: "In quale fascia oraria è programmata la visita e la pausa pranzo a Vernazza?", a: "12:10 - 14:18", o: ["12:00 - 13:30", "12:30 - 14:30", "11:45 - 14:00"] },
+            { q: "In quale piazza di Vernazza si effettua la pausa per il pranzo?", a: "Piazza Marconi", o: ["Piazza Cappellini", "Piazza della Chiesa", "Piazza Doria"] },
+            { q: "Quale comportamento deve tenere l'accompagnatore durante la visita dei clienti alla chiesa di Santa Margherita?", a: "Attesa esterna", o: ["Visita guidata all'interno", "Spiegazione dettagliata degli affreschi", "Passeggiata libera in stazione"] },
+            { q: "In quale fascia oraria finale è programmato il rientro e la sosta di La Spezia centro?", a: "14:40 - 15:30", o: ["15:00 - 16:00", "14:18 - 15:00", "15:15 - 16:15"] },
+            { q: "Quali vie/viali vengono percorsi a La Spezia centro per raggiungere il porto?", a: "Via del Prione e Via Chiodo", o: ["Centro storico e Viale Italia", "Corso Cavour e Piazza Verdi", "Via Garibaldi e passeggiata Morin"] },
+            { q: "A che ora si conclude definitivamente il servizio al terminal crociere?", a: "15:30", o: ["16:30", "16:00", "15:00"] },
+            { q: "Cosa è caldamente consigliato fare all'accompagnatore prima del suo primo incarico effettivo?", a: "Investire tempo in sopralluogo preliminare o richiedere affiancamento", o: ["Documentarsi solo online il giorno stesso", "Bleffare sulla conoscenza del percorso", "Affidarsi totalmente alle guide locali"] },
+            { q: "Cosa rischia di compromettere irreparabilmente l'azione di 'bleffare' sul lavoro?", a: "La professionalità", o: ["Il meteo del tour", "Il budget dell'agenzia", "La frequenza dei treni"] },
+            { q: "Qual è la regola categorica del 'Protocollo Gestione Ritardi' riguardante le navi da crociera?", a: "La nave non aspetta escursioni private. Il rientro finale è priorità assoluta.", o: ["La nave attende fino a un massimo di 30 minuti tutti i gruppi.", "L'agenzia può bloccare la partenza della nave contattando la capitaneria.", "I clienti hanno diritto a un trasporto in elicottero a spese della nave."] },
+            { q: "Qual è l'opzione di sicurezza tempistica se l'ultimo imbarco sulla nave è previsto alle 16:30?", a: "Concludere il tour un'ora prima (15:30)", o: ["Arrivare esattamente alle 16:25", "Concludere 15 minuti prima", "Prolungare il tour fino alle 16:15"] },
+            { q: "In alta stagione, qual è la frequenza media dei treni nel territorio delle Cinque Terre?", a: "Circa 20 minuti", o: ["Ogni 5 minuti", "Ogni 45 minuti", "Ogni ora"] },
+            { q: "In caso di ritardo a Vernazza, qual è il treno successivo utile indicato come salvagente?", a: "Treno delle 14:26 da Vernazza", o: ["Treno delle 14:50 da Riomaggiore", "Treno delle 15:05 da Monterosso", "Treno delle 13:58 da Corniglia"] },
+            { q: "A che ora arriva a La Spezia il treno di emergenza delle 14:26 da Vernazza?", a: "14:48", o: ["14:55", "15:10", "14:38"] },
+            { q: "Qual è il primissimo step operativo del Protocollo Gestione Ritardi?", a: "Contatto immediato telefonico con l'Agenzia", o: ["Acquisto dei biglietti del taxi", "Inviare un'email riassuntiva", "Tranquillizzare l'equipaggio della nave"] },
+            { q: "Cosa deve richiedere l'AT durante la telefonata immediata all'agenzia in caso di ritardo?", a: "Autorizzazione alla modifica del programma (es. taxi stazione-terminal)", o: ["Un aumento della diaria giornaliera", "La cancellazione del tour successivo", "Il pagamento immediato dei biglietti ferroviari"] },
+            { q: "Qual è il secondo step del protocollo ritardi per tutelare legalmente l'accompagnatore?", a: "Conferma Scritta (Email o SMS) dell'autorizzazione ricevuta", o: ["Firma cartacea del capogruppo dei clienti", "Registrazione vocale della telefonata", "Scontrino fiscale del bar della stazione"] },
+            { q: "Nel terzo step del protocollo ritardi (Esecuzione), cosa occorre ritirare tassativamente per il rimborso?", a: "La ricevuta del trasporto alternativo acquistato", o: ["Il badge del tassista", "Il modulo di reclamo prestampato", "Una dichiarazione scritta dei passeggeri"] },
+            { q: "Cosa deve spiegare l'accompagnatore al cliente per gestire l'imprevisto con calma?", a: "La soluzione proattiva adottata per garantire il rientro puntuale", o: ["I problemi logistici e le colpe della compagnia ferroviaria", "I costi eccessivi che l'agenzia dovrà sostenere", "Il rischio concreto di rimanere a terra"] },
+            { q: "Quale importante monumento religioso moderno a pianta circolare si trova a La Spezia?", a: "Cattedrale di Cristo Re", o: ["Santuario di San Giorgio", "Chiesa di Santa Margherita", "Duomo di San Giovanni Battista"] },
+            { q: "Come si chiama la principale fortificazione storica situata nel centro urbano di La Spezia?", a: "Castello San Giorgio", o: ["Castello Doria", "Torre del Belforte", "Il Bastione Antico"] },
+            { q: "Quale imponente struttura militare e industriale caratterizza la storia della città di La Spezia?", a: "L'Arsenale Militare", o: ["Il Cantiere Navale Fincantieri", "La Base Logistica dell'Aeronautica", "Il Forte Umberto I"] },
+            { q: "Quale famoso museo spezzino raccoglie polene, modelli e cimeli della navigazione?", a: "Museo Tecnico Navale", o: ["Museo Civico \"Amedeo Lia\"", "Museo del Sigillo", "Museo Archeologico Castello"] },
+            { q: "Qual è il nome del prestigioso Museo Civico d'Arte di La Spezia?", a: "Museo Civico \"Amedeo Lia\"", o: ["Museo Civico del Sigillo", "Museo Navale", "Galleria d'Arte Moderne"] },
+            { q: "Quale singolare museo di La Spezia vanta una delle più importanti collezioni al mondo di matrici e impronte?", a: "Museo Civico del Sigillo", o: ["Museo Amedeo Lia", "Museo Tecnico Navale", "Museo del Cristallo Re"] },
+            { q: "Qual è la dicitura esatta impressa sulla facciata del Cruise Terminal del porto di La Spezia?", a: "GOLFO DEI POETI CINQUE TERRE CRUISE TERMINAL", o: ["LA SPEZIA CRUISE TERMINAL PORT", "PALACROCIERE TERMINAL SEAFRONT", "PORT OF LA SPEZIA PASSENGER HUB"] },
+            { q: "Quale distinzione legale fondamentale differenzia l'Accompagnatore dalla Guida Turistica?", a: "L'AT gestisce la logistica e fornisce informazioni generali; non fa spiegazioni storico-artistiche dettagliate.", o: ["L'AT può guidare all'interno dei musei ma non nelle chiese.", "La Guida Turistica si occupa solo dei trasporti e dei biglietti marittimi.", "L'AT descrive dettagliatamente le opere d'arte solo se il gruppo è piccolo."] },
+            { q: "Quale attività è espressamente VIETATA all'Accompagnatore Turistico per legge?", a: "Visite guidate e interpretazioni culturali approfondite in chiese e musei", o: ["Fornire informazioni sui prodotti tipici locali", "Fornire indicazioni sugli orari dei treni e dei battelli", "Gestire le mance per gli autisti o raccogliere i voucher"] },
+            { q: "Quali sono ottimi argomenti generali di conversazione per l'AT indicati nelle linee guida?", a: "Sciacchetrà, viticoltura eroica, pirati e Repubbliche Marinare", o: ["Politica locale ligure, cronaca nera e tasse portuali", "Gossip sui passeggeri, recensioni negative di hotel e tariffe taxi", "Storia dettagliata del Concilio Vaticano ed evoluzione dell'arte gotica"] },
+            { q: "Cosa prevede l'azione di Turismo Responsabile raccomandata nel corso?", a: "Promuovere acquisti artigianali autentici e sensibilizzare sul sovraffollamento", o: ["Indirizzare i turisti verso i grandi centri commerciali di Genova", "Consigliare di evitare del tutto l'interazione con i residenti", "Incentivare il pic-nic selvaggio lungo i sentieri del Parco"] },
+            { q: "Qual è il formato ufficiale consigliato nel calendario digitale per registrare i servizi?", a: "\"Data - Agenzia - Cognome Cliente - Orario\"", o: ["\"Nome Cliente - Località - Numero Voucher\"", "\"Orario Partenza - Agenzia - Prezzo Totale\"", "\"Meteo - Destinazione - Numero Biglietti\""] },
+            { q: "Cosa deve includere il 'Kit Documentale' dell'AT alla vigilia del tour?", a: "Cartello di riconoscimento A4, Voucher di servizio e tabella orari aggiornata", o: ["Manuale di storia dell'arte ligure, blocchetto delle multe e listino prezzi", "Fotocopia della Costituzione Italiana, passaporto originale e bussola nautica", "Un set di medicinali generici, ricettario medico e siringhe sterili"] },
+            { q: "Qual è la regola tassativa sulla somministrazione di farmaci ai clienti da parte dell'AT?", a: "Non è possibile somministrare farmaci. Si può solo assistere l'accesso a farmaci salvavita del cliente.", o: ["È possibile distribuire solo aspirine, cerotti e digestivi leggeri.", "Si possono somministrare farmaci solo dietro liberatoria scritta firmata.", "L'accompagnatore deve have un kit completo di farmaci da banco da vendere."] },
+            { q: "Qual è l'uniforme e l'abbigliamento professionale richiesto per l'Accompagnatore Turistico?", a: "Pantaloni blu, camicia bianca e badge con patentino sempre esposto", o: ["Completo scuro formale con cravatta rossa e scarpe lucide", "Abbigliamento da trekking sportivo dai colori sgargianti", "T-shirt dell'agenzia turistica, jeans chiari e cappellino da sole"] }
+        ];
+
+        let remainingQuestions = [];
+        let playerScores = [0, 0];
+        let currentPlayer = 0; 
+        let currentWheelValue = null;
+        let currentQuestion = null;
+        let isWheelSpun = false;
+
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const numSectors = sectors.length;
+        const arcSize = (2 * Math.PI) / numSectors;
+        let currentRotation = 0;
+
+        function drawWheel(angleOffset) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2 - 12;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angleOffset);
+            ctx.translate(-centerX, -centerY);
+
+            for (let i = 0; i < numSectors; i++) {
+                const angle = i * arcSize;
+                
+                ctx.fillStyle = sectors[i].color;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + arcSize);
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = sectors[i].textCol;
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                ctx.font = "bold 13px sans-serif";
+                ctx.fillText(sectors[i].label, radius - 15, 0);
+                ctx.restore();
+            }
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0; 
+        }
+
+        function initGame() {
+            remainingQuestions = [...questionDatabase];
+            playerScores = [0, 0];
+            currentPlayer = 0;
+            currentWheelValue = null;
+            currentQuestion = null;
+            isWheelSpun = false;
+            
+            document.getElementById("score-p1").innerText = "0";
+            document.getElementById("score-p2").innerText = "0";
+            document.getElementById("card-p1").className = "player-card active";
+            document.getElementById("card-p2").className = "player-card";
+            
+            document.getElementById("spin-btn").disabled = false;
+            document.getElementById("info-box").style.display = "flex";
+            document.getElementById("question-box").style.display = "none";
+            document.getElementById("status-box").innerText = "Giocatore 1, gira la ruota!";
+            document.getElementById("victory-screen").style.display = "none";
+            
+            currentRotation = 0;
+            drawWheel(currentRotation);
+        }
+
+        function spinWheel() {
+            if (isWheelSpun) return;
+            isWheelSpun = true;
+            document.getElementById("spin-btn").disabled = true;
+
+            const extraDegrees = Math.floor(Math.random() * 360);
+            const totalSpins = 6 + Math.floor(Math.random() * 4);
+            const targetRotationDelta = (totalSpins * 360) + extraDegrees;
+            const targetRotationRad = (targetRotationDelta * Math.PI) / 180;
+            
+            const startRotation = currentRotation;
+            const duration = 4000;
+            let startTimestamp = null;
+
+            function animate(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const elapsed = timestamp - startTimestamp;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentAngle = startRotation + targetRotationRad * easeOut;
+                
+                drawWheel(currentAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    currentRotation = currentAngle % (2 * Math.PI);
+                    if (currentRotation < 0) currentRotation += 2 * Math.PI;
+                    
+                    let pointerAngle = (3 * Math.PI / 2) - currentRotation;
+                    while (pointerAngle < 0) pointerAngle += 2 * Math.PI;
+                    pointerAngle = pointerAngle % (2 * Math.PI);
+                    
+                    const sectorIndex = Math.floor(pointerAngle / arcSize) % numSectors;
+                    processSectorResult(sectors[sectorIndex]);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function processSectorResult(sector) {
+            const playerLabel = "Giocatore " + (currentPlayer + 1);
+            
+            if (sector.value === "BANKRUPT") {
+                playerScores[currentPlayer] = 0;
+                document.getElementById("score-p" + (currentPlayer + 1)).innerText = "0";
+                document.getElementById("status-box").innerText = "💥 BANCAROTTA per il " + playerLabel + "! Punteggio azzerato!";
+                setTimeout(switchPlayer, 2500);
+            } else if (sector.value === 0) {
+                document.getElementById("status-box").innerText = "🍋 Settore a 0 PUNTI per il " + playerLabel + "! Nessun guadagno.";
+                setTimeout(switchPlayer, 2500);
+            } else {
+                currentWheelValue = sector.value;
+                document.getElementById("status-box").innerText = "🎯 Il " + playerLabel + " ha estratto " + currentWheelValue + " PUNTI! Rispondi alla domanda.";
+                showNextQuestion();
+            }
+        }
+
+        function showNextQuestion() {
+            if (remainingQuestions.length === 0) {
+                remainingQuestions = [...questionDatabase];
+            }
+
+            const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+            currentQuestion = remainingQuestions.splice(randomIndex, 1)[0];
+
+            const correctPos = Math.floor(Math.random() * 4);
+            let optionIndex = 0;
+
+            document.getElementById("q-text").innerText = currentQuestion.q;
+
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById("opt" + i);
+                btn.className = "option-btn"; 
+                btn.disabled = false;
+                
+                if (i === correctPos) {
+                    btn.innerText = currentQuestion.a;
+                    btn.setAttribute("data-correct", "true");
+                } else {
+                    btn.innerText = currentQuestion.o[optionIndex];
+                    btn.setAttribute("data-correct", "false");
+                    optionIndex++;
+                }
+            }
+
+            document.getElementById("info-box").style.display = "none";
+            document.getElementById("question-box").style.display = "flex";
+        }
+
+        function checkAnswer(selectedIndex) {
+            for (let i = 0; i < 4; i++) {
+                document.getElementById("opt" + i).disabled = true;
+            }
+
+            const chosenBtn = document.getElementById("opt" + selectedIndex);
+            const isCorrect = chosenBtn.getAttribute("data-correct") === "true";
+
+            if (isCorrect) {
+                chosenBtn.classList.add("correct");
+                playerScores[currentPlayer] += currentWheelValue;
+                document.getElementById("score-p" + (currentPlayer + 1)).innerText = playerScores[currentPlayer];
+                document.getElementById("status-box").innerText = "✅ Risposta Esatta! Guadagni " + currentWheelValue + " punti.";
+                
+                if (playerScores[currentPlayer] >= 1500) {
+                    setTimeout(triggerVictory, 1500);
+                    return;
+                }
+            } else {
+                chosenBtn.classList.add("wrong");
+                for (let i = 0; i < 4; i++) {
+                    if (document.getElementById("opt" + i).getAttribute("data-correct") === "true") {
+                        document.getElementById("opt" + i).classList.add("correct");
+                    }
+                }
+                document.getElementById("status-box").innerText = "❌ Risposta Sbagliata! Nessun punto.";
+            }
+
+            setTimeout(switchPlayer, 3000);
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 0 ? 1 : 0;
+            isWheelSpun = false;
+
+            document.getElementById("card-p1").className = currentPlayer === 0 ? "player-card active" : "player-card";
+            document.getElementById("card-p2").className = currentPlayer === 1 ? "player-card active" : "player-card";
+
+            document.getElementById("status-box").innerText = "Tocca al Giocatore " + (currentPlayer + 1) + ". Gira la ruota!";
+            document.getElementById("spin-btn").disabled = false;
+            document.getElementById("info-box").style.display = "flex";
+            document.getElementById("question-box").style.display = "none";
+        }
+
+        function triggerVictory() {
+            document.getElementById("victory-msg").innerText = "🏆 Complimenti! Il Giocatore " + (currentPlayer + 1) + " ha raggiunto " + playerScores[currentPlayer] + " punti e vince la partita!";
+            document.getElementById("victory-screen").style.display = "flex";
+            
+            const umbrellaInterval = setInterval(() => {
+                if (document.getElementById("victory-screen").style.display === "none") {
+                    clearInterval(umbrellaInterval);
+                    return;
+                }
+                createUmbrella();
+            }, 150);
+            
+            for(let i=0; i<15; i++) {
+                setTimeout(createUmbrella, Math.random() * 1200);
+            }
+        }
+
+        function createUmbrella() {
+            const umbrellaSymbols = ["☂️", "☔", "🌂", "⛱️"];
+            const colors = ["#ff4757", "#2ed573", "#1e90ff", "#ffa502", "#e056fd", "#fff200"];
+            
+            const div = document.createElement("div");
+            div.className = "umbrella";
+            div.innerText = umbrellaSymbols[Math.floor(Math.random() * umbrellaSymbols.length)];
+            div.style.left = Math.random() * 100 + "vw";
+            div.style.color = colors[Math.floor(Math.random() * colors.length)];
+            
+            const duration = 2.0 + Math.random() * 2.5; 
+            div.style.animationDuration = duration + "s";
+            div.style.fontSize = (1.5 + Math.random() * 1.8) + "rem";
+            
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, duration * 1000);
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+'''
+
+with open("ruotada_mo_corretto.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("File salvato con successo.")

@@ -1,0 +1,566 @@
+# Semplifichiamo radicalmente la simulazione (Tab 1):
+# Invece di un cursore continuo da 20 a 100 che genera confusione a temperature intermedie,
+# creiamo DUE SOLI PULIZANTI / SCATTI DI TEMPERATURA:
+# 1. Pulsante "50°C (Evaporazione Superficiale)": Le molecole interne si muovono moderatamente ma restano nel liquido; SOLO quelle sulla superficie superiore scappano.
+# 2. Pulsante "100°C (Ebollizione in Tutta la Massa)": L'energia termica esplode e partono bolle e flussi tumultuosi da TUTTO IL FONDO.
+
+two_buttons_html = """<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Particellare: Pentola & Termometro</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --card: #334155;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--panel);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #475569;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid #475569;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .sim-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background: #090d16;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #475569;
+        }
+        canvas {
+            display: block;
+            background: #020617;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            width: 100%;
+            max-width: 650px;
+            height: 380px;
+        }
+        .controls-panel {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button.action-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 12px 22px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        button.action-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        button.action-btn.active-temp {
+            background: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+        .box-info {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+            margin-top: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .glossary-item {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+        }
+        .glossary-item h4 {
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Laboratorio Particellare: Pentola & Termometro</h1>
+    <p class="subtitle">Modulo 2: Due scatti di temperatura per chiarire la differenza netta tra Evaporazione ed Ebollizione</p>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(0)">1. Pentola & Ebollizione</button>
+            <button class="tab-btn" onclick="switchTab(1)">2. Passaggi di Stato</button>
+            <button class="tab-btn" onclick="switchTab(2)">3. Grafite vs Diamante</button>
+            <button class="tab-btn" onclick="switchTab(3)">4. Glossario Tecnico</button>
+        </div>
+
+        <!-- SEZIONE 1 -->
+        <div class="section active">
+            <h2>Laboratorio della Pentola: Confronto Didattico</h2>
+            <p>Seleziona una delle due temperature per osservare il comportamento rigoroso delle particelle senza confusione:</p>
+            <div class="sim-box">
+                <canvas id="canvasTab1" width="650" height="380"></canvas>
+                <div class="controls-panel">
+                    <button class="action-btn" id="btn50" onclick="setTemperature(50)">50 °C (Evaporazione Superficiale)</button>
+                    <button class="action-btn" id="btn100" onclick="setTemperature(100)">100 °C (Ebollizione in Tutta la Massa)</button>
+                </div>
+            </div>
+            <div class="box-info" id="infoTab1">
+                <strong>Stato attuale (50°C):</strong> Le particelle si agitano all'interno, ma <strong>solo quelle sulla superficie superiore</strong> riescono a staccarsi e volare via. Le particelle in fondo restano confinate nel liquido!
+            </div>
+        </div>
+
+        <!-- SEZIONE 2 -->
+        <div class="section">
+            <h2>Simulazione Particellare: I Tre Stati</h2>
+            <div class="sim-box">
+                <canvas id="canvasTab2" width="650" height="380"></canvas>
+                <div class="controls">
+                    <button class="action-btn" onclick="setStateTab2('solid')">Stato Solido</button>
+                    <button class="action-btn" onclick="setStateTab2('liquid')">Stato Liquido</button>
+                    <button class="action-btn" onclick="setStateTab2('gas')">Stato Aeriforme</button>
+                </div>
+            </div>
+            <div class="box-info" id="infoTab2">
+                <strong>Stato Solido:</strong> Particelle vicine, fisse in un reticolo ordinato.
+            </div>
+        </div>
+
+        <!-- SEZIONE 3 -->
+        <div class="section">
+            <h2>Simulazione Strutturale: Grafite vs Diamante</h2>
+            <div class="sim-box">
+                <canvas id="canvasTab3" width="650" height="380"></canvas>
+                <div class="controls">
+                    <button class="action-btn" onclick="setCarbonTab3('diamond')">Modello Diamante</button>
+                    <button class="action-btn" onclick="setCarbonTab3('graphite')">Modello Grafite</button>
+                </div>
+            </div>
+            <div class="box-info" id="infoTab3">
+                <strong>Diamante:</strong> Reticolo tetraedrico tridimensionale rigidissimo.
+            </div>
+        </div>
+
+        <!-- SEZIONE 4 -->
+        <div class="section">
+            <h2>Glossario Completo dei Termini (Modulo 2)</h2>
+            <input type="text" id="gSearch" class="search-box" placeholder="Cerca termine..." onkeyup="searchGlossary()">
+            <div class="glossary-grid" id="glossaryContainer">
+                <div class="glossary-item"><h4>Aeriformi</h4><p>Particelle distanziate in movimento rapido.</p></div>
+                <div class="glossary-item"><h4>Allotropia</h4><p>Forme strutturali differenti dello stesso elemento.</p></div>
+                <div class="glossary-item"><h4>Cella Elementare</h4><p>Unità geometrica del reticolo cristallino.</p></div>
+                <div class="glossary-item"><h4>Colloidi</h4><p>Sistemi dispersi (sol e gel).</p></div>
+                <div class="glossary-item"><h4>Dislocazioni</h4><p>Difetti reticolari nei metalli.</p></div>
+                <div class="glossary-item"><h4>Ebollizione</h4><p>Passaggio liquido-gas in tutta la massa a 100°C.</p></div>
+                <div class="glossary-item"><h4>Evaporazione</h4><p>Passaggio liquido-gas superficiale a qualsiasi temperatura.</p></div>
+                <div class="glossary-item"><h4>Idrocolloidi</h4><p>Colloidi con mezzo disperdente acqua.</p></div>
+                <div class="glossary-item"><h4>Polimorfismo</h4><p>Cristallizzazione in forme differenti.</p></div>
+                <div class="glossary-item"><h4>Punto Critico</h4><p>Limite di liquefazione del vapore.</p></div>
+                <div class="glossary-item"><h4>Solidi Amorfi</h4><p>Solidi privi di reticolo ordinato (vetri).</p></div>
+                <div class="glossary-item"><h4>Solidi Cristallini</h4><p>Solidi con disposizione periodica.</p></div>
+                <div class="glossary-item"><h4>Tensioattivi</h4><p>Riducono la tensione superficiale.</p></div>
+                <div class="glossary-item"><h4>Tensione di Vapore</h4><p>Pressione del vapore in equilibrio.</p></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+function switchTab(index) {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.section');
+    tabs.forEach((t, i) => {
+        t.classList.toggle('active', i === index);
+        sections[i].classList.toggle('active', i === index);
+    });
+}
+
+// --- CANVAS 1: Due Scatti di Temperatura ---
+const canvas1 = document.getElementById('canvasTab1');
+const ctx1 = canvas1.getContext('2d');
+let currentTemp = 50; // Partiamo a 50°C
+let particlesTab1 = [];
+
+for(let i=0; i<65; i++) {
+    particlesTab1.push({
+        x: 180 + Math.random() * 290,
+        y: 190 + Math.random() * 150,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        isVapor: false
+    });
+}
+
+function setTemperature(temp) {
+    currentTemp = temp;
+    const info = document.getElementById('infoTab1');
+    const btn50 = document.getElementById('btn50');
+    const btn100 = document.getElementById('btn100');
+
+    if (temp === 50) {
+        btn50.style.background = '#f59e0b';
+        btn100.style.background = 'var(--accent)';
+        info.innerHTML = "<strong>Fase di Evaporazione (50°C):</strong> Le particelle si agitano all'interno del liquido ma <strong>SOLO quelle sulla superficie superiore</strong> (vicine alla linea azzurra) riescono a staccarsi e diventare vapore. Le particelle in fondo restano giù!";
+    } else {
+        btn50.style.background = 'var(--accent)';
+        btn100.style.background = '#ef4444';
+        info.innerHTML = "<strong>PUNTO DI EBOLLIZIONE (100°C)!</strong> Energia cinetica massima in <strong>tutta la massa</strong>: si formano bolle di vapore direttamente sul <strong>fondo della pentola</strong> che salgono tumultuosamente verso l'alto!";
+    }
+}
+// Imposta lo stato iniziale del bottone
+document.getElementById('btn50').style.background = '#f59e0b';
+
+function animateTab1() {
+    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    
+    // 1. Pentola
+    ctx1.fillStyle = '#475569';
+    ctx1.fillRect(160, 160, 330, 200);
+    ctx1.fillStyle = '#334155';
+    ctx1.fillRect(150, 140, 350, 25);
+    ctx1.fillStyle = '#64748b';
+    ctx1.fillRect(110, 180, 40, 15);
+    ctx1.fillRect(500, 180, 40, 15);
+
+    // 2. Fiamma
+    let flameHeight = currentTemp === 50 ? 25 : 55;
+    ctx1.fillStyle = currentTemp === 50 ? '#f97316' : '#ef4444';
+    ctx1.beginPath();
+    for(let fx = 180; fx < 470; fx += 30) {
+        ctx1.moveTo(fx, 360);
+        ctx1.lineTo(fx + 15, 360 + flameHeight + Math.random()*8);
+        ctx1.lineTo(fx + 30, 360);
+    }
+    ctx1.fill();
+
+    // 3. Liquido
+    let liquidAlpha = currentTemp === 50 ? 0.4 : 0.6;
+    ctx1.fillStyle = `rgba(56, 189, 248, ${liquidAlpha})`;
+    ctx1.fillRect(165, 175, 315, 180);
+    ctx1.strokeStyle = '#38bdf8';
+    ctx1.lineWidth = 3;
+    ctx1.beginPath();
+    ctx1.moveTo(165, 175);
+    ctx1.lineTo(480, 175);
+    ctx1.stroke();
+
+    // 4. Termometro
+    ctx1.fillStyle = '#1e293b';
+    ctx1.fillRect(60, 80, 30, 260);
+    ctx1.strokeStyle = '#38bdf8';
+    ctx1.lineWidth = 2;
+    ctx1.strokeRect(60, 80, 30, 260);
+    ctx1.fillStyle = currentTemp === 100 ? '#ef4444' : '#38bdf8';
+    ctx1.beginPath();
+    ctx1.arc(75, 325, 12, 0, Math.PI*2);
+    ctx1.fill();
+    let mercuryHeight = (currentTemp / 100) * 200;
+    ctx1.fillRect(70, 310 - mercuryHeight, 10, mercuryHeight);
+    ctx1.fillStyle = '#fff';
+    ctx1.font = '13px Arial';
+    ctx1.fillText(currentTemp + " °C", 55, 65);
+
+    // 5. Particelle
+    let speedFactor = currentTemp === 50 ? 0.5 : 1.8;
+    particlesTab1.forEach(p => {
+        if (!p.isVapor) {
+            p.x += p.vx * speedFactor;
+            p.y += p.vy * speedFactor;
+
+            if(p.x < 175) p.x = 175;
+            if(p.x > 470) p.x = 470;
+            if(p.y < 178) p.y = 178;
+            if(p.y > 345) p.y = 345;
+
+            if (currentTemp === 50) {
+                // A 50°C: SOLO le particelle nella striscia superficiale (y tra 178 e 190) possono evaporare
+                if(p.y <= 190 && Math.random() < 0.02) {
+                    p.isVapor = true;
+                    p.vy = -1.2;
+                }
+            } else {
+                // A 100°C: bolle da tutto il fondo (y >= 330)
+                if(p.y >= 330 && Math.random() < 0.15) {
+                    p.isVapor = true;
+                    p.y = 330;
+                    p.vy = -4.0;
+                }
+            }
+        } else {
+            // Vapore nell'aria
+            p.y -= 1.5;
+            if(p.y < 45) {
+                p.isVapor = false;
+                p.x = 180 + Math.random() * 290;
+                p.y = currentTemp === 50 ? (180 + Math.random() * 20) : (330 + Math.random() * 15);
+            }
+        }
+
+        ctx1.fillStyle = p.isVapor ? '#38bdf8' : '#60a5fa';
+        ctx1.beginPath();
+        ctx1.arc(p.x, p.y, p.isVapor ? 5 : 6, 0, Math.PI*2);
+        ctx1.fill();
+    });
+
+    ctx1.fillStyle = '#cbd5e1';
+    ctx1.font = '12px Arial';
+    ctx1.fillText("Vapore acqueo nell'aria", 230, 35);
+    
+    if (currentTemp === 50) {
+        ctx1.fillStyle = '#f59e0b';
+        ctx1.font = 'bold 13px Arial';
+        ctx1.fillText("EVAPORAZIONE: Solo le molecole in superficie fuggono!", 160, 168);
+    } else {
+        ctx1.fillStyle = '#ef4444';
+        ctx1.font = 'bold 13px Arial';
+        ctx1.fillText("EBOLLIZIONE: Bolle di vapore dal fondo in tutta la massa!", 150, 270);
+    }
+
+    requestAnimationFrame(animateTab1);
+}
+animateTab1();
+
+// --- CANVAS 2: Passaggi di Stato ---
+const canvas2 = document.getElementById('canvasTab2');
+const ctx2 = canvas2.getContext('2d');
+let stateTab2 = 'solid';
+let particlesTab2 = [];
+
+for(let i=0; i<35; i++) {
+    particlesTab2.push({
+        x: 180 + (i % 7) * 45,
+        y: 120 + Math.floor(i / 7) * 45,
+        baseX: 180 + (i % 7) * 45,
+        baseY: 120 + Math.floor(i / 7) * 45,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2
+    });
+}
+
+function setStateTab2(st) {
+    stateTab2 = st;
+    const info = document.getElementById('infoTab2');
+    if(st === 'solid') {
+        info.innerHTML = "<strong>Stato Solido:</strong> Particelle vicine, fisse in un reticolo ordinato.";
+    } else if(st === 'liquid') {
+        info.innerHTML = "<strong>Stato Liquido:</strong> Particelle vicine ma scorrevoli.";
+    } else {
+        info.innerHTML = "<strong>Stato Aeriforme:</strong> Particelle distanti e caotiche.";
+    }
+}
+
+function animateTab2() {
+    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+    particlesTab2.forEach(p => {
+        if(stateTab2 === 'solid') {
+            p.x = p.baseX + (Math.random() - 0.5) * 3;
+            p.y = p.baseY + (Math.random() - 0.5) * 3;
+        } else if(stateTab2 === 'liquid') {
+            p.x += p.vx * 0.7;
+            p.y += p.vy * 0.7;
+            if(p.x < 150 || p.x > 500) p.vx *= -1;
+            if(p.y < 120 || p.y > 330) p.vy *= -1;
+        } else {
+            p.x += p.vx * 3.5;
+            p.y += p.vy * 3.5;
+            if(p.x < 120 || p.x > 530) p.vx *= -1;
+            if(p.y < 60 || p.y > 350) p.vy *= -1;
+        }
+
+        ctx2.fillStyle = stateTab2 === 'solid' ? '#f59e0b' : (stateTab2 === 'liquid' ? '#38bdf8' : '#ec4899');
+        ctx2.beginPath();
+        ctx2.arc(p.x, p.y, 9, 0, Math.PI*2);
+        ctx2.fill();
+        ctx2.strokeStyle = '#fff';
+        ctx2.lineWidth = 1;
+        ctx2.stroke();
+    });
+    requestAnimationFrame(animateTab2);
+}
+animateTab2();
+
+// --- CANVAS 3: Grafite vs Diamante ---
+const canvas3 = document.getElementById('canvasTab3');
+const ctx3 = canvas3.getContext('2d');
+let carbonMode = 'diamond';
+let pulse = 0;
+
+function setCarbonTab3(m) {
+    carbonMode = m;
+    const info = document.getElementById('infoTab3');
+    if(m === 'diamond') {
+        info.innerHTML = "<strong>Diamante:</strong> Reticolo tetraedrico spaziale rigido.";
+    } else {
+        info.innerHTML = "<strong>Grafite:</strong> Strati piani esagonali scorrevoli.";
+    }
+}
+
+function animateTab3() {
+    ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+    pulse += 0.03;
+
+    if(carbonMode === 'diamond') {
+        ctx3.strokeStyle = '#38bdf8';
+        ctx3.lineWidth = 3;
+        let cx = 325, cy = 180;
+        let nodes = [
+            {x: cx, y: cy - 90},
+            {x: cx - 100, y: cy + 40},
+            {x: cx + 100, y: cy + 40},
+            {x: cx, y: cy + 90}
+        ];
+        let lines = [[0,1], [0,2], [0,3], [1,2], [1,3], [2,3]];
+        lines.forEach(l => {
+            ctx3.beginPath();
+            ctx3.moveTo(nodes[l[0]].x, nodes[l[0]].y);
+            ctx3.lineTo(nodes[l[1]].x, nodes[l[1]].y);
+            ctx3.stroke();
+        });
+        nodes.forEach(n => {
+            ctx3.fillStyle = '#ffd700';
+            ctx3.beginPath();
+            ctx3.arc(n.x, n.y, 14, 0, Math.PI*2);
+            ctx3.fill();
+            ctx3.stroke();
+        });
+        ctx3.fillStyle = '#fff';
+        ctx3.font = '15px Arial';
+        ctx3.fillText("Struttura tetraedrica rigida tridimensionale", 190, 330);
+    } else {
+        let topShift = Math.sin(pulse) * 30;
+        ctx3.strokeStyle = '#22c55e';
+        ctx3.lineWidth = 2;
+        
+        for(let i=0; i<4; i++) {
+            let x = 160 + i * 110 + topShift;
+            ctx3.fillStyle = '#f59e0b';
+            ctx3.beginPath();
+            ctx3.arc(x, 140, 12, 0, Math.PI*2);
+            ctx3.fill();
+            ctx3.stroke();
+        }
+        
+        for(let i=0; i<4; i++) {
+            let x = 190 + i * 110;
+            ctx3.fillStyle = '#f59e0b';
+            ctx3.beginPath();
+            ctx3.arc(x, 240, 12, 0, Math.PI*2);
+            ctx3.fill();
+            ctx3.stroke();
+        }
+
+        ctx3.fillStyle = '#fff';
+        ctx3.font = '15px Arial';
+        ctx3.fillText("Strati piani paralleli scorrevoli", 200, 330);
+    }
+    requestAnimationFrame(animateTab3);
+}
+animateTab3();
+
+function searchGlossary() {
+    let query = document.getElementById('gSearch').value.toLowerCase();
+    let items = document.getElementsByClassName('glossary-item');
+    for (let item of items) {
+        let text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'block' : 'none';
+    }
+}
+</script>
+
+</body>
+</html>
+"""
+
+with open("laboratorio_due_scatti.html", "w", encoding="utf-8") as f:
+    f.write(two_buttons_html)
+
+print("Creato con i due scatti fissi.")

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDA per Competenze - Scienze dei Materiali Dentali IV B</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Stili ottimizzati per la stampa a PDF tramite il browser */
+        @media print {
+            .no-print { display: none !important; }
+            .print-all { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .shadow-sm, .shadow-xl { box-shadow: none !important; }
+            div.hidden { display: block !important; margin-top: 2rem !important; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-28">
+
+    <!-- Header Istituzionale UDA IV B -->
+    <header class="bg-gradient-to-r from-indigo-950 via-blue-900 to-slate-900 text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-blue-800/80 text-blue-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-blue-700">UDA per Competenze • a.s. 2025/2026</span>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold mt-2 tracking-tight">Dalle Proprietà Chimico-Fisiche alla Metallurgia e agli Idrocarburi</h1>
+                    <p class="text-blue-200 text-sm mt-1">Classe Quarta Sez. B | Indirizzo Odontotecnico | Scienze dei Materiali Dentali</p>
+                </div>
+                <div class="bg-blue-950/60 p-4 rounded-2xl border border-blue-800/60 text-sm backdrop-blur-sm shadow-inner flex flex-col gap-2">
+                    <p class="flex items-center gap-2">👨‍🏫 <strong>Docenti:</strong> Prof. Fabio De Paz & Mirco Tranchida[cite: 2]</p>
+                    <p class="flex items-center gap-2">⏱️ <strong>Indirizzo:</strong> Basi scientifiche e tecnologiche</p>
+                    
+                    <!-- Pulsante di esportazione PDF rapido -->
+                    <div class="flex gap-2 mt-2 pt-2 border-t border-blue-800/60 no-print">
+                        <button onclick="esportaPDFStampa()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 cursor-pointer shadow-sm">
+                            <span>📄</span> Stampa / Salva PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigazione a Schede (Tabs) -->
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 no-print">
+        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+            <button onclick="switchTab('quadro')" id="btn-quadro" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-blue-600 text-white shadow-sm cursor-pointer">1. Quadro e Competenze</button>
+            <button onclick="switchTab('compito')" id="btn-compito" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">2. Il Compito di Realtà</button>
+            <button onclick="switchTab('fasi')" id="btn-fasi" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">3. Moduli e UD (8 Moduli)</button>
+            <button onclick="switchTab('rubrica')" id="btn-rubrica" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">4. Rubrica di Valutazione</button>
+        </div>
+    </nav>
+
+    <!-- Contenuto Principale Dinamico -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+
+        <!-- TAB 1: Quadro e Competenze -->
+        <div id="tab-quadro" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Profilo Metodologico -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                        <span>🛠️</span> Impostazione Metodologica
+                    </h2>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li class="flex items-start gap-2"><span>🔹</span> <strong>Fondamenti Scientifici:</strong> Collegamento tra chimica, fisica e proprietà tecnologiche dei materiali dentali.</li>
+                        <li class="flex items-start gap-2"><span>🔹</span> <strong>Analisi Sperimentale:</strong> Studio delle leghe nobili, dei rivestimenti e dei comportamenti elettrochimici.</li>
+                        <li class="flex items-start gap-2"><span>🔹</span> <strong>Approccio Pratico:</strong> Connessione diretta tra la struttura atomica/molecolare e la lavorazione odontotecnica.</li>
+                    </ul>
+                </div>
+
+                <!-- Risultati di Apprendimento / Competenze IV B -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 space-y-4">
+                    <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                        <span>🎯</span> Obiettivi e Competenze di Indirizzo (Classe IV)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C1</span>
+                            <span>Analizzare le proprietà superficiali, fisiche, chimiche e meccaniche dei materiali[cite: 2].</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C2</span>
+                            <span>Valutare l'impiego dei materiali da rivestimento a legante gessoso e fosfatico[cite: 2].</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C3</span>
+                            <span>Comprendere la metallurgia generale, la struttura cristallina e i trattamenti termici delle leghe[cite: 2].</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C4</span>
+                            <span>Interpretare leghe nobili e non nobili da colata e il loro comportamento comparativo[cite: 2].</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C5</span>
+                            <span>Applicare i concetti di elettrochimica, celle galvaniche e reazioni redox in ambito protesico[cite: 2].</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-xs">C6</span>
+                            <span>Padroneggiare la chimica del carbonio, degli idrocarburi e i meccanismi di polimerizzazione[cite: 2].</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Il Compito di Realtà -->
+        <div id="tab-compito" class="space-y-6 hidden print-all">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200 uppercase">Situazione - Problema Professionale (Classe IV)</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-2">Dalla caratterizzazione chimico-fisica alla scelta delle leghe e dei rivestimenti</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-blue-900 text-base flex items-center gap-2"><span>📌</span> Consegna agli Studenti</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            <em>"Nel contesto laboratoriale della classe quarta, analizza le proprietà meccaniche e tecnologiche di un provino metallico, seleziona il corretto materiale da rivestimento (gessoso o fosfatico) in base alle temperature di fusione, valuta la composizione delle leghe nobili da colata e spiega i fenomeni elettrochimici (redox) e i legami organici degli idrocarburi alla base dei futuri materiali polimerici."</em>
+                        </p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-blue-900 text-base flex items-center gap-2"><span>🛠️</span> Evidenze e Prodotti Attesi</h3>
+                        <ul class="space-y-2 text-slate-600">
+                            <li>✔️ Capacità di calcolo e interpretazione delle proprietà fisiche e meccaniche (durezza, resilienza, fatica)[cite: 2].</li>
+                            <li>✔️ Distinzione critica tra leghe nobili e non nobili[cite: 2].</li>
+                            <li>✔️ Risoluzione di problemi di stechiometria ed elettrochimica (Pila Daniell, redox)[cite: 2].</li>
+                            <li>✔️ Riconoscimento strutturale di idrocarburi alifatici, aromatici e reazioni di polimerizzazione[cite: 2].</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Moduli e UD (8 Moduli IV B) -->
+        <div id="tab-fasi" class="space-y-6 hidden print-all">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-900">Articolazione dei 8 Moduli Ufficiali (Classe IV B)</h2>
+                <span class="text-xs text-slate-500">Programma ufficiale a.s. 2025/2026[cite: 2]</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Modulo 1 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 1</span>
+                    <h3 class="font-bold text-slate-900">Proprietà Superficiali, Fisiche e Chimiche</h3>
+                    <p class="text-xs text-slate-600">Bagnabilità, capillarità, adesione, massa volumica, calore di fusione, dilatazione, corrosione e biocompatibilità[cite: 2].</p>
+                </div>
+                <!-- Modulo 2 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 2</span>
+                    <h3 class="font-bold text-slate-900">Proprietà Meccaniche</h3>
+                    <p class="text-xs text-slate-600">Sollecitazioni statiche (trazione, taglio, flessione, torsione), fatica, usura, durezza, scorrimento viscoso e resilienza[cite: 2].</p>
+                </div>
+                <!-- Modulo 3 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 3</span>
+                    <h3 class="font-bold text-slate-900">Proprietà Tecnologiche</h3>
+                    <p class="text-xs text-slate-600">Malleabilità, duttilità, fusibilità, saldabilità, temprabilità, lavorabilità all'utensile e rugosità[cite: 2].</p>
+                </div>
+                <!-- Modulo 4 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 4</span>
+                    <h3 class="font-bold text-slate-900">Materiali da Rivestimento</h3>
+                    <p class="text-xs text-slate-600">Materiali da rivestimento a legante gessoso e materiali da rivestimento a legante fosfatico[cite: 2].</p>
+                </div>
+                <!-- Modulo 5 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 5</span>
+                    <h3 class="font-bold text-slate-900">Metallurgia Generale</h3>
+                    <p class="text-xs text-slate-600">Struttura cristallina, solidificazione, accrescimento grani, incrudimento, ricristallizzazione e trattamenti termici[cite: 2].</p>
+                </div>
+                <!-- Modulo 6 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 6</span>
+                    <h3 class="font-bold text-slate-900">Leghe Nobili da Colata</h3>
+                    <p class="text-xs text-slate-600">Classificazione, leghe nobili, leghe dal 25% al 75% di nobili e confronto con le leghe non nobili[cite: 2].</p>
+                </div>
+                <!-- Modulo 7 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 7</span>
+                    <h3 class="font-bold text-slate-900">Elettrochimica e Redox</h3>
+                    <p class="text-xs text-slate-600">Numeri di ossidazione, bilanciamento redox, Pila Daniell, celle galvaniche ed elettrolitiche[cite: 2].</p>
+                </div>
+                <!-- Modulo 8 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Modulo 8</span>
+                    <h3 class="font-bold text-slate-900">Carbonio e Idrocarburi</h3>
+                    <p class="text-xs text-slate-600">Orbitali ibridi, alcani, alcheni, alchini, isomerie, benzene e cenni di polimerizzazione radicalica[cite: 2].</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Rubrica di Valutazione -->
+        <div id="tab-rubrica" class="space-y-6 hidden print-all">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-lg font-bold text-slate-900">Matrice di Certificazione delle Competenze (Classe IV)</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700">
+                                <th class="p-3 rounded-l-xl">Indicatore di Competenza</th>
+                                <th class="p-3">Avanzato (Ottimo)</th>
+                                <th class="p-3">Intermedio (Buono)</th>
+                                <th class="p-3">Base (Sufficiente)</th>
+                                <th class="p-3 rounded-r-xl">Iniziale</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800">Conoscenza Teorica e Scientifica</td>
+                                <td class="p-3">Padroneggia perfettamente i concetti chimico-fisici e metallurgici.</td>
+                                <td class="p-3">Comprende e spiega correttamente la teoria dei materiali.</td>
+                                <td class="p-3">Conosce i concetti fondamentali in modo essenziale.</td>
+                                <td class="p-3">Conoscenze lacunose dei principi chimico-fisici di base.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800">Analisi e Applicazione (Rivestimenti/Leghe)</td>
+                                <td class="p-3">Seleziona e motiva con rigore critico leghe e materiali da rivestimento.</td>
+                                <td class="p-3">Applica correttamente le procedure di scelta dei materiali.</td>
+                                <td class="p-3">Esegue scelte guidate conformi agli standard minimi.</td>
+                                <td class="p-3">Difficoltà nella gestione di leghe e rivestimenti.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-800">Competenze Chimiche (Redox / Idrocarburi)</td>
+                                <td class="p-3">Risolve agilmente calcoli redox, celle e strutture organiche complesse.</td>
+                                <td class="p-3">Buona competenza nel calcolo e nella classificazione organica.</td>
+                                <td class="p-3">Sufficiente comprensione delle reazioni e della nomenclatura.</td>
+                                <td class="p-3">Gravi difficoltà nei bilanciamenti e nella chimica organica.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Botón de Guardado Flotante -->
+    <div class="fixed bottom-6 right-6 z-50 no-print">
+        <button onclick="guardarComoArchivo()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer border border-blue-400/40 backdrop-blur-md">
+            <span>💾</span> GUARDAR RECURSO .HTML
+        </button>
+    </div>
+
+    <!-- Script de Pestañas, Autodescarga y PDF -->
+    <script>
+        function switchTab(tabId) {
+            const tabs = ['quadro', 'compito', 'fasi', 'rubrica'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-' + t).classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                document.getElementById('btn-' + t).classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            document.getElementById('btn-' + tabId).classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+        }
+
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'uda_competenze_scienza_materiali_iv_b.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function esportaPDFStampa() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

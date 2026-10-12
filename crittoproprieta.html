@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criptogramma Materiali Dentali - 10 Livelli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fde047;
+            background-image: radial-gradient(#facc15 2px, transparent 2px);
+            background-size: 20px 20px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        h1, .comic-font { font-family: 'Bangers', cursive; }
+        .comic-panel {
+            background: white;
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid #000;
+            border-radius: 1.5em;
+            padding: 12px;
+        }
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 20px;
+            width: 0; height: 0;
+            border: 15px solid transparent;
+            border-top-color: #000;
+            border-bottom: 0; border-left: 0;
+            margin-bottom: -15px;
+        }
+        .letter-box {
+            width: 40px;
+            height: 65px;
+            border: 2px solid black;
+            display: inline-flex;
+            flex-direction: column;
+            margin: 2px;
+            background: white;
+        }
+        .number-hint {
+            font-size: 0.9rem;
+            color: #ef4444;
+            font-weight: 800;
+            background: #fee2e2;
+            text-align: center;
+            border-top: 1px solid black;
+        }
+        .input-letter {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none; outline: none;
+            color: #1e40af;
+        }
+        .input-letter:focus { background: #bae6fd; }
+        .pow-label {
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            transform: rotate(-3deg);
+            border: 2px solid black;
+            display: inline-block;
+        }
+        .btn-download {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            border: 3px solid black;
+            padding: 12px 20px;
+            font-family: 'Bangers', cursive;
+            font-size: 1.2rem;
+            box-shadow: 5px 5px 0px black;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+        .btn-download:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0px black;
+            background: #059669;
+        }
+        .btn-download:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px black;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div>
+                <h1 class="text-5xl text-black tracking-wide">CRITTOGRAMMA MATERIALI DENTALI</h1>
+                <div class="pow-label text-xl">LIVELLO <span id="level-display">1</span> / 10</div>
+            </div>
+            <div class="comic-panel p-3 flex items-center gap-3">
+                <span class="text-4xl">👨‍🔬</span>
+                <div class="speech-bubble text-xs font-bold">
+                    "Decodifica i concetti chiave delle proprietà dei materiali!"
+                </div>
+            </div>
+        </div>
+
+        <!-- Indizi -->
+        <div id="hints-container" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6"></div>
+
+        <!-- Criptogramma -->
+        <div class="comic-panel p-6 mb-6 overflow-x-auto">
+            <div id="crypto-container" class="flex flex-wrap justify-center gap-y-6"></div>
+        </div>
+
+        <!-- Pulsanti -->
+        <div class="flex flex-wrap gap-4 justify-center items-center">
+            <button onclick="checkSolution()" id="btn-check" class="bg-black text-white px-8 py-3 text-xl font-bold hover:bg-zinc-800 transition transform hover:scale-105 active:scale-95 shadow-lg border-2 border-white">
+                VERIFICA! ⚡
+            </button>
+            <button onclick="nextLevel()" id="btn-next" class="hidden bg-green-500 text-white px-8 py-3 text-xl font-bold hover:bg-green-600 transition transform hover:scale-105 shadow-lg border-2 border-black">
+                PROSSIMA SFIDA ➡️
+            </button>
+            <button onclick="resetLevel()" class="bg-white text-black border-2 border-black px-4 py-3 font-bold hover:bg-zinc-100 transition shadow-md">
+                RESET 🔄
+            </button>
+        </div>
+
+        <div id="result-message" class="mt-6 text-center text-3xl font-bold comic-font min-h-[1.5em]"></div>
+
+        <!-- Legenda -->
+        <div class="mt-8 comic-panel p-4 bg-zinc-50">
+            <h3 class="font-bold mb-3 border-b-2 border-black pb-1 text-center text-sm uppercase">Chiave di Decodifica</h3>
+            <div id="symbol-legend" class="flex flex-wrap justify-center gap-2 text-xs font-bold"></div>
+        </div>
+    </div>
+
+    <!-- Pulsante Download -->
+    <button onclick="downloadAsHTML()" class="btn-download">
+        💾 SCARICA GIOCO .HTML
+    </button>
+
+    <script>
+        const levels = [
+            { 
+                f: "TEMPERATURA DI FUSIONE E COSTANTE NELLE SOSTANZE PURE", 
+                h: ["Proprietà fisica dei materiali", "Passaggio di stato da solido a liquido[cite: 2]", "Resta costante se la sostanza è pura[cite: 2]"] 
+            },
+            { 
+                f: "I METALLI SONO OTTIMI CONDUTTORI DI CORRENTE", 
+                h: ["Riguarda la conducibilità elettrica[cite: 2]", "Favoriscono la propagazione della corrente[cite: 2]", "Categoria opposta ai materiali ceramici"] 
+            },
+            { 
+                f: "LA CORROSIONE RIDUCE LA FUNZIONALITA", 
+                h: ["Fenomeno chimico negativo[cite: 2]", "Può liberare metalli tossici nel cavo orale[cite: 2]", "Diminuisce la durata della protesi[cite: 2]"] 
+            },
+            { 
+                f: "UN BIOMATERIALE NON DEVE ESSERE DANNOSO", 
+                h: ["Proprietà biologiche[cite: 2]", "Impiegato nel corpo umano[cite: 2]", "Deve svolgere una funzione utile e duratura[cite: 2]"] 
+            },
+            { 
+                f: "LA BIOCOMPATIBILITA INCLUDE FUNZIONI SPECIFICHE", 
+                h: ["Evoluzione del concetto biologico[cite: 2]", "Accettato dall'organismo ospitante[cite: 2]", "Svolge compiti precisi all'interno[cite: 2]"] 
+            },
+            { 
+                f: "ECCESSIVO ASSORBIMENTO D ACQUA PUO CAUSARE FALLIMENTI", 
+                h: ["Proprietà speciale dei materiali[cite: 2]", "Rischio nei procedimenti restaurativi[cite: 2]", "Legato alla conservazione e stabilità"] 
+            },
+            { 
+                f: "LA SOLUBILITA SI VALUTA CON SALIVA SINTETICA", 
+                h: ["Tendenza a sciogliersi nei liquidi orali[cite: 2]", "Test di laboratorio standardizzato[cite: 2]", "Proprietà speciale dei materiali dentali[cite: 2]"] 
+            },
+            { 
+                f: "IL TEMPO DI PRESA INDICA IL PASSAGGIO A RIGIDO", 
+                h: ["Riguarda materiali da impronta e gessi[cite: 2]", "Transizione da condizione fluida a rigida[cite: 2]", "Proprietà speciale di indurimento[cite: 2]"] 
+            },
+            { 
+                f: "I MATERIALI DENTALI SONO SOGGETTI A FORZE", 
+                h: ["Modulo 4: Proprietà meccaniche[cite: 3]", "Soggetti a masticazione e abrasione[cite: 3]", "Forze occlusali e masticatorie[cite: 3]"] 
+            },
+            { 
+                f: "LA FORZA MODIFICA LO STATO DI QUIETE", 
+                h: ["Agente fisico meccanico[cite: 3]", "Capace di produrre una deformazione[cite: 3]", "Interagisce con i corpi nello spazio[cite: 3]"] 
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let numberMap = {};
+
+        function initLevel() {
+            const level = levels[currentLevelIndex];
+            document.getElementById('level-display').innerText = currentLevelIndex + 1;
+            document.getElementById('result-message').innerText = "";
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('btn-check').classList.remove('hidden');
+            
+            const uniqueLetters = [...new Set(level.f.replace(/\s/g, '').split(''))].sort();
+            const shuffledNumbers = [...Array(uniqueLetters.length).keys()].map(i => i + 1).sort(() => Math.random() - 0.5);
+            
+            numberMap = {};
+            uniqueLetters.forEach((l, i) => numberMap[l] = shuffledNumbers[i]);
+
+            const hintsCont = document.getElementById('hints-container');
+            hintsCont.innerHTML = level.h.map((h, i) => `
+                <div class="bg-white border-2 border-black p-3 rounded text-xs font-bold shadow-sm">
+                    <span class="text-indigo-600 uppercase">Indizio ${i+1}:</span> ${h}
+                </div>
+            `).join('');
+
+            const cryptoCont = document.getElementById('crypto-container');
+            cryptoCont.innerHTML = '';
+            level.f.split(' ').forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'flex flex-wrap mr-6 mb-2';
+                word.split('').forEach(letter => {
+                    const box = document.createElement('div');
+                    box.className = 'letter-box';
+                    box.innerHTML = `
+                        <input type="text" maxlength="1" class="input-letter" data-letter="${letter}" 
+                               oninput="syncAll('${letter}', this.value.toUpperCase())">
+                        <div class="number-hint">${numberMap[letter]}</div>
+                    `;
+                    wordDiv.appendChild(box);
+                });
+                cryptoCont.appendChild(wordDiv);
+            });
+
+            renderLegend();
+        }
+
+        function syncAll(letter, val) {
+            const inputs = document.querySelectorAll(`input[data-letter="${letter}"]`);
+            inputs.forEach(i => i.value = val);
+            renderLegend();
+        }
+
+        function renderLegend() {
+            const legend = document.getElementById('symbol-legend');
+            const level = levels[currentLevelIndex];
+            const uniqueLetters = [...new Set(level.f.replace(/\s/g, '').split(''))].sort();
+            
+            legend.innerHTML = uniqueLetters.map(l => {
+                const n = numberMap[l];
+                const inputVal = document.querySelector(`input[data-letter="${l}"]`)?.value || '?';
+                return `<div class="bg-white border border-black p-1 rounded px-3 shadow-sm">
+                            <span class="text-red-500 font-black">#${n}</span> = 
+                            <span class="text-blue-600 text-lg">${inputVal}</span>
+                        </div>`;
+            }).join('');
+        }
+
+        function checkSolution() {
+            const inputs = document.querySelectorAll('.input-letter');
+            let correct = true;
+            inputs.forEach(i => {
+                if(i.value.toUpperCase() !== i.dataset.letter) {
+                    correct = false;
+                    i.classList.add('bg-red-100');
+                } else {
+                    i.classList.remove('bg-red-100');
+                    i.classList.add('bg-green-100');
+                }
+            });
+
+            const msg = document.getElementById('result-message');
+            if(correct) {
+                msg.innerText = "¡BOOM! CORRETTO! 🏆";
+                msg.className = "mt-6 text-center text-5xl text-green-600 font-bold block animate-bounce comic-font";
+                document.getElementById('btn-check').classList.add('hidden');
+                document.getElementById('btn-next').classList.remove('hidden');
+            } else {
+                msg.innerText = "Sbagliato! Controlla i numeri in rosso...";
+                msg.className = "mt-6 text-center text-2xl text-red-600 font-bold block comic-font";
+            }
+        }
+
+        function nextLevel() {
+            if(currentLevelIndex < levels.length - 1) {
+                currentLevelIndex++;
+                initLevel();
+            } else {
+                alert("CONGRATULAZIONI! Hai risolto tutti i 10 crittogrammi sui materiali dentali!");
+                currentLevelIndex = 0;
+                initLevel();
+            }
+        }
+
+        function resetLevel() {
+            initLevel();
+        }
+
+        function downloadAsHTML() {
+            const content = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'crittogrammi_materiali_dentali.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = initLevel;
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDA Interdisciplinare - Scienze dei Materiali III B</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-all { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .shadow-sm, .shadow-xl { box-shadow: none !important; }
+            div.hidden { display: block !important; margin-top: 2rem !important; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-28">
+
+    <!-- Header Istituzionale -->
+    <header class="bg-gradient-to-r from-blue-950 via-cyan-900 to-slate-900 text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-cyan-800/80 text-cyan-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-cyan-700">UDA Interdisciplinare (Durata: 1 Mese / 92 Ore Totali)</span>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold mt-2 tracking-tight">Il Protocollo Anti-Bolle e la Gestione dei Materiali</h1>
+                    <p class="text-cyan-200 text-sm mt-1">Classe Terza Sez. B | Indirizzo Odontotecnico | Prog. Annuale Scienze dei Materiali: 132 Ore</p>
+                </div>
+                <div class="bg-cyan-950/60 p-4 rounded-2xl border border-cyan-800/60 text-sm backdrop-blur-sm shadow-inner flex flex-col gap-2">
+                    <p class="flex items-center gap-2">👨‍🏫 <strong>Docenti:</strong> Prof. De Paz & Prof. Giaquinta</p>
+                    <p class="flex items-center gap-2">🏫 <strong>Istituto:</strong> IPSIA "Gaslini Meucci" - Genova</p>
+                    
+                    <div class="flex gap-2 mt-2 pt-2 border-t border-cyan-800/60 no-print">
+                        <button onclick="esportaPDFStampa()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 cursor-pointer shadow-sm">
+                            <span>📄</span> Stampa / Salva PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigazione a Schede -->
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 no-print">
+        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+            <button onclick="switchTab('quadro')" id="btn-quadro" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-cyan-600 text-white shadow-sm cursor-pointer">1. Quadro Quadro & 132 Ore Annuali</button>
+            <button onclick="switchTab('scansione')" id="btn-scansione" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">2. Scansione Oraria UDA (1 Mese)</button>
+            <button onclick="switchTab('unita')" id="btn-unita" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">3. Unità Didattiche (0-10)</button>
+            <button onclick="switchTab('rubrica')" id="btn-rubrica" class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer">4. Rubrica Valutazione</button>
+        </div>
+    </nav>
+
+    <!-- Contenuto Principale -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+
+        <!-- TAB 1: Quadro & Programmazione 132 Ore -->
+        <div id="tab-quadro" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <h2 class="text-lg font-bold text-cyan-900 flex items-center gap-2">
+                        <span>📊</span> Monte Ore Annuale (132 Ore)
+                    </h2>
+                    <p class="text-sm text-slate-600">
+                        La programmazione annuale di Scienze dei Materiali (132 ore totali) articola i contenuti disciplinari integrando le ore dell'UDA mensile nel percorso formativo complessivo.
+                    </p>
+                    <ul class="space-y-2 text-xs font-medium text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <li class="flex justify-between"><span>Settimane d'insegnamento:</span> <strong>33 settimane</strong></li>
+                        <li class="flex justify-between"><span>Media ore settimanali:</span> <strong>4 ore/settimana</strong></li>
+                        <li class="flex justify-between"><span>Durata UDA interdisciplinare:</span> <strong>1 Mese (4 Settimane)</strong></li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 space-y-4">
+                    <h2 class="text-lg font-bold text-cyan-900 flex items-center gap-2">
+                        <span>🤝</span> Materie Coinvolte nell'UDA (92 Ore Totali nel Mese)
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl space-y-1">
+                            <span class="font-bold text-blue-900 text-xs uppercase tracking-wide">🇮🇹 Italiano</span>
+                            <p class="text-lg font-extrabold text-blue-950">6 h/sett. (24h)</p>
+                            <p class="text-xs text-blue-800">Correzione linguistico-sintattica, stesura verbali e report tecnico-scientifici.</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl space-y-1">
+                            <span class="font-bold text-indigo-900 text-xs uppercase tracking-wide">🇬🇧 Inglese</span>
+                            <p class="text-lg font-extrabold text-indigo-950">2 h/sett. (8h)</p>
+                            <p class="text-xs text-indigo-800">Terminologia CLIL, schede di sicurezza (SDS) e correzione lessicale.</p>
+                        </div>
+                        <div class="p-3 bg-cyan-50 border border-cyan-100 rounded-xl space-y-1">
+                            <span class="font-bold text-cyan-900 text-xs uppercase tracking-wide">🧪 Scienze Materiali</span>
+                            <p class="text-lg font-extrabold text-cyan-950">4 h/sett. (16h)</p>
+                            <p class="text-xs text-cyan-800">Bagnabilità, gessi, reazioni termodinamiche e tensioattivi.</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl space-y-1">
+                            <span class="font-bold text-emerald-900 text-xs uppercase tracking-wide">🔬 Laboratorio</span>
+                            <p class="text-lg font-extrabold text-emerald-950">8 h/sett. (32h)</p>
+                            <p class="text-xs text-emerald-800">Colaggio impronte, prova protocollo anti-bolle, miscelazione vacuum.</p>
+                        </div>
+                        <div class="p-3 bg-amber-50 border border-amber-100 rounded-xl space-y-1 sm:col-span-2 md:col-span-1">
+                            <span class="font-bold text-amber-900 text-xs uppercase tracking-wide">🦴 Anatomia</span>
+                            <p class="text-lg font-extrabold text-amber-950">3 h/sett. (12h)</p>
+                            <p class="text-xs text-amber-800">Interazione con tessuti orali, mucose, rilievi anatomici e arcate.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Scansione Oraria dell'UDA per Settimane e Materie -->
+        <div id="tab-scansione" class="space-y-6 hidden print-all">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Scansione Oraria Mensile dell'UDA (4 Settimane)</h2>
+                    <p class="text-xs text-slate-500 mt-1">Ripartizione dettagliata dei contributi orari per ciascuna materia coinvolta.</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-white text-xs">
+                                <th class="p-3 rounded-l-xl">Materia</th>
+                                <th class="p-3 text-center">Ore / Settimana</th>
+                                <th class="p-3">Settimana 1</th>
+                                <th class="p-3">Settimana 2</th>
+                                <th class="p-3">Settimana 3</th>
+                                <th class="p-3">Settimana 4</th>
+                                <th class="p-3 text-right rounded-r-xl">Totale UDA</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-xs text-slate-700">
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900 bg-slate-50">🇮🇹 Italiano</td>
+                                <td class="p-3 text-center font-bold">6 ore</td>
+                                <td class="p-3">Struttura del testo scientifico e registro formale (6h).</td>
+                                <td class="p-3">Stesura delle bozze del protocollo di laboratorio (6h).</td>
+                                <td class="p-3">Revisione della sintassi e coerenza espositiva (6h).</td>
+                                <td class="p-3">Redazione finale e presentazione orale (6h).</td>
+                                <td class="p-3 text-right font-extrabold text-blue-900">24 ore</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900 bg-slate-50">🇬🇧 Inglese (CLIL)</td>
+                                <td class="p-3 text-center font-bold">2 ore</td>
+                                <td class="p-3">Vocabolario tecnico dei materiali da impronta (2h).</td>
+                                <td class="p-3">Traduzione e correzione schede tecniche SDS (2h).</td>
+                                <td class="p-3">Correzione ortografica e glossario bilingue (2h).</td>
+                                <td class="p-3">Abstract in lingua inglese del progetto (2h).</td>
+                                <td class="p-3 text-right font-extrabold text-indigo-900">8 ore</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900 bg-slate-50">🧪 Scienze Materiali</td>
+                                <td class="p-3 text-center font-bold">4 ore</td>
+                                <td class="p-3">Bagnabilità, tensione superficiale e angolo di contatto (U3) (4h).</td>
+                                <td class="p-3">Solfato di calcio, tipi di gesso e tempi di presa (U7) (4h).</td>
+                                <td class="p-3">Termodinamica, entalpia e cinetica della reazione esotermica (U10) (4h).</td>
+                                <td class="p-3">Tensioattivi e prevenzione chimica delle bolle (4h).</td>
+                                <td class="p-3 text-right font-extrabold text-cyan-900">16 ore</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900 bg-slate-50">🔬 Laboratorio Odontotecnico</td>
+                                <td class="p-3 text-center font-bold">8 ore</td>
+                                <td class="p-3">Impronte in alginato/elastomeri, difetti superficiali (8h).</td>
+                                <td class="p-3">Manipolazione dei gessi, rapporto acqua/polvere manuale/sotto vuoto (8h).</td>
+                                <td class="p-3">Sperimentazione tensioattivi e colaggio di modelli di prova (8h).</td>
+                                <td class="p-3">Colaggio master finale, verifica assenza di bolle occlusali (8h).</td>
+                                <td class="p-3 text-right font-extrabold text-emerald-900">32 ore</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-900 bg-slate-50">🦴 Anatomia Maxillo-Facciale</td>
+                                <td class="p-3 text-center font-bold">3 ore</td>
+                                <td class="p-3">Anatomia topografica dell'arcata e dei rilievi mucosi (3h).</td>
+                                <td class="p-3">Effetti delle bolle sui margini di chiusura della protesi (3h).</td>
+                                <td class="p-3">Correlazione tra dettaglio anatomico e precisione del modello (3h).</td>
+                                <td class="p-3">Valutazione anatomica dei campioni realizzati (3h).</td>
+                                <td class="p-3 text-right font-extrabold text-amber-900">12 ore</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-cyan-950 text-white font-bold text-sm">
+                                <td class="p-3 rounded-l-xl">TOTALE ORE MENSILI UDA</td>
+                                <td class="p-3 text-center">23 h/sett.</td>
+                                <td class="p-3">23 ore</td>
+                                <td class="p-3">23 ore</td>
+                                <td class="p-3">23 ore</td>
+                                <td class="p-3">23 ore</td>
+                                <td class="p-3 text-right rounded-r-xl">92 ORE TOTALI</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Unità Didattiche e Ripartizione Ore Annuali (132 Ore) -->
+        <div id="tab-unita" class="space-y-6 hidden print-all">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-900">Ripartizione delle 132 Ore di Scienze dei Materiali</h2>
+                <span class="text-xs text-slate-500">Programma Annuale III B (33 Settimane)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 0</span>
+                        <span class="text-xs font-extrabold text-slate-600">8 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">I Legami Chimici (Ripasso)</h3>
+                    <p class="text-xs text-slate-600">Ottetto, elettronegatività, legame ionico, covalente e a idrogeno nell'acqua.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 1</span>
+                        <span class="text-xs font-extrabold text-slate-600">8 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Introduzione ai Materiali Dentali</h3>
+                    <p class="text-xs text-slate-600">Scelta dei materiali idonei in odontotecnica e aggressività dell'ambiente orale.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 2</span>
+                        <span class="text-xs font-extrabold text-slate-600">12 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Stati di Aggregazione e Struttura</h3>
+                    <p class="text-xs text-slate-600">Solidi cristallini e amorfi, reticoli, polimorfismo e difetti reticolari.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-cyan-400 bg-cyan-50/40 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-800 bg-cyan-200 px-2.5 py-1 rounded-md">Unità 3 • Focus UDA</span>
+                        <span class="text-xs font-extrabold text-cyan-900">16 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Stato Liquido e Proprietà Superficiali</h3>
+                    <p class="text-xs text-slate-600">Tensione superficiale, capillarità, adesione e bagnabilità (colaggio anti-bolle).</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 4</span>
+                        <span class="text-xs font-extrabold text-slate-600">12 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Proprietà Fisiche</h3>
+                    <p class="text-xs text-slate-600">Densità, intervallo di fusione, dilatazione termica e conducibilità.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 5</span>
+                        <span class="text-xs font-extrabold text-slate-600">14 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Proprietà Meccaniche</h3>
+                    <p class="text-xs text-slate-600">Sollecitazioni statiche (trazione, compressione, flessione), durezza e fatica.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 6</span>
+                        <span class="text-xs font-extrabold text-slate-600">12 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Proprietà Tecnologiche</h3>
+                    <p class="text-xs text-slate-600">Plasticità, fusibilità, saldabilità e lavorabilità dei materiali dentali.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-cyan-400 bg-cyan-50/40 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-800 bg-cyan-200 px-2.5 py-1 rounded-md">Unità 7 • Focus UDA</span>
+                        <span class="text-xs font-extrabold text-cyan-900">18 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Materiali per Modelli (Gessi)</h3>
+                    <p class="text-xs text-slate-600">Solfato di calcio emidrato/biidrato, calcinazione, rapporto A/P e presa.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 8</span>
+                        <span class="text-xs font-extrabold text-slate-600">8 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Cere Dentali</h3>
+                    <p class="text-xs text-slate-600">Classificazione, proprietà principali ed impieghi in laboratorio.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">Unità 9</span>
+                        <span class="text-xs font-extrabold text-slate-600">12 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Materiali da Impronta</h3>
+                    <p class="text-xs text-slate-600">Paste zincossidiche, alginati, elastomeri e recupero elastico.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-cyan-400 bg-cyan-50/40 space-y-2 md:col-span-2 lg:col-span-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-cyan-800 bg-cyan-200 px-2.5 py-1 rounded-md">Unità 10 • Focus UDA</span>
+                        <span class="text-xs font-extrabold text-cyan-900">12 ORE</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900">Termodinamica e Cinetica Chimica</h3>
+                    <p class="text-xs text-slate-600">Entalpia (&Delta;H), entropia (&Delta;S), energia libera (&Delta;G) e fattori che influenzano la velocità della reazione di presa.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Rubrica di Valutazione -->
+        <div id="tab-rubrica" class="space-y-6 hidden print-all">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-lg font-bold text-slate-900">Rubrica di Valutazione Interdisciplinare</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700">
+                                <th class="p-3 rounded-l-xl">Competenza / Materia</th>
+                                <th class="p-3">Avanzato</th>
+                                <th class="p-3">Intermedio</th>
+                                <th class="p-3">Base</th>
+                                <th class="p-3 rounded-r-xl">Iniziale</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Sc. Materiali & Lab</td>
+                                <td class="p-3">Padroneggia bagnabilità, tempi di presa e assenza totale di bolle.</td>
+                                <td class="p-3">Gestisce correttamente i dosaggi e comprende la bagnabilità.</td>
+                                <td class="p-3">Manipola i gessi con guida ed esegue i passaggi essenziali.</td>
+                                <td class="p-3">Errori ricorrenti nella miscelazione e formazione di bolle.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Italiano</td>
+                                <td class="p-3">Esposizione fluida, registro formale eccellente e assenza di errori.</td>
+                                <td class="p-3">Testo chiaro e ben strutturato con correttezza sintattica.</td>
+                                <td class="p-3">Produzione semplice ma comprensibile nel complesso.</td>
+                                <td class="p-3">Incertezze sintattiche e registro informale improprio.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Inglese (CLIL)</td>
+                                <td class="p-3">Uso preciso del lessico tecnico e traduzione corretta di SDS.</td>
+                                <td class="p-3">Buona comprensione dei termini tecnici e traduzione accurata.</td>
+                                <td class="p-3">Comprende la terminologia chiave con l'ausilio del glossario.</td>
+                                <td class="p-3">Difficoltà nella comprensione dei termini tecnici in lingua.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-800">Anatomia</td>
+                                <td class="p-3">Piena consapevolezza delle correlazioni tra modello e anatomia orale.</td>
+                                <td class="p-3">Riconosce l'impatto dei difetti del modello sui rilievi orali.</td>
+                                <td class="p-3">Identifica le principali strutture anatomiche coinvolte.</td>
+                                <td class="p-3">Scarsa comprensione del legame tra protesi ed elemento anatomico.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Botton Fluttuante -->
+    <div class="fixed bottom-6 right-6 z-50 no-print">
+        <button onclick="guardarComoArchivo()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer border border-cyan-400/40 backdrop-blur-md">
+            <span>💾</span> Salva File HTML (.html)
+        </button>
+    </div>
+
+    <!-- Script Tab & Export -->
+    <script>
+        function switchTab(tabId) {
+            const tabs = ['quadro', 'scansione', 'unita', 'rubrica'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-' + t).classList.remove('bg-cyan-600', 'text-white', 'shadow-sm');
+                document.getElementById('btn-' + t).classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-100', 'border', 'border-slate-200');
+            document.getElementById('btn-' + tabId).classList.add('bg-cyan-600', 'text-white', 'shadow-sm');
+        }
+
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'uda_interdisciplinare_132ore.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function esportaPDFStampa() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

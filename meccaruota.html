@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechanicaDent - La Ruota della Fortuna (Punti da 0 a 500)</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #090d16;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --p1-color: #3b82f6;
+            --p2-color: #ec4899;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 850px; width: 100%; background: var(--card-bg); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 18px; text-align: center; border-bottom: 3px solid var(--accent); }
+        header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+        header p { font-size: 0.85rem; opacity: 0.9; }
+        
+        .game-board { padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        
+        /* Players Panel */
+        .players-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .player-card { background: #0f172a; padding: 12px; border-radius: 12px; border: 2px solid #334155; text-align: center; transition: all 0.3s; }
+        .player-card.active-p1 { border-color: var(--p1-color); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        .player-card.active-p2 { border-color: var(--p2-color); box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); }
+        .player-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+        .player-score { font-size: 1.3rem; font-weight: bold; color: var(--accent); }
+
+        /* Turn Indicator */
+        .turn-banner { background: #0f172a; border: 1px solid #475569; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; text-align: center; width: 100%; }
+
+        /* Wheel Section */
+        .wheel-container { position: relative; width: 310px; height: 310px; margin: 5px auto; }
+        canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 25px rgba(59, 130, 246, 0.3); cursor: pointer; }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 24px solid var(--accent); z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+
+        /* Question Box */
+        .quiz-box { width: 100%; background: #0f172a; border-radius: 12px; padding: 18px; border: 1px solid #334155; display: none; }
+        .quiz-box.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .question-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; }
+        .category-badge { background: var(--secondary); padding: 3px 10px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
+        .points-badge { color: var(--accent); font-weight: bold; font-size: 1rem; }
+
+        .question-text { font-size: 1.02rem; margin-bottom: 12px; font-weight: 600; line-height: 1.4; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .option-btn { padding: 11px 14px; text-align: left; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: white; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 500; }
+        .option-btn:hover:not(:disabled) { background: #334155; border-color: var(--secondary); }
+        .option-btn.correct { background: var(--success) !important; border-color: var(--success) !important; color: white; }
+        .option-btn.wrong { background: var(--danger) !important; border-color: var(--danger) !important; color: white; }
+
+        .feedback-msg { margin-top: 10px; font-weight: 600; font-size: 0.88rem; padding: 10px; border-radius: 6px; display: none; }
+        .feedback-msg.correct { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--success); display: block; }
+        .feedback-msg.wrong { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid var(--danger); display: block; }
+
+        .btn { padding: 11px 22px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; font-size: 0.95rem; }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.7; }
+
+        .center-row { display: flex; justify-content: center; gap: 10px; width: 100%; margin-top: 12px; }
+        .download-footer { text-align: center; padding: 12px; background: #0f172a; border-top: 1px solid #334155; width: 100%; }
+        
+        .end-screen { text-align: center; padding: 25px; display: none; }
+        .end-screen.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎰 Ruota della Fortuna: MechanicaDent 3.0</h1>
+            <p>Sfida a 2 Giocatori • Obiettivo: 1500 Punti • Settori con Punti da 0 a 500</p>
+        </header>
+
+        <div class="game-board" id="gameArea">
+            <!-- Scoreboard -->
+            <div class="players-panel">
+                <div class="player-card active-p1" id="p1Card">
+                    <div class="player-name" style="color: var(--p1-color);">👤 Giocatore 1</div>
+                    <div class="player-score" id="p1ScoreVal">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-light);">su 1500 pt</div>
+                </div>
+                <div class="player-card" id="p2Card">
+                    <div class="player-name" style="color: var(--p2-color);">👤 Giocatore 2</div>
+                    <div class="player-score" id="p2ScoreVal">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-light);">su 1500 pt</div>
+                </div>
+            </div>
+
+            <div class="turn-banner" id="turnBanner">
+                🎯 Turno di: <span style="color: var(--p1-color); font-weight: bold;">Giocatore 1</span>
+            </div>
+
+            <!-- Wheel Area -->
+            <div id="wheelSection" style="text-align: center;">
+                <p style="margin-bottom: 8px; font-size: 0.9rem; color: var(--text-light);" id="wheelInstruction">Gira la ruota: ogni settore assegna un valore in punti (da 0 a 500)!</p>
+                <div class="wheel-container">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheelCanvas" width="310" height="310" onclick="spinWheel()"></canvas>
+                </div>
+                <button class="btn" id="spinBtn" onclick="spinWheel()" style="margin-top: 8px;">Gira la Ruota! 🎡</button>
+            </div>
+
+            <!-- Quiz Box -->
+            <div class="quiz-box" id="quizBox">
+                <div class="question-meta">
+                    <span id="categoryBadge" class="category-badge">Categoria</span>
+                    <span id="pointsBadge" class="points-badge">Valore Settore: 0 pt</span>
+                </div>
+                <div class="question-text" id="questionText">Caricamento domanda...</div>
+                <div class="options-grid" id="optionsGrid"></div>
+                <div class="feedback-msg" id="feedbackMsg"></div>
+                <div class="center-row">
+                    <button class="btn" id="nextBtn" onclick="nextTurn()" style="display: none;">Prossimo Turno ➡️</button>
+                </div>
+            </div>
+
+            <!-- End Screen -->
+            <div class="end-screen" id="endScreen">
+                <h2 style="color: var(--accent); margin-bottom: 12px;" id="winnerText">🎉 Vittoria!</h2>
+                <p id="finalScoreText" style="font-size: 1.1rem; margin-bottom: 18px;"></p>
+                <button class="btn" onclick="restartGame()">🔄 Nuova Partita</button>
+            </div>
+        </div>
+
+        <div class="download-footer">
+            <p style="margin-bottom: 8px; font-size: 0.8rem; color: var(--text-light);">Salva l'app per giocare offline su PC o Smartphone:</p>
+            <button class="btn" style="padding: 7px 14px; font-size: 0.85rem;" onclick="downloadApp()">📥 Scarica Gioco (.html)</button>
+        </div>
+    </div>
+
+    <script>
+        const questionsPool = [
+            {
+                cat: "Forze e Carichi",
+                q: "Come si definisce un agente fisico capace di modificare lo stato di quiete o di moto di un corpo o di produrre una deformazione?",
+                options: ["Forza", "Tensione interna", "Vincolo", "Momento torcente"],
+                correct: 0,
+                exp: "La forza è l'agente fisico definito esattamente come descritto nella lezione."
+            },
+            {
+                cat: "Forze e Carichi",
+                q: "Cosa rappresentano i carichi esterni in un corpo strutturale?",
+                options: ["La sommatoria delle forze di massa e superficiali a cui il corpo è sottoposto", "Solo il peso proprio del manufatto", "Le reazioni vincolari del tavolo", "La forza di coesione tra atomi"],
+                correct: 0,
+                exp: "I carichi esterni sono la sommatoria delle forze di massa e superficiali agenti sul corpo."
+            },
+            {
+                cat: "Forze e Carichi",
+                q: "Quale tra le seguenti è una forza di massa distribuita sull'intero volume?",
+                options: ["Il peso del corpo", "Il contatto diretto con lo spazzolino", "La forza esercitata dalle morse", "La pressione della lega liquida"],
+                correct: 0,
+                exp: "Le forze di massa agiscono sulle singole particelle dell'intero volume, come ad esempio il peso."
+            },
+            {
+                cat: "Vincoli",
+                q: "Cosa si definisce 'vincolo' nella meccanica strutturale?",
+                options: ["Una struttura materiale in grado di impedire totalmente o parzialmente il movimento di un corpo", "Un difetto strutturale del provino", "Una forza che allunga il materiale", "La sezione trasversale utile"],
+                correct: 0,
+                exp: "Il vincolo impedisce il movimento totale o parziale (es. il tavolo sotto un libro)."
+            },
+            {
+                cat: "Vincoli",
+                q: "Quale tipo di vincolo permette solamente rotazioni attorno ad essa e scorrimenti lungo la sua direzione?",
+                options: ["Cerniera", "Appoggio semplice", "Incastro rigido", "Morsa universale"],
+                correct: 0,
+                exp: "La cerniera è costituita da una retta rigida che permette rotazioni e scorrimenti specifici."
+            },
+            {
+                cat: "Vincoli",
+                q: "Cosa fa un vincolo di tipo 'Incastro'?",
+                options: ["Impedisce al corpo qualsiasi movimento", "Permette solo rotazioni libere", "Fornisce solamente reazioni perpendicolari", "Genera scorrimenti longitudinali"],
+                correct: 0,
+                exp: "L'incastro blocca completamente ogni tipo di movimento del corpo."
+            },
+            {
+                cat: "Tensioni Interne",
+                q: "Cosa sono le tensioni interne in un materiale?",
+                options: ["Forze interne che si generano tra le particelle per opporsi ed equilibrare le forze esterne", "I carichi di masticazione applicati dal paziente", "Le forze di attrito superficiale", "I carichi dinamici ciclici"],
+                correct: 0,
+                exp: "Le tensioni interne sono le forze di coesione particellari che contrastano il carico esterno."
+            },
+            {
+                cat: "Tensioni Interne",
+                q: "Cosa accade alle particelle di un corpo quando viene applicato un carico che tende ad allungarlo?",
+                options: ["Vengono allontanate e generano una forza interna di coesione contraria", "Si avvicinano riducendo il volume", "Rompono istantaneamente i legami senza reazione", "Si fondono a temperatura ambiente"],
+                correct: 0,
+                exp: "L'allontanamento delle particelle genera una forza interna di coesione che contrasta la sollecitazione."
+            },
+            {
+                cat: "Tensioni Interne",
+                q: "Fino a quando agisce la forza di coesione interna generata dalle particelle?",
+                options: ["Fino ad arrivare a un equilibrio fra forza esterna e forza interna", "Fino alla fusione termica del provino", "Solo durante la deformazione plastica", "Fino all'azzeramento della sezione"],
+                correct: 0,
+                exp: "Il sistema si stabilizza quando si raggiunge l'equilibrio tra la sollecitazione e la forza interna."
+            },
+            {
+                cat: "Sollecitazioni Semplici",
+                q: "Quale sollecitazione semplice provoca l'allungamento del corpo?",
+                options: ["Trazione", "Compressione", "Taglio", "Torsione"],
+                correct: 0,
+                exp: "La trazione applica carichi che allungano il corpo."
+            },
+            {
+                cat: "Sollecitazioni Semplici",
+                q: "Cosa provocano i carichi applicati in una sollecitazione di compressione?",
+                options: ["L'accorciamento del corpo", "L'allungamento longitudinale", "Il taglio trasversale", "La torsione attorno all'asse"],
+                correct: 0,
+                exp: "La compressione accorcia il corpo distribuendo la forza uniformemente."
+            },
+            {
+                cat: "Sollecitazioni Semplici",
+                q: "In quale sollecitazione i carichi tendono a piegare il corpo lungo un piano passante per il suo asse longitudinale?",
+                options: ["Flessione", "Trazione", "Torsione", "Taglio"],
+                correct: 0,
+                exp: "La flessione flette o piega la trave lungo il piano longitudinale."
+            },
+            {
+                cat: "Sollecitazioni Semplici",
+                q: "Cosa provocano i carichi in una sollecitazione di taglio?",
+                options: ["La tendenza a recidere il corpo a causa dello scorrimento di due sezioni contigue", "L'allungamento uniforme del provino", "La torsione attorno all'asse centrale", "L'accorciamento simmetrico"],
+                correct: 0,
+                exp: "Il taglio recide il materiale per scorrimento di sezioni contigue."
+            },
+            {
+                cat: "Sollecitazioni Semplici",
+                q: "Cosa fanno i carichi in una sollecitazione di torsione?",
+                options: ["Tendono a torcere il corpo attorno al suo asse longitudinale", "Provocano l'allungamento a trazione", "Flettono la trave al centro", "Accorciano il provino per compressione"],
+                correct: 0,
+                exp: "La torsione torce il corpo lungo il proprio asse longitudinale."
+            },
+            {
+                cat: "Modalità di Carico",
+                q: "Come sono classificate le sollecitazioni che aumentano lentamente nel tempo?",
+                options: ["Statiche", "Dinamiche", "Cicliche o periodiche", "Viscose"],
+                correct: 0,
+                exp: "Le sollecitazioni statiche crescono lentamente nel tempo."
+            },
+            {
+                cat: "Modalità di Carico",
+                q: "Cosa caratterizza le sollecitazioni dinamiche?",
+                options: ["Raggiungono il loro valore massimo in tempi rapidi", "Si ripetono milioni di volte costantemente", "Crescono in modo estremamente lento", "Sono sempre di natura termica"],
+                correct: 0,
+                exp: "Le sollecitazioni dinamiche agiscono rapidamente raggiungendo il picco in tempi brevi."
+            },
+            {
+                cat: "Modalità di Carico",
+                q: "Cosa sono le sollecitazioni cicliche o periodiche?",
+                options: ["Sollecitazioni che si ripetono periodicamente un elevato numero di volte", "Forze statiche applicate una sola volta", "Carichi di massa superficiali", "Forze di compressione a caldo"],
+                correct: 0,
+                exp: "Le sollecitazioni cicliche si ripetono ciclicamente nel tempo (es. masticazione)."
+            },
+            {
+                cat: "Deformazioni",
+                q: "Come si definiscono le deformazioni elastiche?",
+                options: ["Deformazioni reversibili: dopo l'annullamento della sollecitazione il corpo riassume la forma iniziale", "Deformazioni permanenti e irreversibili", "La rottura istantanea del provino", "Scorrimenti viscosi permanenti"],
+                correct: 0,
+                exp: "L'elasticità garantisce la reversibilità totale della forma."
+            },
+            {
+                cat: "Deformazioni",
+                q: "Cosa caratterizza le deformazioni plastiche?",
+                options: ["Sono deformazioni irreversibili: il corpo non riassume la forma iniziale dopo la rimozione del carico", "Scompaiono immediatamente alla cessazione della forza", "Si verificano solo nei materiali ceramici fragili", "Seguono rigorosamente la legge di Hooke"],
+                correct: 0,
+                exp: "La deformazione plastica lascia una variazione permanente di forma."
+            },
+            {
+                cat: "Deformazioni",
+                q: "Qual è l'ordine sequenziale con cui i materiali subiscono le deformazioni sotto carico crescente?",
+                options: ["Prima elastica, poi plastica, poi eventuale rottura", "Prima rottura, poi plastica, poi elastica", "Solo plastica senza fase elastica", "Solo rottura fragile istantanea"],
+                correct: 0,
+                exp: "Tutti i materiali subiscono prima la fase elastica, poi quella plastica e infine l'eventuale rottura."
+            },
+            {
+                cat: "Plasticità e Fragilità",
+                q: "Come viene definita la 'Plasticità' in un materiale?",
+                options: ["La proprietà di subire notevoli deformazioni plastiche prima di rompersi", "La resistenza alla penetrazione superficiale", "La capacità di assorbire urti senza deformarsi", "La tendenza alla frattura fragile immediata"],
+                correct: 0,
+                exp: "La plasticità implica ampie deformazioni permanenti prima della rottura."
+            },
+            {
+                cat: "Plasticità e Fragilità",
+                q: "Cos'è la 'Fragilità' secondo la trattazione meccanica?",
+                options: ["La proprietà di un materiale di giungere a rottura senza subire apprezzabili deformazioni plastiche", "La capacità di allungarsi oltre il 50%", "La resistenza all'usura abrasiva", "Il comportamento viscoso a caldo"],
+                correct: 0,
+                exp: "I materiali fragili si rompono senza preavviso plastico."
+            },
+            {
+                cat: "Plasticità e Fragilità",
+                q: "Quali tra i seguenti materiali dentali sono tipicamente fragili?",
+                options: ["Resine e ceramiche", "Leghe metalliche per scheletrati", "Fili d'oro ortodontici", "Metalli duttili"],
+                correct: 0,
+                exp: "Resine e ceramiche presentano un comportamento fragile."
+            },
+            {
+                cat: "Plasticità e Fragilità",
+                q: "Cosa si intende per 'frattura duttile'?",
+                options: ["La frattura di un materiale dopo avere subito un'elevata deformazione plastica", "La rottura improvvisa senza deformazione", "La rottura per fatica ciclica", "Lo scorrimento viscoso a freddo"],
+                correct: 0,
+                exp: "La frattura duttile è preceduta da notevole deformazione plastica."
+            },
+            {
+                cat: "Rigidità e Modulo E",
+                q: "Cosa indica il Modulo di Elasticità Normale o Modulo di Young (E)?",
+                options: ["La rigidità del materiale: tanto più è elevato, minore è la deformazione elastica", "La plasticità massima a trazione", "La durezza Vickers superficiale", "La resistenza all'urto per resilienza"],
+                correct: 0,
+                exp: "Il modulo E misura la rigidità e si oppone alla deformazione elastica."
+            },
+            {
+                cat: "Rigidità e Modulo E",
+                q: "Cosa enuncia la Legge di Hooke nel campo elastico?",
+                options: ["Le deformazioni che un corpo subisce sono proporzionali alla forza che le ha prodotte", "Il carico di rottura è inversamente proporzionale alla sezione", "La temperatura annulla il modulo di Young", "Lo scorrimento viscoso è costante"],
+                correct: 0,
+                exp: "La legge di Hooke stabilisce la proporzionalità diretta tra carico e deformazione elastica."
+            },
+            {
+                cat: "Rigidità e Modulo E",
+                q: "Come varia il Modulo di Young all'aumentare della temperatura?",
+                options: ["Diminuisce all'aumentare della temperatura", "Aumenta proporzionalmente", "rimane perfettamente costante", "Si azzera nel campo plastico"],
+                correct: 0,
+                exp: "Il modulo di Young diminuisce all'aumentare della temperatura."
+            },
+            {
+                cat: "Durezza e Fatica",
+                q: "Cosa misura la prova di durezza Vickers (HV)?",
+                options: ["La resistenza che la superficie di un materiale oppone alla penetrazione", "L'energia di rottura per urto", "Il limite di proporzionalità a trazione", "La resistenza a fatica ciclica"],
+                correct: 0,
+                exp: "La durezza è la resistenza della superficie alla penetrazione del penetratore piramidale."
+            },
+            {
+                cat: "Durezza e Fatica",
+                q: "Cosa si intende per 'rottura per fatica' in un manufatto protesico?",
+                options: ["La rottura di un materiale sotto l'azione di una sollecitazione ciclica ripetuta nel tempo", "La deformazione plastica immediata per carico statico", "L'usura superficiale causata dallo spazzolino", "Il cedimento per scorrimento viscoso"],
+                correct: 0,
+                exp: "La fatica è causata da cicli ripetuti di carico che propagano microfessure interne."
+            },
+            {
+                cat: "Durezza e Fatica",
+                q: "Cos'è lo scorrimento viscoso (creep) nei materiali dentali?",
+                options: ["La deformazione continua che un materiale subisce ad una data temperatura sotto l'azione di un carico costante", "L'allungamento elastico istantaneo a trazione", "La variazione della sezione per strizione", "La resistenza all'abrasione da dentifricio"],
+                correct: 0,
+                exp: "Lo scorrimento viscoso è la deformazione continua sotto carico costante nel tempo."
+            }
+        ];
+
+        const sectorPoints = [
+            0, 50, 100, 150, 200, 250, 300, 350, 400, 450,
+            500, 50, 100, 200, 300, 400, 500, 0, 100, 250,
+            350, 450, 500, 150, 200, 300, 400, 0, 250, 500
+        ];
+
+        let p1Score = 0;
+        let p2Score = 0;
+        let currentPlayer = 1;
+        let activeQuestionObj = null;
+        let currentSectorPointsValue = 0;
+        let isSpinning = false;
+        const TARGET_SCORE = 1500;
+
+        let usedQuestionIndices = [];
+
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const ctx = wheelCanvas.getContext('2d');
+        const numSectors = questionsPool.length;
+        const arc = (2 * Math.PI) / numSectors;
+        const colors = [
+            '#2563eb', '#3b82f6', '#1d4ed8', '#f59e0b', '#10b981', '#6366f1', '#ec4899', '#14b8a6', '#f97316', '#8b5cf6',
+            '#06b6d4', '#84cc16', '#eab308', '#d946ef', '#0ea5e9', '#64748b', '#f43f5e', '#10b981', '#3b82f6', '#8b5cf6',
+            '#f59e0b', '#ec4899', '#14b8a6', '#6366f1', '#2563eb', '#1d4ed8', '#06b6d4', '#84cc16', '#eab308', '#f43f5e'
+        ];
+        let currentAngle = 0;
+
+        function drawWheel(angle = 0) {
+            ctx.clearRect(0, 0, 310, 310);
+
+            for (let i = 0; i < numSectors; i++) {
+                const startAngle = angle + i * arc;
+                const endAngle = startAngle + arc;
+
+                ctx.beginPath();
+                ctx.moveTo(155, 155);
+                ctx.arc(155, 155, 145, startAngle, endAngle);
+                ctx.closePath();
+
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(155, 155);
+                ctx.rotate(startAngle + arc / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 8px Segoe UI';
+                ctx.fillText(`${sectorPoints[i]}pt`, 138, 3);
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.arc(155, 155, 26, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('GIRA', 155, 155);
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+
+            if (usedQuestionIndices.length >= questionsPool.length) {
+                endGame("Esaurite tutte le 30 domande del tabellone!");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+
+            let availableIndices = [];
+            for(let i=0; i<questionsPool.length; i++) {
+                if(!usedQuestionIndices.includes(i)) availableIndices.push(i);
+            }
+            const targetSector = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            usedQuestionIndices.push(targetSector);
+
+            currentSectorPointsValue = sectorPoints[targetSector];
+
+            const targetSectorCenter = targetSector * arc + arc / 2;
+            const targetAngle = 1.5 * Math.PI - targetSectorCenter;
+            
+            const extraSpins = 6 * 2 * Math.PI;
+            const normalizedCurrent = currentAngle % (2 * Math.PI);
+            let diff = targetAngle - normalizedCurrent;
+            if (diff < 0) diff += 2 * Math.PI;
+
+            const finalAngle = currentAngle + extraSpins + diff;
+
+            let startTime = null;
+            const duration = 3500;
+
+            function animateSpin(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = currentAngle + (finalAngle - currentAngle) * easeOut;
+                
+                drawWheel(currentAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isSpinning = false;
+                    currentAngle = finalAngle;
+                    drawWheel(currentAngle);
+                    showQuestion(targetSector, currentSectorPointsValue);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function showQuestion(index, pts) {
+            document.getElementById('wheelSection').style.display = 'none';
+            const quizBox = document.getElementById('quizBox');
+            quizBox.classList.add('active');
+
+            activeQuestionObj = questionsPool[index];
+            document.getElementById('categoryBadge').innerText = `Settore ${index+1}: ${activeQuestionObj.cat}`;
+            document.getElementById('pointsBadge').innerText = `In palio: ${pts} Punti`;
+            document.getElementById('questionText').innerText = activeQuestionObj.q;
+            
+            let optionObjs = activeQuestionObj.options.map((opt, idx) => ({ text: opt, isCorrect: idx === activeQuestionObj.correct }));
+            optionObjs.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            
+            optionObjs.forEach((op) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = op.text;
+                btn.onclick = () => selectAnswer(btn, op.isCorrect, activeQuestionObj.exp, pts);
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('feedbackMsg').className = 'feedback-msg';
+            document.getElementById('feedbackMsg').innerText = '';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectAnswer(btn, isCorrect, exp, pts) {
+            const grid = document.getElementById('optionsGrid');
+            const buttons = grid.querySelectorAll('.option-btn');
+            
+            buttons.forEach(b => b.disabled = true);
+
+            const fb = document.getElementById('feedbackMsg');
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                fb.className = 'feedback-msg correct';
+                fb.innerHTML = `✅ Corretto! (+${pts} pt) ${exp}`;
+                
+                if (currentPlayer === 1) {
+                    p1Score += pts;
+                    document.getElementById('p1ScoreVal').innerText = p1Score;
+                } else {
+                    p2Score += pts;
+                    document.getElementById('p2ScoreVal').innerText = p2Score;
+                }
+            } else {
+                btn.classList.add('wrong');
+                buttons.forEach(b => {
+                    if (b.innerText === activeQuestionObj.options[activeQuestionObj.correct]) {
+                        b.classList.add('correct');
+                    }
+                });
+                fb.className = 'feedback-msg wrong';
+                fb.innerHTML = `❌ Sbagliato! (0 pt) ${exp}`;
+            }
+
+            if (p1Score >= TARGET_SCORE || p2Score >= TARGET_SCORE) {
+                setTimeout(() => {
+                    let winner = p1Score >= TARGET_SCORE ? "Giocatore 1" : "Giocatore 2";
+                    endGame(`🏆 ${winner} ha raggiunto o superato i 1500 punti ed è il Campione Supremo!`);
+                }, 1500);
+                return;
+            }
+
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextTurn() {
+            document.getElementById('quizBox').classList.remove('active');
+            
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            updateTurnUI();
+
+            if (usedQuestionIndices.length >= questionsPool.length) {
+                endGame("Tutte le 30 domande sono state completate!");
+                return;
+            }
+
+            document.getElementById('wheelSection').style.display = 'block';
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        function updateTurnUI() {
+            const p1Card = document.getElementById('p1Card');
+            const p2Card = document.getElementById('p2Card');
+            const banner = document.getElementById('turnBanner');
+
+            if (currentPlayer === 1) {
+                p1Card.className = "player-card active-p1";
+                p2Card.className = "player-card";
+                banner.innerHTML = `🎯 Turno di: <span style="color: var(--p1-color); font-weight: bold;">Giocatore 1</span>`;
+            } else {
+                p1Card.className = "player-card";
+                p2Card.className = "player-card active-p2";
+                banner.innerHTML = `🎯 Turno di: <span style="color: var(--p2-color); font-weight: bold;">Giocatore 2</span>`;
+            }
+        }
+
+        function endGame(msg) {
+            document.getElementById('wheelSection').style.display = 'none';
+            document.getElementById('quizBox').classList.remove('active');
+            const endScreen = document.getElementById('endScreen');
+            endScreen.classList.add('active');
+            
+            document.getElementById('winnerText').innerText = msg;
+            document.getElementById('finalScoreText').innerHTML = `Punteggio Finale:<br>👤 <b>Giocatore 1:</b> ${p1Score} pt<br>👤 <b>Giocatore 2:</b> ${p2Score} pt`;
+        }
+
+        function restartGame() {
+            p1Score = 0;
+            p2Score = 0;
+            currentPlayer = 1;
+            usedQuestionIndices = [];
+            document.getElementById('p1ScoreVal').innerText = "0";
+            document.getElementById('p2ScoreVal').innerText = "0";
+            
+            updateTurnUI();
+            document.getElementById('endScreen').classList.remove('active');
+            document.getElementById('wheelSection').style.display = 'block';
+            document.getElementById('spinBtn').disabled = false;
+            drawWheel(currentAngle);
+        }
+
+        function downloadApp() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'MechanicaDent_Ruota0-500_1500pt.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = function() {
+            drawWheel();
+        }
+    </script>
+</body>
+</html>

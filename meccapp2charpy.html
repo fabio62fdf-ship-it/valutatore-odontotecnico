@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtuale Odontotecnico - Proprietà e Prove Meccaniche</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b'
+                        },
+                        tech: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Inter & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-tech-600 p-2 rounded-xl text-white shadow-inner">
+                    <i class="fa-solid fa-tooth text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">LabVirtuale Odontotecnica</h1>
+                    <p class="text-xs text-slate-400">4° Anno • Prove Meccaniche & Comportamento a Fatica</p>
+                </div>
+            </div>
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap gap-1 md:gap-2 justify-center">
+                <button onclick="switchTab('trattamenti')" id="btn-trattamenti" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-tech-600 text-white shadow">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Trattamenti
+                </button>
+                <button onclick="switchTab('prove')" id="btn-prove" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-hammer mr-1"></i> Charpy & Durezza
+                </button>
+                <button onclick="switchTab('fatica')" id="btn-fatica" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-bolt mr-1"></i> Intaglio e Fatica
+                </button>
+                <button onclick="switchTab('quiz')" id="btn-quiz" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-clipboard-question mr-1"></i> Quiz Verifica
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 overflow-y-auto">
+
+        <!-- ================= SECTION 1: TRATTAMENTI (Passivazione & Sabbiatura) ================= -->
+        <section id="tab-trattamenti" class="tab-content active space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <span class="bg-tech-100 text-tech-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Modulo 1</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">Passivazione e Sabbiatura dei Metalli</h2>
+                        <p class="text-slate-600 text-sm">Eliminazione del ferro libero superficiale e creazione dello strato protettivo di ossido passivo (TiO2 o Cr2O3).</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    <!-- Controls Column -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                        <h3 class="font-semibold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-sliders text-tech-600 mr-2"></i> Configurazione Processo
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Seleziona Lega Metallica:</label>
+                            <select id="pass-alloy" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-tech-600">
+                                <option value="cocr">Cromo-Cobalto (Co-Cr)</option>
+                                <option value="ti">Titanio (Grado 5 / Compr. Puro)</option>
+                                <option value="inox">Acciaio Inox (Ortodonzia)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Fase Operativa:</label>
+                            <div class="space-y-2">
+                                <button onclick="setPassStep(1)" id="pstep-1" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-tech-600 text-white transition flex justify-between items-center">
+                                    <span>1. Sgrassaggio ad Ultrasuoni</span> <i class="fa-solid fa-circle-check"></i>
+                                </button>
+                                <button onclick="setPassStep(2)" id="pstep-2" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition flex justify-between items-center">
+                                    <span>2. Decapaggio Acido</span> <i class="fa-regular fa-circle"></i>
+                                </button>
+                                <button onclick="setPassStep(3)" id="pstep-3" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition flex justify-between items-center">
+                                    <span>3. Risciacquo Deionizzato</span> <i class="fa-regular fa-circle"></i>
+                                </button>
+                                <button onclick="setPassStep(4)" id="pstep-4" class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition flex justify-between items-center">
+                                    <span>4. Ossidazione / Film Passivo</span> <i class="fa-regular fa-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="executePassStep()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Esegui Fase Selezionata</span>
+                        </button>
+                    </div>
+
+                    <!-- Visual Simulation Column -->
+                    <div class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-inner">
+                        <div class="absolute top-4 right-4 bg-slate-800/80 px-3 py-1 rounded-full text-xs text-slate-300 font-mono">
+                            Stato: <span id="pass-status-badge" class="text-amber-400 font-bold">In attesa trattamento</span>
+                        </div>
+                        <div class="my-auto py-8 text-center space-y-4">
+                            <div id="pass-visual-icon" class="inline-flex p-6 bg-slate-800 rounded-2xl text-5xl text-tech-400 shadow-lg border border-slate-700 transition-all duration-500">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <h3 id="pass-title-view" class="text-xl font-bold">Superficie metallica grezza</h3>
+                            <p id="pass-desc-view" class="text-slate-300 text-sm max-w-lg mx-auto">
+                                La superficie presenta residui di lavorazione e ferro libero che possono innescare corrosione nel cavo orale.
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700 text-xs space-y-1">
+                            <div class="font-semibold text-tech-400"><i class="fa-solid fa-graduation-cap mr-1"></i> Nota Didattica:</div>
+                            <p id="pass-didactic-note" class="text-slate-300">Completa tutti i passaggi per ottenere una superficie biocompatibile protetta da ossidi stabili.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: PROVE (Charpy & Durezza Visiva) ================= -->
+        <section id="tab-prove" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Charpy Pendulum Visual Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Resilienza - Charpy</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">Simulazione Grafica Pendolo di Charpy</h3>
+                        <p class="text-slate-600 text-sm mb-4">
+                            Osserva cosa succede al provino intagliato quando il martello lo colpisce a seconda che sia in lega duttile o ceramica fragile.
+                        </p>
+
+                        <!-- Canvas for Charpy Animation -->
+                        <div class="bg-slate-900 rounded-xl p-3 text-center relative overflow-hidden border border-slate-800">
+                            <canvas id="charpyCanvas" width="400" height="180" class="mx-auto bg-slate-950 rounded-lg shadow-inner"></canvas>
+                        </div>
+
+                        <div class="mt-4 space-y-2">
+                            <label class="block text-xs font-semibold text-slate-700">Seleziona Materiale Provino:</label>
+                            <select id="charpy-mat" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs">
+                                <option value="ductile">Lega Co-Cr (Duttile - Si deforma e assorbe molta energia)</option>
+                                <option value="brittle">Ceramica Dentale (Fragile - Rottura netta immediata)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="runCharpyAnimation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition shadow-sm">
+                            Avvia Test Pendolo
+                        </button>
+                        <div id="charpy-text-result" class="mt-3 text-center text-xs font-bold text-slate-700">Stato: Pronto per il test</div>
+                    </div>
+                </div>
+
+                <!-- Vickers & Knoop Visual Indentation Card -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Durezza Ottica</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">Metodi Vickers e Knoop</h3>
+                        <p class="text-slate-600 text-sm mb-3">
+                            Misurazione ottica delle diagonali dell'impronta lasciata da un penetratore in diamante piramidale.
+                        </p>
+
+                        <!-- Visual Diagram of Indentation -->
+                        <div class="bg-slate-900 rounded-xl p-4 text-center relative overflow-hidden border border-slate-800 flex flex-col items-center justify-center">
+                            <div id="indentation-graphic" class="relative w-36 h-36 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center transition-all duration-300">
+                                <!-- Diamond Square / Rhombus representation -->
+                                <div id="shape-box" class="absolute w-20 h-20 bg-tech-600/30 border-2 border-tech-400 rotate-45 flex items-center justify-center">
+                                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                </div>
+                                <!-- Diagonals -->
+                                <span id="diag-d1" class="absolute text-[10px] text-amber-300 font-mono -top-3">d1</span>
+                                <span id="diag-d2" class="absolute text-[10px] text-amber-300 font-mono -right-3">d2</span>
+                            </div>
+                            <div class="text-[11px] text-slate-300 mt-2" id="method-explanation">
+                                Vickers: Piramide a base quadrata (diagonali uguali d1 = d2).
+                            </div>
+                        </div>
+
+                        <div class="mt-3 grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-semibold text-slate-700 mb-1">Metodo:</label>
+                                <select id="hardness-method" onchange="updateHardnessMethod()" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs">
+                                    <option value="vickers">Vickers (HV)</option>
+                                    <option value="knoop">Knoop (HK - Fragili)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold text-slate-700 mb-1">Diagonale d (mm):</label>
+                                <input type="number" id="hardness-d" value="0.25" step="0.01" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="calculateHardness()" class="w-full bg-tech-600 hover:bg-tech-700 text-white font-semibold py-2 px-4 rounded-xl text-xs transition shadow-sm">
+                            Calcola Durezza
+                        </button>
+                        <div id="hardness-result" class="mt-3 text-center text-xs font-bold text-slate-700">Valore: --</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: EFFETTO INTAGLIO E FATICA ================= -->
+        <section id="tab-fatica" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <span class="bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Approfondimento</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">Comportamento alla Fessura: Plastici vs Fragili</h2>
+                        <p class="text-slate-600 text-sm">Come la deformazione plastica all'apice di un intaglio riduce il rischio di rottura per fatica.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    <!-- Controls -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                        <h3 class="font-semibold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-microscope text-rose-600 mr-2"></i> Simulatore di Intaglio
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Comportamento del Materiale:</label>
+                            <select id="notch-material" onchange="updateNotchSim()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm">
+                                <option value="plastic">Materiale Plastico / Duttile (es. Lega Metallica)</option>
+                                <option value="brittle">Materiale Fragile (es. Ceramica / Vetro)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Applicazione Sforzo Ciclico (Fatica):</label>
+                            <input type="range" id="notch-load" min="0" max="100" value="20" class="w-full accent-rose-600" oninput="updateNotchSim()">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                               <span>Carico Basso</span>
+                               <span>Carico Critico</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+                            <div class="font-bold text-slate-900">Principio Fisico:</div>
+                            <p id="notch-explanation" class="text-slate-600">
+                                Nei materiali duttili, l'elevata tensione all'apice della fessura causa uno scorrimento plastico locale che arrotonda (smussa) l'intaglio, dissipando l'energia e arrestando la propagazione della cricca.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Graphical Visualizer Canvas -->
+                    <div class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-xl flex flex-col justify-between relative overflow-hidden shadow-inner">
+                        <div class="text-center font-mono text-xs text-slate-400 mb-2">Simulazione Microscopica dell'Apice della Fessura (Crack Tip)</div>
+                        <div class="my-auto py-2 flex justify-center">
+                            <canvas id="notchCanvas" width="450" height="220" class="bg-slate-950 rounded-xl border border-slate-800 shadow-inner"></canvas>
+                        </div>
+                        <div id="notch-status-box" class="bg-slate-800/90 p-4 rounded-xl border border-slate-700 text-xs space-y-1">
+                            <div class="font-semibold text-emerald-400" id="notch-status-title"><i class="fa-solid fa-shield-halved mr-1"></i> Stabile: Nessuna propagazione</div>
+                            <p id="notch-status-desc" class="text-slate-300">Il materiale riduce la concentrazione degli sforzi grazie alla plasticità diffusa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: QUIZ VERIFICA ================= -->
+        <section id="tab-quiz" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 max-w-3xl mx-auto">
+                <div class="text-center mb-6">
+                    <span class="bg-tech-100 text-tech-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Verifica Formativa</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-1">Quiz di Fine Modulo</h2>
+                    <p class="text-slate-600 text-sm">Metti alla prova le tue competenze sui trattamenti, prove meccaniche e comportamento a fatica.</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div id="quiz-footer" class="mt-8 text-center hidden">
+                    <div id="quiz-score" class="text-lg font-bold text-slate-900 mb-3"></div>
+                    <button onclick="resetQuiz()" class="bg-tech-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-tech-700 transition">Ricomincia Quiz</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Bar with Offline Export Button -->
+    <footer class="bg-white border-t border-slate-200 py-3 px-4 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+            <div>
+                <span>Architetto Risorse Digitali &bull; Odontotecnica 4° Anno</span>
+            </div>
+            <div>
+                <button onclick="downloadOfflineApp()" class="bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-xl transition flex items-center space-x-2 shadow-sm">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Scarica App Offline (.html)</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic & Simulations -->
+    <script>
+        // Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('header nav button').forEach(btn => {
+                btn.classList.remove('bg-tech-600', 'text-white', 'shadow');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+            activeBtn.classList.add('bg-tech-600', 'text-white', 'shadow');
+
+            if (tabId === 'prove') {
+                drawCharpyStatic();
+            }
+            if (tabId === 'fatica') {
+                updateNotchSim();
+            }
+        }
+
+        // Passivazione State Machine
+        let passStepCurrent = 1;
+        function setPassStep(step) {
+            passStepCurrent = step;
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById('pstep-' + i);
+                if (i === step) {
+                    btn.className = "w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-tech-600 text-white transition flex justify-between items-center shadow-sm";
+                    btn.querySelector('i').className = "fa-solid fa-circle-check";
+                } else if (i < step) {
+                    btn.className = "w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 transition flex justify-between items-center";
+                    btn.querySelector('i').className = "fa-solid fa-check";
+                } else {
+                    btn.className = "w-full text-left px-3 py-2 rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition flex justify-between items-center";
+                    btn.querySelector('i').className = "fa-regular fa-circle";
+                }
+            }
+        }
+
+        function executePassStep() {
+            const alloy = document.getElementById('pass-alloy').value;
+            const iconView = document.getElementById('pass-visual-icon');
+            const titleView = document.getElementById('pass-title-view');
+            const descView = document.getElementById('pass-desc-view');
+            const statusBadge = document.getElementById('pass-status-badge');
+            const didacticNote = document.getElementById('pass-didactic-note');
+
+            if (passStepCurrent === 1) {
+                iconView.innerHTML = '<i class="fa-solid fa-water"></i>';
+                titleView.innerText = "Fase 1: Sgrassaggio ad Ultrasuoni";
+                descView.innerText = "Rimozione di oli, residui organici e cere mediante bagno con ultrasuoni.";
+                statusBadge.innerText = "Sgrassato";
+                statusBadge.className = "text-blue-400 font-bold";
+                didacticNote.innerText = "Superficie pulita da impurità organiche.";
+            } else if (passStepCurrent === 2) {
+                iconView.innerHTML = '<i class="fa-solid fa-flask"></i>';
+                titleView.innerText = "Fase 2: Decapaggio Acido";
+                descView.innerText = "Immersione in acidi controllati per sciogliere le particelle di ferro libero.";
+                statusBadge.innerText = "Decapato";
+                statusBadge.className = "text-amber-400 font-bold";
+                didacticNote.innerText = "Rimosso il ferro libero che attiverebbe la corrosione.";
+            } else if (passStepCurrent === 3) {
+                iconView.innerHTML = '<i class="fa-solid fa-droplet"></i>';
+                titleView.innerText = "Fase 3: Risciacquo Deionizzato";
+                descView.innerText = "Eliminazione totale dei residui acidi superficiali.";
+                statusBadge.innerText = "Risciacquato";
+                statusBadge.className = "text-cyan-400 font-bold";
+                didacticNote.innerText = "Previene la formazione di macchie saline.";
+            } else if (passStepCurrent === 4) {
+                iconView.innerHTML = '<i class="fa-solid fa-shield-cat"></i>';
+                titleView.innerText = "Fase 4: Film Passivo (" + (alloy === 'ti' ? 'TiO2' : 'Cr2O3') + ")";
+                descView.innerText = "Crescita dello strato protettivo di ossido stabile a contatto con l'ossigeno.";
+                statusBadge.className = "text-emerald-400 font-bold";
+                statusBadge.innerText = "PASSIVATO";
+                didacticNote.innerText = "Successo! Eccellente biocompatibilità e resistenza alla corrosione orale.";
+            }
+
+            if (passStepCurrent < 4) {
+                setPassStep(passStepCurrent + 1);
+            }
+        }
+
+        // ================= CHARPY CANVAS ANIMATION =================
+        function drawCharpyStatic() {
+            const canvas = document.getElementById('charpyCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw anvil & specimen
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(170, 130, 60, 20); // support
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(180, 120, 40, 10); // specimen
+
+            // Draw hammer at initial position (top right)
+            ctx.save();
+            ctx.translate(200, 30);
+            ctx.rotate(Math.PI / 4);
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(-10, 0, 20, 80);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(0, 80, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function runCharpyAnimation() {
+            const canvas = document.getElementById('charpyCanvas');
+            const ctx = canvas.getContext('2d');
+            const mat = document.getElementById('charpy-mat').value;
+            const textRes = document.getElementById('charpy-text-result');
+
+            let angle = Math.PI / 4;
+            let targetAngle = -Math.PI / 4;
+            let broken = false;
+            let frame = 0;
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw anvil
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(170, 130, 60, 20);
+
+                // Draw specimen
+                ctx.fillStyle = '#cbd5e1';
+                if (mat === 'brittle' && frame > 25) {
+                    // Broken in two pieces
+                    ctx.fillRect(175, 120, 15, 10);
+                    ctx.fillRect(210, 120, 15, 10);
+                } else if (mat === 'ductile' && frame > 25) {
+                    // Bent specimen
+                    ctx.fillRect(180, 123, 40, 7);
+                } else {
+                    ctx.fillRect(180, 120, 40, 10);
+                }
+
+                // Swing hammer
+                if (frame < 30) {
+                    angle -= 0.05;
+                } else {
+                    if (mat === 'ductile') {
+                        angle += 0.03; // bounces less
+                    } else {
+                        angle += 0.045; // bounces higher
+                    }
+                }
+
+                ctx.save();
+                ctx.translate(200, 30);
+                ctx.rotate(angle);
+                ctx.fillStyle = '#2563eb';
+                ctx.fillRect(-10, 0, 20, 80);
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(0, 80, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                frame++;
+                if (frame < 60) {
+                    requestAnimationFrame(animate);
+                } else {
+                    if (mat === 'ductile') {
+                        textRes.innerHTML = "Risultato: <span class='text-emerald-600 font-bold'>Alto Assorbimento (145 J) - Provino deformato plasticamente</span>";
+                    } else {
+                        textRes.innerHTML = "Risultato: <span class='text-rose-600 font-bold'>Basso Assorbimento (12 J) - Frattura fragile netta</span>";
+                    }
+                }
+            }
+            animate();
+        }
+
+        // ================= VICKERS / KNOOP HARDNESS =================
+        function updateHardnessMethod() {
+            const method = document.getElementById('hardness-method').value;
+            const shapeBox = document.getElementById('shape-box');
+            const exp = document.getElementById('method-explanation');
+            const diagD1 = document.getElementById('diag-d1');
+            const diagD2 = document.getElementById('diag-d2');
+
+            if(method === 'vickers') {
+                shapeBox.className = "absolute w-20 h-20 bg-tech-600/30 border-2 border-tech-400 rotate-45 flex items-center justify-center";
+                exp.innerText = "Vickers: Piramide a base quadrata (diagonali uguali d1 = d2). Adatto a metalli.";
+                diagD1.innerText = "d1";
+                diagD2.innerText = "d2";
+            } else {
+                shapeBox.className = "absolute w-28 h-12 bg-amber-600/30 border-2 border-amber-400 rotate-12 flex items-center justify-center";
+                exp.innerText = "Knoop: Piramide a base rombica allungata. Diagonale maggiore lunga circa 7 volte la minore. Ideale per ceramiche sottili.";
+                diagD1.innerText = "Lunga (L)";
+                diagD2.innerText = "Corta (w)";
+            }
+        }
+
+        function calculateHardness() {
+            const method = document.getElementById('hardness-method').value;
+            const d = parseFloat(document.getElementById('hardness-d').value);
+            const res = document.getElementById('hardness-result');
+            if(d <= 0) {
+                res.innerText = "Inserire un valore di diagonale valido.";
+                return;
+            }
+            if(method === 'vickers') {
+                let hv = 1.8544 * (10 / (d * d));
+                res.innerHTML = `Durezza Vickers: <span class='text-tech-600 font-bold'>${hv.toFixed(1)} HV</span>`;
+            } else {
+                let hk = 14.229 * (10 / (d * d));
+                res.innerHTML = `Durezza Knoop: <span class='text-amber-600 font-bold'>${hk.toFixed(1)} HK</span>`;
+            }
+        }
+
+        // ================= NOTCH & FATIGUE CANVAS SIMULATOR =================
+        function updateNotchSim() {
+            const canvas = document.getElementById('notchCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const mat = document.getElementById('notch-material').value;
+            const load = parseInt(document.getElementById('notch-load').value);
+            const statusTitle = document.getElementById('notch-status-title');
+            const statusDesc = document.getElementById('notch-status-desc');
+            const explanation = document.getElementById('notch-explanation');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Material block background
+            ctx.fillStyle = mat === 'plastic' ? '#1e293b' : '#334155';
+            ctx.fillRect(50, 20, 350, 180);
+
+            // Draw Notch / Crack V-shape
+            ctx.beginPath();
+            ctx.moveTo(50, 110);
+            ctx.lineTo(180 + (load * 0.5), 110); // crack tip depth
+            ctx.lineTo(50, 130);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+
+            // Draw stress concentration lines or blunting radius
+            if (mat === 'plastic') {
+                explanation.innerText = "Nei materiali duttili (es. leghe Co-Cr), l'elevata tensione all'apice della fessura genera scorrimento plastico locale. L'angolo della fessura si smussa (blunting) e si arrotonda, riducendo la concentrazione di sforzo e proteggendo dalla fatica.";
+                
+                // Draw rounded crack tip (blunting)
+                ctx.beginPath();
+                ctx.arc(180 + (load * 0.5), 120, 8 + (load * 0.05), -Math.PI/2, Math.PI/2, true);
+                ctx.fillStyle = '#10b981';
+                ctx.fill();
+
+                statusTitle.innerHTML = `<i class="fa-solid fa-shield-halved mr-1"></i> Smussamento Plastico Attivo (Crack Tip Blunting)`;
+                statusTitle.className = "font-semibold text-emerald-400";
+                statusDesc.innerText = `Carico ${load}N: Il materiale plastico deforma localmente all'apice disperdendo l'energia. Rischio di fatica basso.`;
+            } else {
+                explanation.innerText = "Nei materiali fragili (es. ceramiche), l'apice della fessura rimane estremamente acuto. Non essendoci deformazione plastica, le tensioni si concentrano enormemente, portando alla rapida propagazione della cricca per fatica.";
+
+                // Draw sharp crack tip
+                ctx.beginPath();
+                ctx.moveTo(180 + (load * 0.3), 115);
+                ctx.lineTo(190 + (load * 0.3), 120);
+                ctx.lineTo(180 + (load * 0.3), 125);
+                ctx.fillStyle = '#ef4444';
+                ctx.fill();
+
+                if (load > 60) {
+                    statusTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> CRITICO: Propagazione Immediata della Cricca!`;
+                    statusTitle.className = "font-semibold text-rose-500";
+                    statusDesc.innerText = `Carico ${load}N: Intaglio acuto senza plasticità. Concentrazione di sforzo critica, rischio imminente di rottura catastrofica.`;
+                } else {
+                    statusTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Intaglio Acuto Non Smussato`;
+                    statusTitle.className = "font-semibold text-amber-400";
+                    statusDesc.innerText = `Carico ${load}N: Il materiale fragile non deforma. L'apice acuto concentra le tensioni cicliche (alta suscettibilità a fatica).`;
+                }
+            }
+        }
+
+        // ================= QUIZ LOGIC =================
+        const quizData = [
+            {
+                q: "Quale fenomeno permette ai materiali duttili di tollerare la presenza di una fessura riducendo il rischio di rottura per fatica?",
+                options: [
+                    "L'indurimento superficiale per sabbiatura",
+                    "Il crack tip blunting (smussamento plastico all'apice dell'intaglio)",
+                    "L'aumento della durezza Vickers oltre 800 HV",
+                    "La completa assenza di deformazione elastica"
+                ],
+                correct: 1,
+                explanation: "Lo scorrimento plastico locale all'apice della fessura (crack tip blunting) arrotonda l'intaglio e abbassa la concentrazione delle tensioni."
+            },
+            {
+                q: "Come si comporta un materiale fragile (come la ceramica) in presenza di un intaglio o microfessura sotto carico?",
+                options: [
+                    "Si deforma plasticamente addolcendo l'angolo",
+                    "Mantiene l'intaglio acuto concentrando le tensioni, portando a frattura senza deformazione",
+                    "Assorbe energia raddoppiando la resilienza Charpy",
+                    "Si trasforma in una struttura duttile"
+                ],
+                correct: 1,
+                explanation: "I materiali fragili non possono deformarsi plasticamente; l'apice acuminato concentra gli sforzi provocando una rottura netta e repentina."
+            },
+            {
+                q: "Qual è la principale differenza geometrica tra le impronte Vickers e Knoop?",
+                options: [
+                    "Vickers usa una sfera, Knoop usa un cono",
+                    "Vickers ha una base quadrata con diagonali uguali, Knoop ha una base rombica allungata",
+                    "Knoop si usa esclusivamente sui metalli pesanti per scheletrati",
+                    "Non vi è alcuna differenza geometrica"
+                ],
+                correct: 1,
+                explanation: "Vickers usa una piramide a base quadrata (diagonali simmetriche), mentre Knoop utilizza un penetratore rombico con una diagonale molto lunga."
+            }
+        ];
+
+        function loadQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = "";
+            quizData.forEach((item, index) => {
+                let html = `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <p class="font-semibold text-sm text-slate-900">${index + 1}. ${item.q}</p>
+                    <div class="space-y-2">`;
+                item.options.forEach((opt, oIndex) => {
+                    html += `<label class="flex items-center space-x-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100">
+                        <input type="radio" name="q${index}" value="${oIndex}" class="accent-tech-600">
+                        <span>${opt}</span>
+                    </label>`;
+                });
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+            document.getElementById('quiz-footer').classList.remove('hidden');
+        }
+
+        // Offline HTML Export
+        function downloadOfflineApp() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Laboratorio_Odontotecnico_Avanzato.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = function() {
+            loadQuiz();
+            drawCharpyStatic();
+            updateNotchSim();
+        };
+    </script>
+</body>
+</html>

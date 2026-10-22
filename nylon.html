@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlante Multilingue: Protesi in Nylon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🧬</span>
+            <div>
+                <h1 class="font-bold text-lg text-white" id="ui-main-title">Atlante Clinico: Protesi in Nylon</h1>
+                <p class="text-xs text-slate-400" id="ui-main-subtitle">Tipologie, Procedure di Laboratorio & Autovalutazione</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="cambiarIdioma('it')" id="btn-it" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white transition shadow-sm">IT</button>
+            <button onclick="cambiarIdioma('es')" id="btn-es" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">ES</button>
+            <button onclick="cambiarIdioma('en')" id="btn-en" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition">EN</button>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow flex flex-col gap-6">
+        
+        <!-- NAVEGACIÓN ENTRE PÁGINAS/SECCIONES -->
+        <nav class="flex flex-wrap gap-2 bg-slate-800/50 p-2 rounded-2xl border border-slate-700/60 shadow-lg">
+            <button onclick="irAPagina(1)" id="tab-p1" class="flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-rose-600 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md">
+                <span>📚</span> <span id="ui-nav-p1">1. Tipologie di Protesi</span>
+            </button>
+            <button onclick="irAPagina(2)" id="tab-p2" class="flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                <span>⚙️</span> <span id="ui-nav-p2">2. Procedure di Esecuzione</span>
+            </button>
+            <button onclick="irAPagina(3)" id="tab-p3" class="flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                <span>🎯</span> <span id="ui-nav-p3">3. Test di Autovalutazione</span>
+            </button>
+        </nav>
+
+        <!-- CONTENIDO DE LAS PÁGINAS -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex-grow">
+            
+            <!-- PÁGINA 1: SEIS TIPOS DE PRÓTESIS DE NYLON -->
+            <div id="pagina-1" class="space-y-6">
+                <div class="border-b border-slate-700 pb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2" id="p1-title">Tipologie di Protesi in Nylon (Poliammide)</h2>
+                    <p class="text-xs text-slate-400 mt-1" id="p1-desc">Panoramica dettagliata delle 6 principali applicazioni cliniche e protesiche realizzate con resine poliammidiche flessibili.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="grid-tipos-nylon">
+                    <!-- Inyectado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- PÁGINA 2: PROCEDIMIENTOS DE EJECUCIÓN -->
+            <div id="pagina-2" class="hidden space-y-6">
+                <div class="border-b border-slate-700 pb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2" id="p2-title">Procedure di Esecuzione in Laboratorio</h2>
+                    <p class="text-xs text-slate-400 mt-1" id="p2-desc">Fasi tecniche sequenziali per la corretta manipolazione, stampaggio a caldo e rifinitura delle protesi in nylon.</p>
+                </div>
+                <div class="space-y-4" id="lista-procedimientos">
+                    <!-- Inyectado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- PÁGINA 3: TEST INTERACTIVO DE 10 PREGUNTAS -->
+            <div id="pagina-3" class="hidden space-y-6">
+                <div class="border-b border-slate-700 pb-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2" id="p3-title">Test di Verifica: Protesi in Nylon</h2>
+                        <p class="text-xs text-slate-400 mt-1" id="p3-desc">Metti alla prova le tue conoscenze tecniche rispondendo alle 10 domande avanzate.</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-lg bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/30" id="contador-preguntas">Pregunta 1 / 10</span>
+                </div>
+
+                <!-- Enunciado -->
+                <div>
+                    <h3 id="pregunta-texto" class="text-base md:text-lg font-semibold text-white leading-snug"></h3>
+                </div>
+
+                <!-- Opciones -->
+                <div class="grid grid-cols-1 gap-3" id="opciones-contenedor"></div>
+
+                <!-- Feedback & Navegación Test -->
+                <div class="pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                    <div id="feedback-box" class="text-xs font-medium text-slate-400">Selecciona una opción para validar tu respuesta.</div>
+                    <button id="btn-siguiente" onclick="siguientePregunta()" class="hidden px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-lg flex items-center gap-2">
+                        <span id="ui-btn-next">Siguiente Pregunta</span> &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA RESULTADOS DEL TEST -->
+            <div id="vista-resultados" class="hidden text-center py-12 space-y-6">
+                <div class="inline-flex p-4 bg-rose-500/10 text-rose-400 rounded-full text-4xl mb-2 border border-rose-500/20">🏆</div>
+                <h3 class="text-2xl font-bold text-white" id="res-titulo">¡Test Completado con Éxito!</h3>
+                <p class="text-slate-300 text-sm max-w-md mx-auto" id="res-desc">Has finalizado el banco de preguntas sobre tecnología de prótesis en nylon.</p>
+                <div class="text-3xl font-extrabold text-rose-400" id="res-puntuacion">Puntuación: 0 / 10</div>
+                <div class="pt-4 flex justify-center gap-4">
+                    <button onclick="reiniciarTest()" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs rounded-xl transition shadow-lg" id="ui-btn-retry">Repetir Test</button>
+                    <button onclick="irAPagina(1)" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs rounded-xl transition" id="ui-btn-review">Volver al Inicio</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-800">
+        Atlante Multilingue di Tecnologia Odontotecnica &bull; Sviluppato per Didattica Professionale
+    </footer>
+
+    <!-- BOTÓN DE DESCARGA FLOTANTE REQUERIDO -->
+    <button onclick="guardarComoArchivo()" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 border border-rose-400/30 transition transform hover:scale-105">
+        <span>💾 GUARDAR RECURSO .HTML</span>
+    </button>
+
+    <!-- SCRIPT DE GESTIÓN DE CONTENIDO MULTILINGÜE Y TEST -->
+    <script>
+        let idiomaActual = 'it';
+        let paginaActual = 1;
+        let indicePreguntaActual = 0;
+        let puntuacion = 0;
+        let respuestaSeleccionada = false;
+
+        const textosUI = {
+            it: {
+                mainTitle: "Atlante Clinico: Protesi in Nylon",
+                mainSubtitle: "Tipologie, Procedure di Laboratorio & Autovalutazione",
+                navP1: "1. Tipologie di Protesi",
+                navP2: "2. Procedure di Esecuzione",
+                navP3: "3. Test di Autovalutazione",
+                p1Title: "Tipologie di Protesi in Nylon (Poliammide)",
+                p1Desc: "Panoramica dettagliata delle 6 principali applicazioni cliniche e protesiche realizzate con resine poliammidiche flessibili.",
+                p2Title: "Procedure di Esecuzione in Laboratorio",
+                p2Desc: "Fasi tecniche sequenziali per la corretta manipolazione, stampaggio a caldo e rifinitura delle protesi in nylon.",
+                p3Title: "Test di Verifica: Protesi in Nylon",
+                p3Desc: "Metti alla prova le tue conoscenze tecniche rispondendo alle 10 domande avanzate.",
+                btnNext: "Prossima Domanda",
+                resTitle: "Test Completato con Successo!",
+                resDesc: "Hai completato il test di verifica sulle protesi in nylon.",
+                btnRetry: "Ripeti il Test",
+                btnReview: "Torna all'Atlante",
+                selectOptionMsg: "Seleziona un'opzione per verificare la risposta.",
+                correctFeedback: "Risposta esatta! Ottimo lavoro.",
+                incorrectFeedback: "Risposta errata. Rivedi la teoria nell'atlante."
+            },
+            es: {
+                mainTitle: "Atlas Clínico: Prótesis de Nylon",
+                mainSubtitle: "Tipologías, Procedimientos de Laboratorio y Autoevaluación",
+                navP1: "1. Tipos de Prótesis",
+                navP2: "2. Procedimientos de Ejecución",
+                navP3: "3. Test de Autoevaluación",
+                p1Title: "Tipologías de Prótesis de Nylon (Poliamida)",
+                p1Desc: "Visión general detallada de las 6 principales aplicaciones clínicas y protésicas fabricadas con resinas de poliamida flexible.",
+                p2Title: "Procedimientos de Ejecución en Laboratorio",
+                p2Desc: "Fases técnicas secuenciales para la correcta manipulación, inyección en caliente y acabado de las prótesis de nylon.",
+                p3Title: "Test de Verificación: Prótesis de Nylon",
+                p3Desc: "Pon a prueba tus conocimientos técnicos respondiendo a las 10 preguntas avanzadas.",
+                btnNext: "Siguiente Pregunta",
+                resTitle: "¡Test Completado con Éxito!",
+                resDesc: "Has completado el test de verificación sobre prótesis de nylon.",
+                btnRetry: "Repetir Test",
+                btnReview: "Volver al Atlas",
+                selectOptionMsg: "Selecciona una opción para validar tu respuesta.",
+                correctFeedback: "¡Respuesta exacta! Excelente trabajo.",
+                incorrectFeedback: "Respuesta incorrecta. Revisa la teoría en el atlas."
+            },
+            en: {
+                mainTitle: "Clinical Atlas: Nylon Dentures",
+                mainSubtitle: "Typologies, Laboratory Procedures & Self-Assessment",
+                navP1: "1. Denture Types",
+                navP2: "2. Execution Procedures",
+                navP3: "3. Self-Assessment Test",
+                p1Title: "Types of Nylon Dentures (Polyamide)",
+                p1Desc: "Detailed overview of the 6 main clinical and prosthetic applications manufactured using flexible polyamide resins.",
+                p2Title: "Laboratory Execution Procedures",
+                p2Desc: "Sequential technical phases for proper handling, hot-injection molding, and finishing of nylon dentures.",
+                p3Title: "Verification Test: Nylon Dentures",
+                p3Desc: "Test your technical knowledge by answering 10 advanced questions.",
+                btnNext: "Next Question",
+                resTitle: "Test Successfully Completed!",
+                resDesc: "You have completed the verification test on nylon dentures.",
+                btnRetry: "Retest",
+                btnReview: "Back to Atlas",
+                selectOptionMsg: "Select an option to validate your answer.",
+                correctFeedback: "Exact answer! Great job.",
+                incorrectFeedback: "Incorrect answer. Review the theory in the atlas."
+            }
+        };
+
+        // DATOS DE LAS 6 PROTESIS EN NYLON (Página 1)
+        const tiposNylon = {
+            it: [
+                {
+                    num: "01",
+                    titulo: "Protesi Totale Flessibile",
+                    desc: "Indicata per edentulismo totale in pazienti allergici al monomero acrilico o con sottosquadri pronunciati. Sfrutta l'elasticità del nylon per una ritenzione anatomica ottimale senza ganci metallici."
+                },
+                {
+                    num: "02",
+                    titulo: "Protesi Parziale con Ganci Estetici",
+                    desc: "Dotata di connettori mucosi e ganci estetici dello stesso colore della mucosa o dei denti, garantendo un'incompatibilità estetica invisibile nel sorriso."
+                },
+                {
+                    num: "03",
+                    titulo: "Microprotesi (Valplast / Unilateral)",
+                    desc: "Piccoli manufatti provvisori o definitivi per la sostituzione di uno o due elementi dentari, leggeri e confortevoli, ancorati mediante alette flessibili."
+                },
+                {
+                    num: "04",
+                    titulo: "Overdenture su Impianti in Nylon",
+                    desc: "Struttura combinata in poliammide progettata per agganciarsi a cappette sferiche o attacchi su impianti endossei, offrendo ammortizzazione e comfort."
+                },
+                {
+                    num: "05",
+                    titulo: "Protesi Ibrida (Scheletrato con Sella in Nylon)",
+                    desc: "Integra una struttura rigida in lega metallica (es. Co-Cr) con selle estetiche in nylon flessibile per migliorare l'adattamento sui tessuti mucosi sottostanti."
+                },
+                {
+                    num: "06",
+                    titulo: "Dispositivo di Transizione / Temporaneo",
+                    desc: "Utilizzato durante i periodi di guarigione post-estrattiva o osteointegrazione implantare, riduce i carichi traumatici sui tessuti grazie alla resilienza del materiale."
+                }
+            ],
+            es: [
+                {
+                    num: "01",
+                    titulo: "Prótesis Total Flexible",
+                    desc: "Indicada para edentulismo total en pacientes alérgicos al monómero acrílico o con retenciones severas. Aprovecha la elasticidad del nylon para lograr retención anatómica sin ganchos metálicos."
+                },
+                {
+                    num: "02",
+                    titulo: "Prótesis Parcial con Ganchos Estéticos",
+                    desc: "Equipada con conectores y ganchos estéticos del color de la encía o los dientes, garantizando invisibilidad y alta estética en la sonrisa."
+                },
+                {
+                    num: "03",
+                    titulo: "Microprótesis (Valplast / Unilateral)",
+                    desc: "Pequeños aparatos provisionales o definitivos para reemplazar uno o dos dientes, ligeros y cómodos, anclados mediante aletas flexibles."
+                },
+                {
+                    num: "04",
+                    titulo: "Overdenture sobre Implantes de Nylon",
+                    desc: "Estructura combinada de poliammide diseñada para acoplarse a ataches o pilares sobre implantes, ofreciendo amortiguación y confort superior."
+                },
+                {
+                    num: "05",
+                    titulo: "Prótesis Híbrida (Esqueletizado con Base de Nylon)",
+                    desc: "Integra una estructura metálica rígida (Co-Cr) con bases estéticas de nylon flexible para mejorar el asentamiento sobre la mucosa."
+                },
+                {
+                    num: "06",
+                    titulo: "Dispositivo de Transición / Provisional",
+                    desc: "Utilizado durante periodos de cicatrización post-extracciones o integración de implantes, reduciendo cargas traumáticas gracias a su resiliencia."
+                }
+            ],
+            en: [
+                {
+                    num: "01",
+                    titulo: "Flexible Full Denture",
+                    desc: "Indicated for complete edentulism in patients allergic to acrylic monomer or with pronounced undercuts. Uses nylon elasticity for optimal anatomical retention without metal clasps."
+                },
+                {
+                    num: "02",
+                    titulo: "Partial Denture with Aesthetic Clasps",
+                    desc: "Equipped with gum-colored or tooth-colored aesthetic clasps and connectors, ensuring an invisible and highly aesthetic smile."
+                },
+                {
+                    num: "03",
+                    titulo: "Micro-Denture (Valplast / Unilateral)",
+                    desc: "Small provisional or definitive appliances to replace one or two teeth, lightweight and comfortable, anchored by flexible retention wings."
+                },
+                {
+                    num: "04",
+                    titulo: "Nylon Implant-Supported Overdenture",
+                    desc: "Polyamide combined structure designed to clip onto spherical attachments or locators over implants, offering shock absorption and comfort."
+                },
+                {
+                    num: "05",
+                    titulo: "Hybrid Denture (Metal Framework with Nylon Saddle)",
+                    desc: "Integrates a rigid metal alloy framework (Co-Cr) with flexible nylon saddles to improve adaptation over underlying mucosal tissues."
+                },
+                {
+                    num: "06",
+                    titulo: "Transition / Temporary Device",
+                    desc: "Used during post-extraction healing or implant osteointegration periods, reducing traumatic loads on tissues thanks to material resilience."
+                }
+            ]
+        };
+
+        // DATOS DE PROCEDIMIENTOS DE EJECUCIÓN (Página 2)
+        const procedimientosNylon = {
+            it: [
+                {
+                    fase: "Fase 01: Rilevamento Impronta e Sviluppo Modello",
+                    detalles: "Presa d'impronta di precisione con elastomeri (siliconi o polieteri) per catturare accuratamente i sottosquadri. Sviluppo del modello in gesso extraduro (tipo IV) con isolante specifico per resine termoplastiche."
+                },
+                {
+                    fase: "Fase 02: Modellazione in Cera e Studio dei Sottosquadri",
+                    detalles: "Modellazione della struttura protesica in cera valutando attentamente i progetti di asse di inserimento. Blocco dei sottosquadri non funzionali e impostazione degli spazi per i connettori."
+                },
+                {
+                    fase: "Fase 03: Mufolatura e Sceratura",
+                    detalles: "Inclusione del modello e del pattern in cera all'interno di una muffa speciale per iniezione. Rimozione della cera mediante lavaggio con acqua calda (sceratura) per ottenere lo stampo negativo perfetto."
+                },
+                {
+                    fase: "Fase 04: Fondazione e Stampaggio a Caldo (Iniezione)",
+                    detalles: "Inserimento della cartuccia di poliammide (nylon) nell'apposito forno termoinniettore. Il materiale viene riscaldato alla temperatura specifica (circa 280°C - 300°C) e iniettato ad alta pressione nello stampo."
+                },
+                {
+                    fase: "Fase 05: Smufolatura e Pulizia Preliminare",
+                    detalles: "Raffreddamento graduale della muffa, apertura controllata ed estrazione del manufatto inglobato nei canali di colata. Rimozione dei canali di iniezione con frese in carburo di tungsteno a taglio incrociato."
+                },
+                {
+                    fase: "Fase 06: Rifinitura, Levigatura e Lucidatura Finale",
+                    detalles: "Rifinitura dei margini con frese dedicate al nylon (evitando surriscaldamenti). Lisciatura con gommini siliconici specifici e lucidatura finale con paste diamantate e spazzole in cotone o feltro."
+                }
+            ],
+            es: [
+                {
+                    fase: "Fase 01: Toma de Impresión y Vaciado del Modelo",
+                    detalles: "Toma de impresión de precisión con elastómeros (siliconas o poliéteres) para capturar los retenciones. Vaciado del modelo en yeso tipo IV con aislamiento específico."
+                },
+                {
+                    fase: "Fase 02: Modelado en Cera y Alivio de Retenciones",
+                    detalles: "Modelado del diseño protésico en cera evaluando ejes de inserción. Bloqueo de retenciones indeseadas y diseño de conectores y ganchos."
+                },
+                {
+                    fase: "Fase 03: Muflado y Eliminación de Cera",
+                    detalles: "Inclusión del modelo y patrón de cera en muflas especiales para inyección. Eliminación de cera con agua caliente para obtener el molde negativo exacto."
+                },
+                {
+                    fase: "Fase 04: Plastificación e Inyección Térmica",
+                    detalles: "Colocación del cartucho de poliamida en el horno termoinyector. El nylon se funde a temperatura controlada (280°C-300°C) y se inyecta a alta presión en el molde."
+                },
+                {
+                    fase: "Fase 05: Desmuflado y Corte de Canales",
+                    detalles: "Enfriamiento controlado, apertura de la mufla y recuperación de la pieza bruta. Corte de los canales de inyección con fresas de carburo de tungsteno."
+                },
+                {
+                    fase: "Fase 06: Acabado, Alisado y Pulido Espejo",
+                    detalles: "Recorte marginal con fresas especiales para nylon sin sobrecalentar. Alisado con gomas de silicona y pulido final con pastas de diamante y cepillos de algodón."
+                }
+            ],
+            en: [
+                {
+                    fase: "Phase 01: Impression Taking and Cast Pouring",
+                    detalles: "Precision impression taking with elastomers (silicones or polyethers) to accurately capture undercuts. Pouring the master cast in type IV hard gypsum with specific separators."
+                },
+                {
+                    fase: "Phase 02: Wax Up and Undercut Blockout",
+                    detalles: "Wax modeling of the denture design assessing insertion paths. Blocking out non-functional undercuts and establishing connector geometries."
+                },
+                {
+                    fase: "Phase 03: Flasking and Boil-Out",
+                    detalles: "Enclosing the master cast and wax pattern in a specialized injection flask. Wax elimination via hot water flush to obtain the precise negative mold."
+                },
+                {
+                    fase: "Phase 04: Plasticization and Hot Injection",
+                    detalles: "Inserting the polyamide cartridge into the thermal injection furnace. The material is heated to specific temperatures (approx. 280°C-300°C) and injected under high pressure."
+                },
+                {
+                    fase: "Phase 05: Deflasking and Preliminary Trimming",
+                    detalles: "Gradual cooling of the flask, controlled opening, and retrieval of the prosthesis. Cutting off injection sprues using cross-cut tungsten carbide burs."
+                },
+                {
+                    fase: "Phase 06: Finishing, Smoothing, and Final Polishing",
+                    detalles: "Margin finishing with dedicated nylon burs (avoiding overheating). Smoothing with silicone points and final polishing using diamond pastes and cotton buffs."
+                }
+            ]
+        };
+
+        // 10 PREGUNTAS AVANZADAS CON POSICIÓN ALEATORIA DE LA CORRECTA
+        const preguntasDB = [
+            {
+                q: {
+                    it: "Qual è la principale caratteristica chimico-strutturale che distingue le resine poliammidiche (nylon) dalle tradizionali resine acriliche in odontotecnica?",
+                    es: "¿Cuál es la principal característica químico-structural que distingue a las resinas de poliamida (nylon) de las resinas acrílicas tradicionales en odontotecnología?",
+                    en: "What is the main chemical-structural characteristic distinguishing polyamide (nylon) resins from traditional acrylic resins in dental technology?"
+                },
+                opciones: {
+                    it: [
+                        "La presenza di legami peptidici ricorrenti nella catena polimerica che conferiscono elevata flessibilità e resistenza all'impatto.",
+                        "Una struttura completamente amorfa priva di qualsiasi grado di cristallinità.",
+                        "La capacità di polimerizzare a freddo mediante attivazione chimica con perossido di benzoile.",
+                        "Un modulo elastico estremamente rigido simile alle leghe metalliche nobili."
+                    ],
+                    es: [
+                        "La presencia de enlaces peptídicos recurrentes en la cadena polimérica que confieren gran flexibilidad y resistencia al impacto.",
+                        "Una estructura completamente amorfa desprovista de cualquier grado de cristalinidad.",
+                        "La capacidad de polimerizar en frío mediante activación química con peróxido de benzoilo.",
+                        "Un módulo elástico extremadamente rígido similar a las aleaciones metálicas nobles."
+                    ],
+                    en: [
+                        "The presence of recurring peptide bonds in the polymer chain granting high flexibility and impact resistance.",
+                        "A completely amorphous structure devoid of any crystallinity degree.",
+                        "The capacity to cold-cure via chemical activation with benzoyl peroxide.",
+                        "An extremely rigid elastic modulus similar to noble metal alloys."
+                    ]
+                },
+                correcta: 0
+            },
+            {
+                q: {
+                    it: "Per quale motivo le protesi in nylon sono particolarmente indicate nei pazienti con ipersensibilità accertata?",
+                    es: "¿Por qué motivo las prótesis de nylon están especialmente indicadas en pacientes con hipersensibilidad comprobada?",
+                    en: "Why are nylon dentures particularly indicated in patients with confirmed hypersensitivity?"
+                },
+                opciones: {
+                    it: [
+                        "Perché contengono elevate percentuali di monomero di metilmetacrilato libero residuo.",
+                        "Per l'assenza totale di monomero residuale di metilmetacrilato, essendo il nylon lavorato per fusione termica.",
+                        "Perché rilasciano ioni fluoro protettivi direttamente nella saliva.",
+                        "Grazie alla presenza di cariche di vetro di silicio bioattivo."
+                    ],
+                    es: [
+                        "Porque contienen altos porcentajes de monómero de metilmetacrilato libre residual.",
+                        "Por la ausencia total de monómero residual de metilmetacrilato, al procesarse el nylon por fusión térmica.",
+                        "Porque liberan iones flúor protectores directamente en la saliva.",
+                        "Gracias a la presencia de cargas de vidrio de sílice bioactivo."
+                    ],
+                    en: [
+                        "Because they contain high percentages of residual free methyl methacrylate monomer.",
+                        "Due to the total absence of residual methyl methacrylate monomer, as nylon is processed via thermal fusion.",
+                        "Because they release protective fluoride ions directly into saliva.",
+                        "Thanks to the presence of bioactive silica glass fillers."
+                    ]
+                },
+                correcta: 1
+            },
+            {
+                q: {
+                    it: "Durante il processo di stampaggio a caldo nel termoinniettore, quale intervallo di temperatura viene comunemente impiegato per la plastificazione delle cartucce di nylon?",
+                    es: "¿Durante el proceso de inyección en caliente en el termoinyector, qué intervalo de temperatura se emplea comúnmente para plastificar los cartuchos de nylon?",
+                    en: "During the hot-injection process in the thermal injector, what temperature range is commonly used for plasticizing nylon cartridges?"
+                },
+                opciones: {
+                    it: [
+                        "Tra 60°C e 100°C con bollitura controllata in acqua.",
+                        "Tra 120°C e 150°C in muffa a secco.",
+                        "Tra 280°C e 300°C, a seconda della formulazione specifica della poliammide.",
+                        "Oltre i 500°C con cannello a gas acetilenico."
+                    ],
+                    es: [
+                        "Entre 60°C y 100°C con ebullición controlada en agua.",
+                        "Entre 120°C y 150°C en mufla seca.",
+                        "Entre 280°C y 300°C, dependiendo de la formulación específica de la poliamida.",
+                        "Por encima de los 500°C con soplete de gas acetilénico."
+                    ],
+                    en: [
+                        "Between 60°C and 100°C with controlled water boiling.",
+                        "Between 120°C and 150°C in a dry flask.",
+                        "Between 280°C and 300°C, depending on the specific polyamide formulation.",
+                        "Above 500°C with an acetylene gas torch."
+                    ]
+                },
+                correcta: 2
+            },
+            {
+                q: {
+                    it: "Quale accorgimento tecnico è fondamentale adottare durante la rifinitura e il molaggio delle protesi flessibili in nylon per evitare difetti superficiali?",
+                    es: "¿Qué medida técnica es fundamental adoptar durante el acabado y tallado de las prótesis flexibles de nylon para evitar defectos superficiales?",
+                    en: "What technical measure is essential to adopt during finishing and grinding of flexible nylon dentures to avoid surface defects?"
+                },
+                opciones: {
+                    it: [
+                        "Impiegare frese a grana grossa ad altissimo numero di giri senza refrigerazione per accelerare i tempi.",
+                        "Utilizzare frese dedicate in carburo di tungsteno a taglio incrociato e moderare la velocità per prevenire il surriscaldamento e la fusione plastica localizzata.",
+                        "Applicare acido fluoridrico concentrato per sciogliere i residui in eccesso.",
+                        "Raffreddare costantemente il pezzo con monomero liquido fresco."
+                    ],
+                    es: [
+                        "Emplear fresas de grano grueso a altísimo número de revoluciones sin refrigeración para acelerar los tiempos.",
+                        "Utilizar fresas de carburo de tungsteno de corte cruzado dedicadas y moderar la velocidad para prevenir el sobrecalentamiento y la fusión plástica localizada.",
+                        "Aplicar ácido fluorhídrico concentrado para disolver los residuos en exceso.",
+                        "Refrigerar constantemente la pieza con monómero líquido fresco."
+                    ],
+                    en: [
+                        "Use coarse-grit burs at extremely high speeds without cooling to speed up times.",
+                        "Use dedicated cross-cut tungsten carbide burs and moderate speed to prevent overheating and localized plastic melting.",
+                        "Apply concentrated hydrofluoric acid to dissolve excess residues.",
+                        "Constantly cool the piece with fresh liquid monomer."
+                    ]
+                },
+                correcta: 1
+            },
+            {
+                q: {
+                    it: "Come si comporta il nylon rispetto all'assorbimento dei liquidi orali e delle pigmentazioni nel lungo termine?",
+                    es: "¿Cómo se comporta el nylon con respecto a la absorción de líquidos orales y pigmentaciones a largo plazo?",
+                    en: "How does nylon behave regarding the absorption of oral liquids and pigmentation in the long term?"
+                },
+                opciones: {
+                    it: [
+                        "Possiede un tasso di assorbimento d'acqua leggermente superiore rispetto alle resine acriliche tradizionali, richiedendo una corretta igiene domiciliare con pastiglie specifiche.",
+                        "È completamente impermeabile a qualsiasi molecola organica o inorganica grazie ai legami ionici.",
+                        "Subisce una dissoluzione completa se esposto a bevande calde come il caffè.",
+                        "Respinge totalmente l'umidità per effetto superidrofobo intrinseco."
+                    ],
+                    es: [
+                        "Posee una tasa de absorción de agua ligeramente superior en comparación con las resinas acrílicas tradicionales, requiriendo una correcta higiene domiciliaria con pastillas específicas.",
+                        "Es completamente impermeable a cualquier molécula orgánica o inorgánica gracias a sus enlaces iónicos.",
+                        "Sufre una disolución completa si se expone a bebidas calientes como el café.",
+                        "Repela totalmente la humedad debido a un efecto superhidrófobo intrínseco."
+                    ],
+                    en: [
+                        "It has a slightly higher water absorption rate compared to traditional acrylic resins, requiring proper home hygiene with specific tablets.",
+                        "It is completely impermeable to any organic or inorganic molecule thanks to ionic bonds.",
+                        "It undergoes complete dissolution if exposed to hot beverages like coffee.",
+                        "It totally repels moisture due to an intrinsic superhydrophobic effect."
+                    ]
+                },
+                correcta: 0
+            },
+            {
+                q: {
+                    it: "Perché la ribasatura diretta o indiretta delle protesi in nylon con resine acriliche autopolimerizzanti classiche presenta notevoli difficoltà di adesione?",
+                    es: "¿Por qué el rebasado directo o indirecto de las prótesis de nylon con resinas acrílicas autopolimerizables clásicas presenta notables dificultades de adhesión?",
+                    en: "Why do direct or indirect relining of nylon dentures with classical autopolymerizing acrylic resins present notable adhesion difficulties?"
+                },
+                opciones: {
+                    it: [
+                        "A causa dell'elevata energia superficiale e della natura polare del nylon che respingono i monomeri acrilici.",
+                        "Per la natura chimicamente inerte, la bassa energia superficiale e l'assenza di gruppi reattivi liberi della poliammide che impediscono l'aggancio chimico.",
+                        "Perché il calore della reazione deforma permanentemente la base protesica.",
+                        "Perché le resine acriliche sono troppo flessibili per legarsi al nylon."
+                    ],
+                    es: [
+                        "A causa de la alta energía superficial y la naturaleza polar del nylon que repelen los monómeros acrílicos.",
+                        "Por la naturaleza químicamente inerte, la baja energía superficial y la ausencia de grupos reactivos libres de la poliamida que impiden el anclaje químico.",
+                        "Porque el calor de la reacción deforma permanentemente la base protésica.",
+                        "Porque las resinas acrílicas son demasiado flexibles para unirse al nylon."
+                    ],
+                    en: [
+                        "Due to high surface energy and the polar nature of nylon repelling acrylic monomers.",
+                        "Due to polyamide's chemically inert nature, low surface energy, and absence of free reactive groups preventing chemical bonding.",
+                        "Because the reaction heat permanently deforms the denture base.",
+                        "Because acrylic resins are too flexible to bond to nylon."
+                    ]
+                },
+                correcta: 1
+            },
+            {
+                q: {
+                    it: "Quale tipologia di gancio caratterizza principalmente le protesi parziali in nylon, conferendo loro un eccellente valore mimetico?",
+                    es: "¿Qué tipo de gancho caracteriza principalmente a las prótesis parciales de nylon, otorgándoles un excelente valor estético y mimético?",
+                    en: "What type of clasp mainly characterizes partial nylon dentures, giving them an excellent aesthetic and mimetic value?"
+                },
+                opciones: {
+                    it: [
+                        "Ganci in filo battuto d'oro ad alta resistenza elastica.",
+                        "Ganci in lega di cobalto-cromo colati a sezione tonda.",
+                        "Ganci flessibili prolungamento della stessa base in nylon che sfruttano i sottosquadri gengivali.",
+                        "Attacchi a sfera rigidi fresati in titanio puro."
+                    ],
+                    es: [
+                        "Ganchos de alambre forjado de oro de alta resistencia elástica.",
+                        "Ganchos de aleación de cobalto-cromo colados de sección redonda.",
+                        "Ganchos flexibles prolongación de la misma base de nylon que aprovechan las retenciones gingivales.",
+                        "Ataches esféricos rígidos fresados en titanio puro."
+                    ],
+                    en: [
+                        "Wrought gold wire clasps with high elastic resistance.",
+                        "Cast cobalt-chromium alloy clasps with round cross-section.",
+                        "Flexible clasps extending from the nylon base itself that engage gingival undercuts.",
+                        "Rigid spherical attachments milled in pure titanium."
+                    ]
+                },
+                correcta: 2
+            },
+            {
+                q: {
+                    it: "Nel protocollo di mufolatura per protesi in nylon, perché è fondamentale un controllo rigoroso del blocco dei sottosquadri sul gesso?",
+                    es: "En el protocolo de muflado para prótesis de nylon, ¿por qué es fundamental un control riguroso del bloqueo de retenciones en el yeso?",
+                    en: "In the flasking protocol for nylon dentures, why is rigorous control of undercut blockout on the gypsum cast essential?"
+                },
+                opciones: {
+                    it: [
+                        "Per evitare che il nylon fluido ad alta pressione penetri in zone indesiderate bloccando l'asse di inserimento o impedendo il disinserimento della protesi dallo stampo.",
+                        "Per accelerare i tempi di raffreddamento della muffa in acqua fredda.",
+                        "Per impedire la fusione dei denti in resina artificiale durante l'iniezione.",
+                        "Per ridurre la quantità di poliammide necessaria nella cartuccia."
+                    ],
+                    es: [
+                        "Para evitar que el nylon fluido a alta presión penetre en zonas indeseadas bloqueando el eje de inserción o impidiendo la extracción de la prótesis del molde.",
+                        "Para acelerar los tiempos de enfriamiento de la mufla en agua fría.",
+                        "Para impedir la fusión de los dientes de resina artificial durante la inyección.",
+                        "Para reducir la cantidad de poliamida necesaria en el cartucho."
+                    ],
+                    en: [
+                        "To prevent high-pressure fluid nylon from penetrating unwanted areas, locking the insertion axis or preventing the prosthesis removal from the mold.",
+                        "To speed up flask cooling times in cold water.",
+                        "To prevent artificial resin teeth from melting during injection.",
+                        "To reduce the amount of polyamide needed in the cartridge."
+                    ]
+                },
+                correcta: 0
+            },
+            {
+                q: {
+                    it: "Quale limitazione clinica principale presentano le protesi totali realizzate interamente in nylon flessibile rispetto a quelle in resina acrilica rigida?",
+                    es: "¿Qué limitación clínica principal presentan las prótesis totales realizadas enteramente en nylon flexible en comparación con las de resina acrílica rígida?",
+                    en: "What main clinical limitation do total dentures made entirely of flexible nylon present compared to rigid acrylic resin ones?"
+                     },
+                opciones: {
+                    it: [
+                        "Una totale incapacità di sopportare i carichi masticatori senza fratturarsi in frammenti taglienti.",
+                        "Una minore stabilità dimensionale e ridotta trasmissione dei carichi masticatori verticali sulla cresta ossea, che può favorire il riassorbimento osseo a lungo termine.",
+                        "Un peso specifico eccessivo che sovraccarica la muscolatura del paziente.",
+                        "L'impossibilità assoluta di montare denti in resina o ceramica."
+                    ],
+                    es: [
+                        "Una total incapacidad de soportar las cargas masticatorias sin fracturarse en fragmentos cortantes.",
+                        "Una menor estabilidad dimensional y menor transmisión de las cargas masticatorias verticales sobre la cresta ósea, lo que puede favorecer la resorción ósea a largo plazo.",
+                        "Un peso específico excesivo que sobrecarga la musculatura del paciente.",
+                        "La imposibilidad absoluta de montar dientes de resina o cerámica."
+                    ],
+                    en: [
+                        "A total inability to withstand masticatory loads without fracturing into sharp fragments.",
+                        "Lower dimensional stability and reduced transmission of vertical masticatory loads onto the bone ridge, which may favor long-term bone resorption.",
+                        "Excessive specific gravity that overloads patient musculature.",
+                        "Absolute impossibility of mounting resin or ceramic teeth."
+                    ]
+                },
+                correcta: 1
+            },
+            {
+                q: {
+                    it: "Cosa si intende per 'memoria elastica' nel contesto delle poliammidi impiegate in odontotecnica?",
+                    es: "¿Qué se entiende por 'memoria elástica' en el contexto de las poliammides empleadas en tecnología dental?",
+                    en: "What is meant by 'elastic memory' in the context of polyamides used in dental technology?"
+                },
+                opciones: {
+                    it: [
+                        "La capacità del materiale di memorizzare la forma del modello originale durante la scansione CAD.",
+                        "La proprietà della struttura in nylon di deformarsi superando sottosquadri marcati durante l'inserimento in bocca e di ritornare perfettamente alla configurazione iniziale senza deformazioni permanenti.",
+                        "La tendenza del polimero a ritornare allo stato liquido se esposto alla temperatura corporea.",
+                        "La capacità di registrare i movimenti cinematici della mandibola."
+                    ],
+                    es: [
+                        "La capacidad del material para memorizar la forma del modelo original durante el escaneo CAD.",
+                        "La propiedad de la estructura de nylon de deformarse superando retenciones marcadas durante la inserción en boca y retornar perfectamente a su configuración inicial sin deformación permanente.",
+                        "La tendencia del polímero a volver al estado líquido si se expone a la temperatura corporal.",
+                        "La capacidad de registrar los movimientos cinemáticos de la mandíbula."
+                    ],
+                    en: [
+                        "The material's ability to memorize the original cast shape during CAD scanning.",
+                        "The property of the nylon structure to deform over pronounced undercuts during mouth insertion and spring back perfectly to its initial configuration without permanent distortion.",
+                        "The polymer's tendency to return to liquid state if exposed to body temperature.",
+                        "The ability to record mandibular kinematic movements."
+                    ]
+                },
+                correcta: 1
+            }
+        ];
+
+        // INICIALIZACIÓN
+        document.addEventListener("DOMContentLoaded", () => {
+            cambiarIdioma('it');
+        });
+
+        // CAMBIO DE IDIOMA
+        function cambiarIdioma(lang) {
+            idiomaActual = lang;
+            
+            // Botones de idioma
+            ['it', 'es', 'en'].forEach(l => {
+                const btn = document.getElementById(`btn-${l}`);
+                if (l === lang) {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white transition shadow-sm";
+                } else {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+                }
+            });
+
+            // Textos generales UI
+            const t = textosUI[lang];
+            document.getElementById("ui-main-title").innerText = t.mainTitle;
+            document.getElementById("ui-main-subtitle").innerText = t.mainSubtitle;
+            document.getElementById("ui-nav-p1").innerText = t.navP1;
+            document.getElementById("ui-nav-p2").innerText = t.navP2;
+            document.getElementById("ui-nav-p3").innerText = t.navP3;
+            document.getElementById("p1-title").innerText = t.p1Title;
+            document.getElementById("p1-desc").innerText = t.p1Desc;
+            document.getElementById("p2-title").innerText = t.p2Title;
+            document.getElementById("p2-desc").innerText = t.p2Desc;
+            document.getElementById("ui-btn-next").innerText = t.btnNext;
+            document.getElementById("res-titulo").innerText = t.resTitle;
+            document.getElementById("res-desc").innerText = t.resDesc;
+            document.getElementById("ui-btn-retry").innerText = t.btnRetry;
+            document.getElementById("ui-btn-review").innerText = t.btnReview;
+
+            // Renderizar contenido dinámico actual
+            renderizarPagina1();
+            renderizarPagina2();
+            if (paginaActual === 3) cargarPregunta();
+        }
+
+        // NAVEGACIÓN ENTRE PÁGINAS
+        function irAPagina(num) {
+            paginaActual = num;
+            
+            // Ocultar todas las vistas de contenido
+            document.getElementById("pagina-1").classList.add("hidden");
+            document.getElementById("pagina-2").classList.add("hidden");
+            document.getElementById("pagina-3").classList.add("hidden");
+            document.getElementById("vista-resultados").classList.add("hidden");
+
+            // Gestionar pestañas de navegación
+            [1, 2, 3].forEach(i => {
+                const tab = document.getElementById(`tab-p${i}`);
+                if (i === num) {
+                    tab.className = "flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-rose-600 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md";
+                } else {
+                    tab.className = "flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2";
+                }
+            });
+
+            // Mostrar página seleccionada
+            if (num === 1) {
+                document.getElementById("pagina-1").classList.remove("hidden");
+                renderizarPagina1();
+            } else if (num === 2) {
+                document.getElementById("pagina-2").classList.remove("hidden");
+                renderizarPagina2();
+            } else if (num === 3) {
+                document.getElementById("pagina-3").classList.remove("hidden");
+                indicePreguntaActual = 0;
+                puntuacion = 0;
+                cargarPregunta();
+            }
+        }
+
+        // RENDERIZAR PÁGINA 1: 6 TIPOS DE PRÓTESIS
+        function renderizarPagina1() {
+            const grid = document.getElementById("grid-tipos-nylon");
+            grid.innerHTML = "";
+            const datos = tiposNylon[idiomaActual];
+
+            datos.forEach((item) => {
+                const card = document.createElement("div");
+                card.className = "bg-slate-700/40 border border-slate-600/50 p-5 rounded-2xl flex flex-col justify-between hover:bg-slate-700/60 transition shadow-sm";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/30">${item.num}</span>
+                            <span class="text-xl">🦷</span>
+                        </div>
+                        <h3 class="font-bold text-white text-base mb-2">${item.titulo}</h3>
+                        <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // RENDERIZAR PÁGINA 2: PROCEDIMIENTOS
+        function renderizarPagina2() {
+            const contenedor = document.getElementById("lista-procedimientos");
+            contenedor.innerHTML = "";
+            const datos = procedimientosNylon[idiomaActual];
+
+            datos.forEach((item) => {
+                const box = document.createElement("div");
+                box.className = "bg-slate-700/40 border border-slate-600/50 p-5 rounded-2xl flex flex-col md:flex-row gap-4 items-start hover:bg-slate-700/60 transition";
+                box.innerHTML = `
+                    <div class="min-w-[220px]">
+                        <span class="px-3 py-1 rounded-lg bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/30 inline-block mb-2">Procedura Tecnica</span>
+                        <h3 class="font-bold text-white text-sm md:text-base">${item.fase}</h3>
+                    </div>
+                    <div class="flex-grow text-slate-300 text-xs md:text-sm leading-relaxed border-t md:border-t-0 md:border-l border-slate-600/50 pt-3 md:pt-0 md:pl-4">
+                        ${item.detalles}
+                    </div>
+                `;
+                contenedor.appendChild(box);
+            });
+        }
+
+        // CARGAR PREGUNTA DEL TEST (Página 3)
+        function cargarPregunta() {
+            respuestaSeleccionada = false;
+            const item = preguntasDB[indicePreguntaActual];
+            const maxQ = preguntasDB.length;
+            const t = textosUI[idiomaActual];
+
+            document.getElementById("contador-preguntas").innerText = `Q ${indicePreguntaActual + 1} / ${maxQ}`;
+            document.getElementById("pregunta-texto").innerText = item.q[idiomaActual];
+            document.getElementById("feedback-box").innerText = t.selectOptionMsg;
+            document.getElementById("feedback-box").className = "text-xs font-medium text-slate-400";
+            document.getElementById("btn-siguiente").classList.add("hidden");
+
+            const contenedor = document.getElementById("opciones-contenedor");
+            contenedor.innerHTML = "";
+
+            const opcionesTexto = item.opciones[idiomaActual];
+            const letras = ['A', 'B', 'C', 'D'];
+
+            opcionesTexto.forEach((textoOp, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "w-full text-left p-4 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 transition text-sm font-medium flex items-start space-x-3 group";
+                btn.innerHTML = `<span class="px-2 py-0.5 rounded bg-slate-800 text-rose-400 text-xs font-bold border border-slate-600">${letras[idx]}</span><span class="flex-grow text-slate-200">${textoOp}</span>`;
+                btn.onclick = () => verificarRespuesta(idx, item.correcta);
+                contenedor.appendChild(btn);
+            });
+        }
+
+        // VERIFICAR RESPUESTA
+        function verificarRespuesta(seleccionada, correcta) {
+            if (respuestaSeleccionada) return;
+            respuestaSeleccionada = true;
+
+            const t = textosUI[idiomaActual];
+            const contenedor = document.getElementById("opciones-contenedor");
+            const botones = contenedor.children;
+
+            if (seleccionada === correcta) {
+                puntuacion++;
+                botones[seleccionada].className = "w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                document.getElementById("feedback-box").innerText = t.correctFeedback;
+                document.getElementById("feedback-box").className = "text-xs font-bold text-emerald-400";
+            } else {
+                botones[seleccionada].className = "w-full text-left p-4 rounded-xl bg-rose-500/20 border border-rose-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                botones[correcta].className = "w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-sm font-medium flex items-start space-x-3 transition";
+                document.getElementById("feedback-box").innerText = t.incorrectFeedback;
+                document.getElementById("feedback-box").className = "text-xs font-bold text-rose-400";
+            }
+
+            for (let btn of botones) {
+                btn.disabled = true;
+                btn.classList.add("opacity-80", "cursor-not-allowed");
+            }
+
+            document.getElementById("btn-siguiente").classList.remove("hidden");
+        }
+
+        // SIGUIENTE PREGUNTA O RESULTADOS
+        function siguientePregunta() {
+            indicePreguntaActual++;
+            if (indicePreguntaActual < preguntasDB.length) {
+                cargarPregunta();
+            } else {
+                mostrarResultados();
+            }
+        }
+
+        function mostrarResultados() {
+            document.getElementById("pagina-3").classList.add("hidden");
+            document.getElementById("vista-resultados").classList.remove("hidden");
+            const maxQ = preguntasDB.length;
+            document.getElementById("res-puntuacion").innerText = `Puntuazione / Puntuación / Score: ${puntuacion} / ${maxQ}`;
+        }
+
+        function reiniciarTest() {
+            document.getElementById("vista-resultados").classList.add("hidden");
+            document.getElementById("pagina-3").classList.remove("hidden");
+            indicePreguntaActual = 0;
+            puntuacion = 0;
+            cargarPregunta();
+        }
+
+        // SCRIPT DE DESCARGA OBLIGATORIO
+        function guardarComoArchivo() {
+            const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([contenido], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'atlas_protesi_nylon.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

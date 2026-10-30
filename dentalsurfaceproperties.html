@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proprietà Superficiali in Odontotecnica - Dental Tech Lab</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-slate-50 text-slate-800">
+
+    <!-- TOP HEADER & NAV -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-cyan-600 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-tooth text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-wide text-white">DentalLab <span class="text-cyan-400 font-normal">SurfaceProp</span></h1>
+                        <p class="text-xs text-slate-400" id="header-subtitle">Modulo 2 SDM - Materiali Dentali (3° e 4° anno)</p>
+                    </div>
+                </div>
+
+                <!-- Language Selector & Download -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative inline-block text-left">
+                        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+                            <i class="fa-solid fa-globe text-slate-400 px-2"></i>
+                            <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 text-white text-sm font-medium rounded-md focus:outline-none cursor-pointer pr-2 py-1">
+                                <option value="it" selected>Italiano</option>
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="downloadApp()" title="Scarica Offline" class="hidden sm:flex items-center space-x-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition duration-200 shadow-sm">
+                        <i class="fa-solid fa-download"></i>
+                        <span id="btn-download-text">Offline</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs Bar -->
+        <div class="bg-slate-800 border-t border-slate-700/50">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto py-2 text-xs sm:text-sm font-medium" id="nav-tabs">
+                    <button onclick="switchTab('theory')" id="tab-theory" class="tab-btn px-3 py-2 rounded-md flex items-center space-x-2 whitespace-nowrap bg-cyan-700 text-white">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span data-i18n="nav_theory">Teoria & Lab</span>
+                    </button>
+                    <button onclick="switchTab('glossary')" id="tab-glossary" class="tab-btn px-3 py-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                        <i class="fa-solid fa-spell-check"></i>
+                        <span data-i18n="nav_glossary">Glossario</span>
+                    </button>
+                    <button onclick="switchTab('flashcards')" id="tab-flashcards" class="tab-btn px-3 py-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span data-i18n="nav_flashcards">Flashcards</span>
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-3 py-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span data-i18n="nav_quiz">Quiz Test</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- SECTION 1: THEORY & LAB CONNECTIONS -->
+        <section id="sec-theory" class="tab-content space-y-6">
+            <div class="bg-gradient-to-r from-cyan-900 to-slate-900 text-white rounded-2xl p-6 shadow-lg border border-cyan-800/50">
+                <h2 class="text-2xl font-bold mb-2 flex items-center" data-i18n="theory_title">Proprietà Superficiali nei Materiali Dentali</h2>
+                <p class="text-slate-300 text-sm sm:text-base" data-i18n="theory_subtitle">Studio analitico dei fenomeni di interfaccia e il loro impatto diretto sulle lavorazioni pratiche del laboratorio odontotecnico.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- 1. BAGNABILITÀ ED ENERGIA SUPERFICIALE -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-cyan-50 border-b border-cyan-100 p-4 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center" data-i18n="p1_title">1. Bagnabilità ed Energia Superficiale</h3>
+                        <span class="text-xs bg-cyan-100 text-cyan-800 font-semibold px-2.5 py-1 rounded-full">Fisica delle Interfacce</span>
+                    </div>
+                    <div class="p-5 space-y-4 text-sm text-slate-600 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="theory_label">Teoria e Principi Fisici:</h4>
+                            <p class="mb-3" data-i18n="p1_theory">La bagnabilità è la capacità di un liquido di espandersi su una superficie solida. È governata dall'angolo di contatto (θ) tra la goccia e il solido:</p>
+                            <ul class="list-disc list-inside space-y-1 mb-4 bg-slate-50 p-3 rounded-lg text-xs font-medium border border-slate-200">
+                                <li data-i18n="p1_theta_low">θ &lt; 90°: Elevata bagnabilità (il liquido si espande).</li>
+                                <li data-i18n="p1_theta_high">θ &gt; 90°: Bassa bagnabilità (il liquido forma gocce sferiche).</li>
+                                <li data-i18n="p1_factors">Aumenta con un'alta energia superficiale del solido e una bassa tensione superficiale del liquido.</li>
+                            </ul>
+
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="lab_label">Applicazione Odontotecnica di Laboratorio:</h4>
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-cyan-50/50 border-l-4 border-cyan-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p1_lab_a_title">A) Colatura Impronte & Rivestimento:</strong>
+                                    <span data-i18n="p1_lab_a_desc">Lo spray tensioattivo (rompe-bolle) riduce la tensione superficiale prima di colare il gesso, evitando sacche d'aria.</span>
+                                </div>
+                                <div class="p-2.5 bg-cyan-50/50 border-l-4 border-cyan-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p1_lab_b_title">B) Mordenzatura dello Smalto & Ceramica:</strong>
+                                    <span data-i18n="p1_lab_b_desc">L'acido ortofosforico o fluoridrico crea microporosità, aumentando nettamente l'energia superficiale per accogliere il primer.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. CAPILLARITÀ -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-teal-50 border-b border-teal-100 p-4 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center" data-i18n="p2_title">2. Capillarità</h3>
+                        <span class="text-xs bg-teal-100 text-teal-800 font-semibold px-2.5 py-1 rounded-full">Dinamica dei Fluidi</span>
+                    </div>
+                    <div class="p-5 space-y-4 text-sm text-slate-600 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="theory_label">Teoria e Principi Fisici:</h4>
+                            <p class="mb-3" data-i18n="p2_theory">Fenomeno per cui i liquidi risalgono o si espandono in tubi sottili o intercapedini microscopicamente strette quando le forze di adesione superano quelle di coesione.</p>
+
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="lab_label">Applicazione Odontotecnica di Laboratorio:</h4>
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-teal-50/50 border-l-4 border-teal-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p2_lab_a_title">A) Saldatura & Cera Liquida:</strong>
+                                    <span data-i18n="p2_lab_a_desc">La lega da saldatura fusa scorre ed entra spontaneamente nelle sottili fessure del giunto da saldare per capillarità.</span>
+                                </div>
+                                <div class="p-2.5 bg-teal-50/50 border-l-4 border-teal-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p2_lab_b_title">B) Impasto Ceramico & Resine:</strong>
+                                    <span data-i18n="p2_lab_b_desc">I liquidi di modellazione e il monomero penetrano per capillarità tra le polveri compattando la struttura prima della cottura.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ADESIONE -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-indigo-50 border-b border-indigo-100 p-4 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center" data-i18n="p3_title">3. Adesione Chimica e Meccanica</h3>
+                        <span class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-full">Legami di Interfaccia</span>
+                    </div>
+                    <div class="p-5 space-y-4 text-sm text-slate-600 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="theory_label">Teoria e Principi Fisici:</h4>
+                            <p class="mb-3" data-i18n="p3_theory">Forze di attrazione reciproca tra molecole o atomi di sostanze differenti messe a contatto diretto mediate da un fluido adesivo.</p>
+
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="lab_label">Applicazione Odontotecnica di Laboratorio:</h4>
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-indigo-50/50 border-l-4 border-indigo-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p3_lab_a_title">A) Legame Metallo-Ceramica:</strong>
+                                    <span data-i18n="p3_lab_a_desc">Si crea tramite l'interazione chimica fra gli ossidi superficiali della lega e il primo strato di opaco ceramico in forno.</span>
+                                </div>
+                                <div class="p-2.5 bg-indigo-50/50 border-l-4 border-indigo-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p3_lab_b_title">B) Cementazione Zirconia / Disilicato:</strong>
+                                    <span data-i18n="p3_lab_b_desc">Sabbiatura con ossido di alluminio (Al2O3) e applicazione di primer MDP per instaurare sia ancoraggio meccanico che chimico.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SINTERIZZAZIONE -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="bg-amber-50 border-b border-amber-100 p-4 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center" data-i18n="p4_title">4. Sinterizzazione</h3>
+                        <span class="text-xs bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">Trattamento Termico</span>
+                    </div>
+                    <div class="p-5 space-y-4 text-sm text-slate-600 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="theory_label">Teoria e Principi Fisici:</h4>
+                            <p class="mb-3" data-i18n="p4_theory">Trattamento termico al di sotto della temperatura di fusione (T &lt; Tfus) che unisce le particelle di polvere compressa tramite diffusione atomica nei punti di contatto.</p>
+
+                            <h4 class="font-semibold text-slate-900 mb-1" data-i18n="lab_label">Applicazione Odontotecnica di Laboratorio:</h4>
+                            <div class="space-y-2">
+                                <div class="p-2.5 bg-amber-50/50 border-l-4 border-amber-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p4_lab_a_title">A) Cottura Ceramica Feltspatica:</strong>
+                                    <span data-i18n="p4_lab_a_desc">Le polveri modellati vengono cotte in forno sottovuoto a ~900°C ricompattando i grani senza fondere la forma anatomica.</span>
+                                </div>
+                                <div class="p-2.5 bg-amber-50/50 border-l-4 border-amber-500 rounded text-xs">
+                                    <strong class="text-slate-900" data-i18n="p4_lab_b_title">B) Sinterizzazione Zirconia CAD/CAM:</strong>
+                                    <span data-i18n="p4_lab_b_desc">I blocchi fresati 'morbidi' vengono cotti fino a 1500°C subendo un ritiro controllato e raggiungendo elevata durezza.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: GLOSSARY -->
+        <section id="sec-glossary" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center" data-i18n="glossary_title">Glossario Tecnico Trilingue</h2>
+                        <p class="text-xs text-slate-500 mt-1" data-i18n="glossary_subtitle">Termini chiave di Scienza dei Materiali Dentali definiti in 3 lingue con pronuncia audio.</p>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="glossarySearch" oninput="filterGlossary()" placeholder="Cerca termine..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                </div>
+                <div id="glossary-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: FLASHCARDS -->
+        <section id="sec-flashcards" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 max-w-3xl mx-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center" data-i18n="fc_title">Flashcards per il Ripasso</h2>
+                    <span id="fc-counter" class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1 rounded-full">1 / 6</span>
+                </div>
+                <div class="py-8 flex justify-center">
+                    <div id="flashcard" onclick="flipCard()" class="w-full max-w-md h-72 perspective-1000 cursor-pointer">
+                        <div id="flashcard-inner" class="relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-md border border-slate-200 bg-white">
+                            <div class="absolute inset-0 backface-hidden p-6 flex flex-col justify-between items-center text-center bg-gradient-to-b from-white to-slate-50 rounded-2xl">
+                                <span class="text-xs font-bold uppercase tracking-wider text-cyan-600" data-i18n="fc_front_label">Domanda / Concetto</span>
+                                <p id="fc-front-text" class="text-base sm:text-lg font-semibold text-slate-800 my-auto"></p>
+                                <span class="text-xs text-slate-400 flex items-center"><i class="fa-solid fa-rotate mr-1"></i> Clicca per girare</span>
+                            </div>
+                            <div class="absolute inset-0 backface-hidden rotate-y-180 p-6 flex flex-col justify-between items-center text-center bg-cyan-900 text-white rounded-2xl">
+                                <span class="text-xs font-bold uppercase tracking-wider text-cyan-300" data-i18n="fc_back_label">Spiegazione & Lab</span>
+                                <p id="fc-back-text" class="text-sm sm:text-base font-normal my-auto"></p>
+                                <span class="text-xs text-cyan-300 flex items-center"><i class="fa-solid fa-rotate mr-1"></i> Clicca per girare</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <button onclick="prevCard()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span data-i18n="btn_prev">Precedente</span>
+                    </button>
+                    <button onclick="shuffleCards()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium" title="Mescola">
+                        <i class="fa-solid fa-shuffle"></i>
+                    </button>
+                    <button onclick="nextCard()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2">
+                        <span data-i18n="btn_next">Successiva</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: QUIZ TEST -->
+        <section id="sec-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 max-w-3xl mx-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center" data-i18n="quiz_title">Quiz di Autovalutazione</h2>
+                        <p class="text-xs text-slate-500" data-i18n="quiz_subtitle">Verifica le tue conoscenze teoriche e di laboratorio.</p>
+                    </div>
+                    <span id="quiz-score-badge" class="text-xs font-bold bg-cyan-100 text-cyan-800 px-3 py-1.5 rounded-full">Score: 0 / 6</span>
+                </div>
+                
+                <div id="quiz-box" class="py-6 space-y-6">
+                    <div>
+                        <span id="quiz-q-num" class="text-xs font-bold text-cyan-600 uppercase tracking-wider">Domanda 1 di 6</span>
+                        <h3 id="quiz-question" class="text-base sm:text-lg font-semibold text-slate-900 mt-1">Caricamento domanda...</h3>
+                    </div>
+                    <div id="quiz-options" class="space-y-3"></div>
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm leading-relaxed border"></div>
+                </div>
+
+                <div id="quiz-footer-nav" class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="text-xs text-slate-500 hover:text-slate-800 underline">Reset Quiz</button>
+                    <button id="btn-next-quiz" onclick="nextQuestion()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-5 py-2 rounded-lg text-sm font-medium hidden">
+                        <span data-i18n="btn_next_q">Prossima Domanda</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p data-i18n="footer_credits">Applicazione Didattica per Scuole Secondarie Superiori ad Indirizzo Odontotecnico (Classi 3ª e 4ª)</p>
+            <p class="text-slate-500" data-i18n="footer_ref">Basato rigorosamente sul programma del Modulo 2 SDM - Stati di Aggregazione e Proprietà Superficiali</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const translations = {
+            it: {
+                header_subtitle: "Modulo 2 SDM - Materiali Dentali (3° e 4° anno)",
+                nav_theory: "Teoria & Lab",
+                nav_glossary: "Glossario",
+                nav_flashcards: "Flashcards",
+                nav_quiz: "Quiz Test",
+                btn_download: "Offline",
+                theory_title: "Proprietà Superficiali nei Materiali Dentali",
+                theory_subtitle: "Studio analitico dei fenomeni di interfaccia e il loro impatto diretto sulle lavorazioni pratiche del laboratorio odontotecnico.",
+                theory_label: "Teoria e Principi Fisici:",
+                lab_label: "Applicazione Odontotecnica di Laboratorio:",
+                p1_title: "1. Bagnabilità ed Energia Superficiale",
+                p1_theory: "La bagnabilità è la capacità di un liquido di espandersi su una superficie solida. È governata dall'angolo di contatto (θ) tra la goccia e il solido:",
+                p1_theta_low: "θ < 90°: Elevata bagnabilità (il liquido si espande).",
+                p1_theta_high: "θ > 90°: Bassa bagnabilità (il liquido forma gocce sferiche).",
+                p1_factors: "Aumenta con un'alta energia superficiale del solido e una bassa tensione superficiale del liquido.",
+                p1_lab_a_title: "A) Colatura Impronte & Rivestimento:",
+                p1_lab_a_desc: "Lo spray tensioattivo (rompe-bolle) riduce la tensione superficiale prima di colare il gesso, evitando sacche d'aria.",
+                p1_lab_b_title: "B) Mordenzatura dello Smalto & Ceramica:",
+                p1_lab_b_desc: "L'acido ortofosforico o fluoridrico crea microporosità, aumentando nettamente l'energia superficiale per accogliere il primer.",
+                p2_title: "2. Capillarità",
+                p2_theory: "Fenomeno per cui i liquidi risalgono o si espandono in tubi sottili o intercapedini microscopicamente strette.",
+                p2_lab_a_title: "A) Saldatura & Cera Liquida:",
+                p2_lab_a_desc: "La lega da saldatura fusa scorre ed entra spontaneamente nelle sottili fessure del giunto da saldare per capillarità.",
+                p2_lab_b_title: "B) Impasto Ceramico & Resine:",
+                p2_lab_b_desc: "I liquidi di modellazione e il monomero penetrano per capillarità tra le polveri compattando la struttura.",
+                p3_title: "3. Adesione Chimica e Meccanica",
+                p3_theory: "Forze di attrazione reciproca tra molecole o atomi di sostanze differenti messe a contatto diretto.",
+                p3_lab_a_title: "A) Legame Metallo-Ceramica:",
+                p3_lab_a_desc: "Si crea tramite l'interazione chimica fra gli ossidi superficiali della lega e il primo strato di opaco ceramico in forno.",
+                p3_lab_b_title: "B) Cementazione Zirconia / Disilicato:",
+                p3_lab_b_desc: "Sabbiatura con ossido di alluminio (Al2O3) e applicazione di primer MDP per ancoraggio sia meccanico che chimico.",
+                p4_title: "4. Sinterizzazione",
+                p4_theory: "Trattamento termico sotto la temperatura di fusione (T < Tfus) che unisce le particelle di polvere compressa.",
+                p4_lab_a_title: "A) Cottura Ceramica Feltspatica:",
+                p4_lab_a_desc: "Le polveri modellati vengono cotte in forno sottovuoto a ~900°C ricompattando i grani senza fondere l'anatomia.",
+                p4_lab_b_title: "B) Sinterizzazione Zirconia CAD/CAM:",
+                p4_lab_b_desc: "I blocchi fresati vengono cotti fino a 1500°C subendo un ritiro controllato e raggiungendo elevata durezza.",
+                glossary_title: "Glossario Tecnico Trilingue",
+                glossary_subtitle: "Termini chiave di Scienza dei Materiali Dentali definiti in 3 lingue con pronuncia audio.",
+                fc_title: "Flashcards per il Ripasso",
+                fc_front_label: "Domanda / Concetto",
+                fc_back_label: "Spiegazione & Lab",
+                btn_prev: "Precedente",
+                btn_next: "Successiva",
+                quiz_title: "Quiz di Autovalutazione",
+                quiz_subtitle: "Verifica le tue conoscenze teoriche e di laboratorio.",
+                btn_next_q: "Prossima Domanda",
+                footer_credits: "Applicazione Didattica per Scuole Secondarie Superiori ad Indirizzo Odontotecnico (Classi 3ª e 4ª)",
+                footer_ref: "Basato rigorosamente sul programma del Modulo 2 SDM - Stati di Aggregazione e Proprietà Superficiali"
+            },
+            en: {
+                header_subtitle: "Module 2 SDM - Dental Materials (3rd & 4th Year)",
+                nav_theory: "Theory & Lab",
+                nav_glossary: "Glossary",
+                nav_flashcards: "Flashcards",
+                nav_quiz: "Quiz Test",
+                btn_download: "Offline",
+                theory_title: "Surface Properties in Dental Materials",
+                theory_subtitle: "Analytical study of interface phenomena and their direct impact on practical dental laboratory procedures.",
+                theory_label: "Theory & Physical Principles:",
+                lab_label: "Dental Laboratory Application:",
+                p1_title: "1. Wettability and Surface Energy",
+                p1_theory: "Wettability is the ability of a liquid to spread over a solid surface. Governed by contact angle θ.",
+                p1_theta_low: "θ < 90°: High wettability.",
+                p1_theta_high: "θ > 90°: Low wettability.",
+                p1_factors: "Increases with high solid surface energy and low liquid surface tension.",
+                p1_lab_a_title: "A) Impression & Investment Pouring:",
+                p1_lab_a_desc: "Surfactant spray lowers liquid surface tension before pouring plaster.",
+                p1_lab_b_title: "B) Enamel & Ceramic Etching:",
+                p1_lab_b_desc: "Phosphoric or hydrofluoric acid creates micro-porosities.",
+                p2_title: "2. Capillarity",
+                p2_theory: "Phenomenon where liquids rise or fall in narrow tubes or micro-gaps.",
+                p2_lab_a_title: "A) Soldering & Liquid Wax:",
+                p2_lab_a_desc: "Molten solder and wax flow into micro-joints via capillarity.",
+                p2_lab_b_title: "B) Porcelain & Resin Mixes:",
+                p2_lab_b_desc: "Liquids penetrate and condense powder particles.",
+                p3_title: "3. Chemical and Mechanical Adhesion",
+                p3_theory: "Attraction forces between molecules of different substances.",
+                p3_lab_a_title: "A) Metal-Ceramic Bonding:",
+                p3_lab_a_desc: "Interaction between metallic oxides and ceramic opaque.",
+                p3_lab_b_title: "B) Zirconia Luting:",
+                p3_lab_b_desc: "Al2O3 sandblasting and MDP primers.",
+                p4_title: "4. Sintering",
+                p4_theory: "Thermal treatment below melting point joining compacted powders.",
+                p4_lab_a_title: "A) Ceramic Firing:",
+                p4_lab_a_desc: "Modeled glass powders fired in vacuum furnace at ~900°C.",
+                p4_lab_b_title: "B) CAD/CAM Zirconia Sintering:",
+                p4_lab_b_desc: "Milled structures fired up to 1500°C for full density.",
+                glossary_title: "Trilingual Technical Glossary",
+                glossary_subtitle: "Key Dental Materials Science terms defined in 3 languages.",
+                fc_title: "Revision Flashcards",
+                fc_front_label: "Question / Concept",
+                fc_back_label: "Explanation & Lab",
+                btn_prev: "Previous",
+                btn_next: "Next",
+                quiz_title: "Self-Assessment Quiz",
+                quiz_subtitle: "Test your theoretical and laboratory knowledge.",
+                btn_next_q: "Next Question",
+                footer_credits: "Educational Application for Dental Technology Vocational High Schools",
+                footer_ref: "Strictly based on Module 2 SDM curriculum"
+            },
+            es: {
+                header_subtitle: "Módulo 2 SDM - Materiales Dentales (3.º y 4.º curso)",
+                nav_theory: "Teoría y Lab",
+                nav_glossary: "Glosario",
+                nav_flashcards: "Fichas",
+                nav_quiz: "Cuestionario",
+                btn_download: "Offline",
+                theory_title: "Propiedades Superficiales en Materiales Dentales",
+                theory_subtitle: "Estudio analítico de los fenómenos de interfaz y su impacto directo en el laboratorio.",
+                theory_label: "Teoría y Principios Físicos:",
+                lab_label: "Aplicación en Laboratorio:",
+                p1_title: "1. Mojabilidad y Energía Superficial",
+                p1_theory: "Capacidad de un líquido de extenderse sobre un sólido.",
+                p1_theta_low: "θ < 90°: Alta mojabilidad.",
+                p1_theta_high: "θ > 90°: Baja mojabilidad.",
+                p1_factors: "Aumenta con alta energía superficial y baja tensión.",
+                p1_lab_a_title: "A) Vaciado de Impresiones:",
+                p1_lab_a_desc: "Spray tensioactivo reduce la tensión antes de vaciar yeso.",
+                p1_lab_b_title: "B) Grabado de Esmalte:",
+                p1_lab_b_desc: "Ácido ortofosfórico crea microporosidades.",
+                p2_title: "2. Capilaridad",
+                p2_theory: "Ascenso o descenso de líquidos en tubos o intersticios.",
+                p2_lab_a_title: "A) Soldadura y Cera:",
+                p2_lab_a_desc: "Aleaciones y cera fluyen por capilaridad.",
+                p2_lab_b_title: "B) Mezclas Cerámicas:",
+                p2_lab_b_desc: "Líquidos penetran compactando polvos.",
+                p3_title: "3. Adhesión Química y Mecánica",
+                p3_theory: "Fuerzas de atracción entre moléculas de sustancias diferentes.",
+                p3_lab_a_title: "A) Unión Metal-Cerámica:",
+                p3_lab_a_desc: "Interacción entre óxidos metálicos y opaco.",
+                p3_lab_b_title: "B) Cementado de Circona:",
+                p3_lab_b_desc: "Arenado con Al2O3 y primers MDP.",
+                p4_title: "4. Sinterización",
+                p4_theory: "Tratamiento térmico bajo el punto de fusión.",
+                p4_lab_a_title: "A) Cocción Cerámica:",
+                p4_lab_a_desc: "Polvos vítreos cocidos a ~900°C.",
+                p4_lab_b_title: "B) Sinterizado de Circona:",
+                p4_lab_b_desc: "Estructuras sinterizadas hasta 1500°C.",
+                glossary_title: "Glosario Técnico Trilingüe",
+                glossary_subtitle: "Términos clave definidos en 3 idiomas con audio.",
+                fc_title: "Fichas de Repaso",
+                fc_front_label: "Pregunta / Concepto",
+                fc_back_label: "Explicación y Lab",
+                btn_prev: "Anterior",
+                btn_next: "Siguiente",
+                quiz_title: "Cuestionario de Autoevaluación",
+                quiz_subtitle: "Pone a prueba tus conocimientos.",
+                btn_next_q: "Siguiente Pregunta",
+                footer_credits: "Aplicación Didáctica para Prótesis Dental",
+                footer_ref: "Basado en el Módulo 2 SDM"
+            }
+        };
+
+        const glossaryData = [
+            { term: { it: "Bagnabilità", en: "Wettability", es: "Mojabilidad" }, def: { it: "Capacità di un liquido di distendersi su una superficie solida.", en: "Ability of a liquid to spread over a solid surface.", es: "Capacidad de un líquido para extenderse sobre un sólido." } },
+            { term: { it: "Tensione Superficiale", en: "Surface Tension", es: "Tensión Superficial" }, def: { it: "Forza di coesione lungo la superficie dei liquidi che oppone resistenza all'espansione.", en: "Cohesive force along liquid surface resisting expansion.", es: "Fuerza cohesiva en la superficie de un líquido." } },
+            { term: { it: "Energia Superficiale", en: "Surface Energy", es: "Energía Superficial" }, def: { it: "Eccesso di energia degli atomi superficiali di un solido che attraggono i fluidi.", en: "Excess energy of surface atoms in a solid attracting fluids.", es: "Exceso de energía de los átomos superficiales." } },
+            { term: { it: "Angolo di Contatto (θ)", en: "Contact Angle (θ)", es: "Ángulo de Contacto (θ)" }, def: { it: "Angolo formato tra la superficie solida e la tangente alla goccia del liquido.", en: "Angle formed between solid surface and droplet tangent.", es: "Ángulo formado entre superficie y tangente." } },
+            { term: { it: "Tensioattivo", en: "Surfactant", es: "Tensioactivo" }, def: { it: "Sostanza usata nei prodotti rompe-bolle per abbassare la tensione superficiale.", en: "Substance used to lower liquid surface tension.", es: "Sustancia usada para reducir la tensión superficial." } },
+            { term: { it: "Capillarità", en: "Capillarity", es: "Capilaridad" }, def: { it: "Innalzamento o penetrazione spontanea di un liquido in spazi microscopici.", en: "Spontaneous rise or penetration of liquid in micro-gaps.", es: "Ascenso o penetración de líquidos en micro-espacios." } },
+            { term: { it: "Adesione", en: "Adhesion", es: "Adhesión" }, def: { it: "Forza di attrazione che si stabilisce tra sostanze differenti a contatto.", en: "Attraction force established between different substances in contact.", es: "Fuerza de atracción entre sustancias distintas." } },
+            { term: { it: "Sinterizzazione", en: "Sintering", es: "Sinterización" }, def: { it: "Processo termico di compattazione di polveri senza raggiungere la fusione totale.", en: "Thermal process compacting powders without reaching total melting.", es: "Proceso térmico de compactación de polvos." } }
+        ];
+
+        const flashcardsData = [
+            { front: { it: "Cos'è l'angolo di contatto θ nella bagnabilità?", en: "What is the contact angle θ in wettability?", es: "¿Qué es el ángulo de contacto θ en la mojabilidad?" }, back: { it: "È l'angolo formato tra la goccia e il solido. Se θ < 90° la bagnabilità è ALTA. Se θ > 90° la bagnabilità è BASSA.", en: "It's the angle formed between drop and solid. If θ < 90° wettability is HIGH. If θ > 90° it is LOW.", es: "Ángulo formado entre la gota y el sólido. Si θ < 90° la mojabilidad es ALTA." } },
+            { front: { it: "Perché usiamo lo spray tensioattivo prima di colare un'impronta?", en: "Why do we use surfactant spray before pouring an impression?", es: "¿Por qué se usa el spray tensioactivo antes de vaciar una impresión?" }, back: { it: "Perché riduce la tensione superficiale del liquido, permettendo al gesso di scorrere nei dettagli senza formare bolle d'aria.", en: "It reduces surface tension, allowing plaster to flow smoothly into micro-details without air bubbles.", es: "Reduce la tensión superficial permitiendo que el yeso fluya sin formar burbujas." } },
+            { front: { it: "Come funziona la capillarità nella saldatura odontotecnica?", en: "How does capillarity work in dental soldering?", es: "¿Cómo funciona la capillaridad en la soldadura dental?" }, back: { it: "La lega da saldatura fusa viene 'aspirata' e scorre spontaneamente nelle sottilissime fessure del giunto metallico.", en: "Molten solder alloy is 'drawn' spontaneously into the microscopic gap of the metal joint.", es: "La soldadura fundida es atraída espontáneamente hacia las micro-fisuras de la junta." } },
+            { front: { it: "A cosa serve la mordenzatura acida?", en: "What is the purpose of acid etching?", es: "¿Para qué sirve el grabado ácido?" }, back: { it: "Crea microscopiche porosità sulla superficie solida, aumentando drasticamente la sua energia superficiale e l'adesione.", en: "Creates micro-porosities, dramatically increasing solid surface energy and mechanical bonding.", es: "Crea microporosidades aumentando exponencialmente la energía superficial y la adhesión." } },
+            { front: { it: "Qual è il ruolo degli ossidi nel legame metallo-ceramica?", en: "What is the role of oxides in metal-ceramic bonding?", es: "¿Cuál es el papel de los óxidos en la unión metal-cerámica?" }, back: { it: "Gli ossidi superficiali della lega metallica formano legami chimici diretti con lo strato di opaco ceramico durante la cottura.", en: "Metallic surface oxides form direct chemical bonds with the ceramic opaque layer during firing.", es: "Los óxidos metálicos forman enlaces químicos directos con el opaco cerámico." } },
+            { front: { it: "Cosa accade durante la sinterizzazione della Zirconia?", en: "What happens during Zirconia sintering?", es: "¿Qué ocurre durante la sinterización de la circona?" }, back: { it: "I granuli di polvere diffondono tra loro a 1500°C: la struttura si compatta, elimina la porosità e si contrae (~20%) diventando durissima.", en: "Powder grains diffuse at 1500°C: structure compacts, eliminates porosity and shrinks (~20%) achieving high hardness.", es: "Los granos se difunden a 1500°C compaltando la estructura y reduciendo el volumen (~20%)." } }
+        ];
+
+        const quizData = [
+            {
+                question: { it: "1. Se l'angolo di contatto (θ) tra un liquido e una superficie è di 25°, cosa si deduce?", en: "1. If the contact angle (θ) is 25°, what can be deduced?", es: "1. Si el ángulo de contacto (θ) es 25°, ¿qué se deduce?" },
+                options: [
+                    { it: "Il liquido ha una scarsa bagnabilità e forma sfere isolate", en: "The liquid has poor wettability", es: "El líquido tiene baja mojabilidad" },
+                    { it: "Il liquido presenta un'elevata bagnabilità ed espansione sulla superficie", en: "The liquid shows high wettability and spreads easily", es: "El líquido presenta alta mojabilidad y se extiende" },
+                    { it: "La superficie solida ha un'energia superficiale pari a zero", en: "Solid surface energy is zero", es: "La energía superficial es cero" }
+                ],
+                correct: 1,
+                explanation: { it: "Corretto! Angoli θ < 90° indicano un'ottima bagnabilità; più l'angolo è piccolo, più il liquido si espande perfettamente.", en: "Correct! Angles θ < 90° indicate high wettability.", es: "¡Correcto! Ángulos θ < 90° indican alta mojabilidad." }
+            },
+            {
+                question: { it: "2. Qual è la funzione principale dello spray tensioattivo (rompe-bolle) sulle impronte?", en: "2. What is the primary function of surfactant spray on impressions?", es: "2. ¿Cuál es la función principal del spray tensioactivo?" },
+                options: [
+                    { it: "Aumentare la rigidità del materiale da impronta", en: "Increase impression material rigidity", es: "Aumentar la rigidez de la impresión" },
+                    { it: "Abbassare la tensione superficiale del liquido facilitando il flusso del gesso", en: "Lower liquid surface tension facilitating plaster flow", es: "Reducir la tensión superficial facilitando el flujo del yeso" },
+                    { it: "Sostituire la mordenzatura acida del modello", en: "Replace acid etching", es: "Sustituir el grabado ácido" }
+                ],
+                correct: 1,
+                explanation: { it: "Esatto! I tensioattivi abbattono la tensione superficiale del liquido evitando la formazione di bolle d'aria nelle zone di dettaglio.", en: "Exact! Surfactants lower surface tension preventing air bubbles.", es: "¡Exacto! Los tensioactivos reducen la tensión superficial." }
+            },
+            {
+                question: { it: "3. Per quale fenomeno fisico la lega da saldatura fusa penetra nelle fessure sottili dei ponti?", en: "3. By what physical phenomenon does molten solder penetrate thin gaps?", es: "3. ¿Por qué fenómeno físico penetra la soldadura fundida?" },
+                options: [
+                    { it: "Capillarità", en: "Capillarity", es: "Capilaridad" },
+                    { it: "Evaporazione termica", en: "Thermal evaporation", es: "Evaporación térmica" },
+                    { it: "Elettrodeposizione", en: "Electrodeposition", es: "Electrodeposición" }
+                ],
+                correct: 0,
+                explanation: { it: "Ottimo! La capillarità permette ai fluidi di scorrere e risalire spontaneamente in intercapedini microscopicamente strette.", en: "Great! Capillarity allows fluids to flow into micro-gaps.", es: "¡Bien! La capilaridad permite la penetración en intersticios." }
+            },
+            {
+                question: { it: "4. Perché si effettua la mordenzatura acida prima dell'applicazione degli adesivi?", en: "4. Why is acid etching performed before applying adhesives?", es: "4. ¿Por qué se realiza el grabado ácido antes dei adhesivo?" },
+                options: [
+                    { it: "Per lucidare la superficie e renderla perfettamente liscia", en: "To polish the surface smooth", es: "Para pulir la superficie" },
+                    { it: "Per creare microporosità e incrementare l'energia superficiale del solido", en: "To create micro-porosities and increase surface energy", es: "Para crear microporosidades y aumentar la energía superficial" },
+                    { it: "Per sciogliere la ceramica senza riscaldarla", en: "To dissolve ceramic without heating", es: "Para disolver la cerámica" }
+                ],
+                correct: 1,
+                explanation: { it: "Giusto! L'acido crea micro-scanalature che aumentano l'area di contatto e l'energia superficiale, favorendo l'adesione.", en: "Right! Etching creates micro-voids boosting surface energy.", es: "¡Correcto! Crea micro-cavidades e incrementa la energía." }
+            },
+            {
+                question: { it: "5. Come si sviluppa l'adesione CHIMICA tra la lega metallica e la ceramica?", en: "5. How does CHEMICAL adhesion develop between metal alloy and ceramic?", es: "5. ¿Cómo se desarrolla la adhesión QUÍMICA entre metal y cerámica?" },
+                options: [
+                    { it: "Tramite l'interazione tra gli ossidi superficiali del metallo e l'opaco ceramico", en: "Through interaction between metal surface oxides and ceramic opaque", es: "A través de la interacción de óxidos metálicos con el opaco" },
+                    { it: "Solamente mediante la rugosità ottenuta con la sabbiatura", en: "Only via sandblasting roughness", es: "Solo por la rugosidad del arenado" },
+                    { it: "Sfruttando l'evaporazione del monomero acrilico", en: "Using acrylic monomer evaporation", es: "Usando la evaporación del monómero" }
+                ],
+                correct: 0,
+                explanation: { it: "Corretto! La formazione degli ossidi metallici durante il sgrassaggio/degasaggio è fondamentale per il legame chimico con la ceramica.", en: "Correct! Surface oxide layer is key for chemical bonding with ceramic.", es: "¡Correcto! Los óxidos superficiales son clave para la unión química." }
+            },
+            {
+                question: { it: "6. Qual è la caratteristica fondamentale della Sinterizzazione rispetto alla fusione?", en: "6. What is the fundamental feature of Sintering compared to melting?", es: "6. ¿Cuál es la característica clave de la Sinterización frente a la fusión?" },
+                options: [
+                    { it: "Avviene portando il materiale a uno stato completamente liquido", en: "It brings material to a completely liquid state", es: "Lleva el material a estado líquido completo" },
+                    { it: "Unisce le polveri compresse tramite calore sotto la temperatura di fusione (T < Tfus)", en: "It joins compacted powders using heat below melting temperature (T < Tfus)", es: "Une polvos compactados mediante calor bajo la temperatura de fusión" },
+                    { it: "Non provoca mai alcun ritiro volumetrico della struttura", en: "It never causes volumetric shrinkage", es: "Nunca causa contracción volumétrica" }
+                ],
+                correct: 1,
+                explanation: { it: "Perfetto! Nella sinterizzazione le particelle si saldano per diffusione atomica senza fondere completamente l'oggetto.", en: "Perfect! Sintering binds powder particles via atomic diffusion without melting.", es: "¡Perfecto! Une los granos de polvo por difusión atómica sin fusión total." }
+            }
+        ];
+
+        let currentLang = 'it';
+        let currentCardIndex = 0;
+        let isCardFlipped = false;
+
+        // QUIZ STATE VARIABLES
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let selectedOption = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateLanguageUI();
+            renderGlossary();
+            renderFlashcard();
+            renderQuizQuestion();
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-700', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) {
+                activeTab.classList.add('bg-cyan-700', 'text-white');
+                activeTab.classList.remove('text-slate-300');
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            updateLanguageUI();
+            renderGlossary();
+            renderFlashcard();
+            renderQuizQuestion();
+        }
+
+        function updateLanguageUI() {
+            const dict = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict && dict[key]) {
+                    el.textContent = dict[key];
+                }
+            });
+        }
+
+        function speakTerm(text, langCode) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = langCode === 'it' ? 'it-IT' : langCode === 'en' ? 'en-US' : 'es-ES';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function renderGlossary(filterText = '') {
+            const container = document.getElementById('glossary-container');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            glossaryData.forEach(item => {
+                const term = item.term[currentLang] || item.term['it'];
+                const def = item.def[currentLang] || item.def['it'];
+                if (filterText && !term.toLowerCase().includes(filterText.toLowerCase())) return;
+                
+                const card = document.createElement('div');
+                card.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 hover:border-cyan-500 transition shadow-sm flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-900 text-base">${term}</h3>
+                            <button onclick="speakTerm('${term.replace(/'/g, "\\'")}', '${currentLang}')" class="text-cyan-600 hover:text-cyan-800 p-1.5 rounded-lg bg-white border border-slate-200 shadow-sm text-xs" title="Ascolta pronuncia">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">${def}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterGlossary() {
+            const searchVal = document.getElementById('glossarySearch').value;
+            renderGlossary(searchVal);
+        }
+
+        function renderFlashcard() {
+            const card = flashcardsData[currentCardIndex];
+            if (!card) return;
+
+            document.getElementById('fc-front-text').textContent = card.front[currentLang] || card.front['it'];
+            document.getElementById('fc-back-text').textContent = card.back[currentLang] || card.back['it'];
+            document.getElementById('fc-counter').textContent = `${currentCardIndex + 1} / ${flashcardsData.length}`;
+            
+            if (isCardFlipped) {
+                document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+                isCardFlipped = false;
+            }
+        }
+
+        function flipCard() {
+            const inner = document.getElementById('flashcard-inner');
+            if (inner) {
+                inner.classList.toggle('rotate-y-180');
+                isCardFlipped = !isCardFlipped;
+            }
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            renderFlashcard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            renderFlashcard();
+        }
+
+        function shuffleCards() {
+            flashcardsData.sort(() => Math.random() - 0.5);
+            currentCardIndex = 0;
+            renderFlashcard();
+        }
+
+        // ================= QUIZ LOGIC (FIXED & FULLY FUNCTIONAL) =================
+        function renderQuizQuestion() {
+            const quizBox = document.getElementById('quiz-box');
+            const footerNav = document.getElementById('quiz-footer-nav');
+            if (!quizBox) return;
+
+            // Update Score Badge
+            document.getElementById('quiz-score-badge').textContent = `Score: ${quizScore} / ${quizData.length}`;
+
+            // Check if end of quiz reached
+            if (currentQuizIndex >= quizData.length) {
+                renderQuizResults();
+                return;
+            }
+
+            const q = quizData[currentQuizIndex];
+            selectedOption = null;
+
+            // Reset structure if coming back from results
+            quizBox.innerHTML = `
+                <div>
+                    <span id="quiz-q-num" class="text-xs font-bold text-cyan-600 uppercase tracking-wider">Domanda ${currentQuizIndex + 1} di ${quizData.length}</span>
+                    <h3 id="quiz-question" class="text-base sm:text-lg font-semibold text-slate-900 mt-1">${q.question[currentLang] || q.question['it']}</h3>
+                </div>
+                <div id="quiz-options" class="space-y-3"></div>
+                <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm leading-relaxed border"></div>
+            `;
+
+            footerNav.style.display = 'flex';
+            document.getElementById('btn-next-quiz').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-cyan-50 text-sm font-medium text-slate-700 transition flex items-center justify-between";
+                btn.innerHTML = `<span>${opt[currentLang] || opt['it']}</span> <i class="fa-regular fa-circle text-slate-400"></i>`;
+                btn.onclick = () => selectQuizOption(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectQuizOption(optIdx, btnEl) {
+            if (selectedOption !== null) return; // Prevent changing answer
+            selectedOption = optIdx;
+
+            const q = quizData[currentQuizIndex];
+            const isCorrect = (optIdx === q.correct);
+
+            const allButtons = document.querySelectorAll('#quiz-options button');
+            allButtons.forEach(b => b.classList.add('pointer-events-none', 'opacity-70'));
+            btnEl.classList.remove('opacity-70');
+
+            if (isCorrect) {
+                btnEl.className = "w-full text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-medium text-sm flex items-center justify-between";
+                btnEl.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600 text-lg";
+                quizScore++;
+                document.getElementById('quiz-score-badge').textContent = `Score: ${quizScore} / ${quizData.length}`;
+            } else {
+                btnEl.className = "w-full text-left p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-900 font-medium text-sm flex items-center justify-between";
+                btnEl.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-600 text-lg";
+                
+                // Highlight correct option
+                if (allButtons[q.correct]) {
+                    allButtons[q.correct].className = "w-full text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-medium text-sm flex items-center justify-between";
+                }
+            }
+
+            const feedbackBox = document.getElementById('quiz-feedback');
+            feedbackBox.classList.remove('hidden');
+            feedbackBox.className = isCorrect ? "p-4 rounded-xl text-sm leading-relaxed border border-emerald-200 bg-emerald-50 text-emerald-900" : "p-4 rounded-xl text-sm leading-relaxed border border-rose-200 bg-rose-50 text-rose-900";
+            feedbackBox.innerHTML = `<strong>Spiegazione:</strong> ${q.explanation[currentLang] || q.explanation['it']}`;
+
+            const nextBtn = document.getElementById('btn-next-quiz');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            renderQuizQuestion();
+        }
+
+        function renderQuizResults() {
+            const quizBox = document.getElementById('quiz-box');
+            const footerNav = document.getElementById('quiz-footer-nav');
+            footerNav.style.display = 'none';
+
+            const percentage = Math.round((quizScore / quizData.length) * 100);
+            let message = percentage >= 75 ? "Eccellente! Conosci perfettamente le proprietà superficiali dei materiali dentali." : "Buon lavoro! Rivedi le schede della teoria per consolidare i punti deboli.";
+
+            quizBox.innerHTML = `
+                <div class="text-center py-8 space-y-4">
+                    <div class="inline-flex p-4 rounded-full bg-cyan-100 text-cyan-700 mb-2">
+                        <i class="fa-solid fa-trophy text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900">Quiz Completato!</h3>
+                    <p class="text-slate-600 text-sm max-w-md mx-auto">${message}</p>
+                    <div class="text-3xl font-black text-cyan-600">${quizScore} / ${quizData.length} <span class="text-base font-normal text-slate-500">(${percentage}%)</span></div>
+                    <div class="pt-4">
+                        <button onclick="resetQuiz()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-medium px-6 py-2.5 rounded-xl transition shadow">
+                            Ricomincia Quiz
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            renderQuizQuestion();
+        }
+
+        // ================= OFFLINE FILE DOWNLOAD FIX =================
+        function downloadApp() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "DentalLab_Proprieta_Superficiali_App.html";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idrocarburi & Nomenclatura - Odontotecnica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .tab-btn.active { background-color: #0284c7; color: white; border-color: #38bdf8; }
+        canvas { touch-action: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-sky-600 rounded-lg text-white">
+                    <i class="fa-solid fa-flask text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-sky-400" id="txt-title">Idrocarburi & Nomenclatura</h1>
+                    <p class="text-xs text-slate-400" id="txt-subtitle">Modulo Chimica • Odontotecnica Classe IV</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-800 border border-slate-700 text-sky-300 text-sm rounded-lg p-2 focus:ring-2 focus:ring-sky-500">
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="es">🇪🇸 Español</option>
+                </select>
+                <button onclick="downloadApp()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-download"></i> <span id="txt-download">Salva App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-[73px] z-40">
+        <div class="max-w-7xl mx-auto flex overflow-x-auto p-2 gap-2 text-sm font-medium scrollbar-none">
+            <button onclick="switchTab('map')" id="tab-map" class="tab-btn active px-4 py-2 rounded-lg border border-transparent whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project"></i> <span id="nav-map">Mappa a Nodi</span>
+            </button>
+            <button onclick="switchTab('prefixes')" id="tab-prefixes" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-list-ol"></i> <span id="nav-prefixes">Primi 4 & Prefissi</span>
+            </button>
+            <button onclick="switchTab('branched')" id="tab-branched" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-code-branch"></i> <span id="nav-branched">Catene Ramificate & Priorità</span>
+            </button>
+            <button onclick="switchTab('formulas')" id="tab-formulas" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-vial"></i> <span id="nav-formulas">Tipi di Formule</span>
+            </button>
+            <button onclick="switchTab('iupac')" id="tab-iupac" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-book-bookmark"></i> <span id="nav-iupac">IUPAC vs Tradizionale</span>
+            </button>
+            <button onclick="switchTab('isomerism')" id="tab-isomerism" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-shapes"></i> <span id="nav-isomerism">Isomeria (Cis/Trans)</span>
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 whitespace-nowrap transition flex items-center gap-2">
+                <i class="fa-solid fa-graduation-cap"></i> <span id="nav-quiz">Quiz di Verifica</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-6">
+
+        <!-- TAB 1: MAPPA A NODI -->
+        <section id="sec-map" class="flex flex-col gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap"></i> <span id="map-title">Mappa Concettuale Interattiva a Nodi</span>
+                    </h2>
+                    <p class="text-xs text-slate-400" id="map-desc">Clicca sui nodi per esplorare le relazioni. Puoi trascinare e zoomare.</p>
+                </div>
+                <button onclick="centerMap()" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                    <i class="fa-solid fa-expand"></i> <span id="btn-center">Centra Vista</span>
+                </button>
+            </div>
+
+            <div class="relative w-full h-[550px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+                <canvas id="mapCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                <div id="node-info" class="absolute bottom-4 left-4 right-4 md:right-auto md:max-w-md bg-slate-900/90 border border-sky-500/40 p-4 rounded-xl shadow-xl backdrop-blur hidden">
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 id="info-title" class="font-bold text-sky-300 text-base"></h3>
+                        <button onclick="closeInfo()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p id="info-body" class="text-xs text-slate-300 leading-relaxed"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRIMI 4 & PREFISSI SUPERIORI -->
+        <section id="sec-prefixes" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol"></i> <span id="pref-head-1">1. I Primi 4 Alcani & Radicali Alchilici</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="pref-sub-1">I primi quattro idrocarburi hanno nomi storici fondamentali da memorizzare, dai quali derivano i rispettivi radicali alchilici (-ile).</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">C1</span>
+                            <span class="text-xs text-slate-400">Met-</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-white">Metano <span class="text-xs text-slate-400 font-normal">(CH₄)</span></h3>
+                        <p class="text-xs text-slate-300">Radicale: <strong class="text-sky-300">Metile (-CH₃)</strong></p>
+                        <p class="text-[11px] text-slate-400 italic">Capofila degli alcani, geometria tetraedrica (109.5°).</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">C2</span>
+                            <span class="text-xs text-slate-400">Et-</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-white">Etano <span class="text-xs text-slate-400 font-normal">(C₂H₆)</span></h3>
+                        <p class="text-xs text-slate-300">Radicale: <strong class="text-sky-300">Etile (-C₂H₅)</strong></p>
+                        <p class="text-[11px] text-slate-400 italic">Legame semplice C-C, conformazioni sfalsata/eclissata.</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">C3</span>
+                            <span class="text-xs text-slate-400">Prop-</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-white">Propano <span class="text-xs text-slate-400 font-normal">(C₃H₈)</span></h3>
+                        <p class="text-xs text-slate-300">Radicale: <strong class="text-sky-300">Propile (-C₃H₇)</strong></p>
+                        <p class="text-[11px] text-slate-400 italic">Gas combustibile alifatico a 3 atomi di C.</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">C4</span>
+                            <span class="text-xs text-slate-400">But-</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-white">Butano <span class="text-xs text-slate-400 font-normal">(C₄H₁₀)</span></h3>
+                        <p class="text-xs text-slate-300">Radicale: <strong class="text-sky-300">Butile (-C₄H₉)</strong></p>
+                        <p class="text-[11px] text-slate-400 italic">Primo alcano a mostrare isomeria di catena.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-repeat"></i> <span id="pref-head-2">2. Regola Generale dei Prefissi Superiori (C5 - C10+)</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-4" id="pref-sub-2">Dal quinto atomo di carbonio in poi, la radice deriva dai numerali greci e **rimane identica per tutte le famiglie**. Cambia solo la desinenza finale in base alle insaturazioni!</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-sky-300 border-b border-slate-700">
+                                <th class="p-3">Atomi di C</th>
+                                <th class="p-3">Prefisso IUPAC</th>
+                                <th class="p-3">Alcani (-ano)</th>
+                                <th class="p-3">Alcheni (-ene)</th>
+                                <th class="p-3">Alchini (-ino)</th>
+                                <th class="p-3">Cicloalcani (ciclo- -ano)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr><td class="p-3 font-semibold text-sky-400">C5</td><td class="p-3 font-bold text-white">Penta-</td><td class="p-3">Pentano</td><td class="p-3">Pentene</td><td class="p-3">Pentino</td><td class="p-3">Ciclopentano</td></tr>
+                            <tr><td class="p-3 font-semibold text-sky-400">C6</td><td class="p-3 font-bold text-white">Esa-</td><td class="p-3">Esano</td><td class="p-3">Esene</td><td class="p-3">Esino</td><td class="p-3">Cicloesano</td></tr>
+                            <tr><td class="p-3 font-semibold text-sky-400">C7</td><td class="p-3 font-bold text-white">Epta-</td><td class="p-3">Eptano</td><td class="p-3">Eptene</td><td class="p-3">Eptino</td><td class="p-3">Cicloeptano</td></tr>
+                            <tr><td class="p-3 font-semibold text-sky-400">C8</td><td class="p-3 font-bold text-white">Otta-</td><td class="p-3">Ottano</td><td class="p-3">Ottene</td><td class="p-3">Ottino</td><td class="p-3">Cicloottano</td></tr>
+                            <tr><td class="p-3 font-semibold text-sky-400">C9</td><td class="p-3 font-bold text-white">Nona-</td><td class="p-3">Nonano</td><td class="p-3">Nonene</td><td class="p-3">Nonino</td><td class="p-3">Ciclononano</td></tr>
+                            <tr><td class="p-3 font-semibold text-sky-400">C10</td><td class="p-3 font-bold text-white">Deca-</td><td class="p-3">Decano</td><td class="p-3">Decene</td><td class="p-3">Decino</td><td class="p-3">Ciclodecano</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: CATENE RAMIFICATE & PRIORITÀ -->
+        <section id="sec-branched" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-code-branch"></i> <span id="br-title">Nomenclatura delle Catene Ramificate & Regole di Priorità</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="br-desc">Per assegnare correttamente il nome IUPAC a una molecola ramificata occorre seguire un algoritmo sequenziale di priorità.</p>
+
+                <!-- REGOLE -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-800/80 p-4 rounded-xl border-l-4 border-sky-500">
+                        <h3 class="font-bold text-sky-300 text-sm mb-1">1. Catena Più Lunga</h3>
+                        <p class="text-xs text-slate-300">Individua la catena continua di atomi di C più lunga. Questa determina il nome base dell'idrocarburo.</p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border-l-4 border-amber-500">
+                        <h3 class="font-bold text-amber-300 text-sm mb-1">2. Priorità dell'Insaturazione (Doppio/Triplo Legame)</h3>
+                        <p class="text-xs text-slate-300">Se sono presenti doppi o tripli legami, la numerazione **deve sempre iniziare dall'estremità più vicina all'insaturazione**, a prescindere dai radicali alchilici.</p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border-l-4 border-emerald-500">
+                        <h3 class="font-bold text-emerald-300 text-sm mb-1">3. Regola dei Numeri Più Bassi ai Sostituenti</h3>
+                        <p class="text-xs text-slate-300">Negli alcani saturi, numera la catena da entrambe le estremità (da sx a dx e da dx a sx) e scegli la sequenza che assegna ai sostituenti i **numeri d'indice più bassi** al primo punto di differenza.</p>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border-l-4 border-purple-500">
+                        <h3 class="font-bold text-purple-300 text-sm mb-1">4. Ordine Alfabetico e Prefissi Multipli</h3>
+                        <p class="text-xs text-slate-300">I sostituenti si elencano in ordine alfabetico (es. *etile* prima di *metile*). Se un radicale è presente più volte si usano i prefissi *di-*, *tri-*, *tetra-* (che non contano per l'ordine alfabetico).</p>
+                    </div>
+                </div>
+
+                <!-- ESEMPI GUIDATI -->
+                <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2">Esempi Pratici Comparativi</h3>
+
+                <div class="space-y-4">
+                    <!-- Esempio 1 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Alcano Ramificato</span>
+                            <h4 class="text-base font-bold text-white">2,4-dimetilesano</h4>
+                            <p class="text-xs text-slate-400">Catena più lunga: 6 carboni (Esano).</p>
+                            <div class="text-xs text-slate-300 space-y-1 pt-1">
+                                <p>• Da Sinistra a Destra: sostituenti in posizione <span class="text-emerald-400 font-bold">2, 4</span> (CORRETTO)</p>
+                                <p>• Da Destra a Sinistra: sostituenti in posizione <span class="text-rose-400 font-bold">3, 5</span> (ERRATO)</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 text-center font-mono text-xs text-sky-300">
+                            CH₃ - CH(CH₃) - CH₂ - CH(CH₃) - CH₂ - CH₃
+                        </div>
+                    </div>
+
+                    <!-- Esempio 2 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800">Priorità doppio legame</span>
+                            <h4 class="text-base font-bold text-white">4-metil-2-pentene</h4>
+                            <p class="text-xs text-slate-400">Presenza di un doppio legame in catena a 5 C (Pentene).</p>
+                            <div class="text-xs text-slate-300 space-y-1 pt-1">
+                                <p>• Inizio da Sinistra: doppio legame sul C-2, metile sul C-4 <span class="text-emerald-400 font-bold">(CORRETTO)</span></p>
+                                <p>• Il doppio legame vince sul radicale metile nella scelta dell'estremità da cui iniziare a numerare.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 text-center font-mono text-xs text-amber-300">
+                            CH₃ - CH = CH - CH(CH₃) - CH₃
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: TIPI DI FORMULE -->
+        <section id="sec-formulas" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-vial"></i> <span id="form-title">Tipi di Formule Chimiche & Serie Omologa</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="form-desc">In chimica organica una stessa molecola può essere rappresentata in diversi modi.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-sm mb-1">Formula Bruta (Grezza)</h3>
+                        <p class="text-xs text-slate-300 mb-2">Indica solo il numero totale di atomi per ogni elemento.</p>
+                        <p class="text-xs font-mono bg-slate-900 p-2 rounded text-center text-white">C₄H₁₀</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-sm mb-1">Formula Condensata</h3>
+                        <p class="text-xs text-slate-300 mb-2">Raggruppa gli atomi di idrogeno legati a ciascun atomo di carbonio.</p>
+                        <p class="text-xs font-mono bg-slate-900 p-2 rounded text-center text-white">CH₃-CH₂-CH₂-CH₃</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-sm mb-1">Formula di Struttura</h3>
+                        <p class="text-xs text-slate-300 mb-2">Mostra tutti i singoli legami covalenti tra gli atomi.</p>
+                        <p class="text-xs font-mono bg-slate-900 p-2 rounded text-center text-white">H  H  H  H<br>|  |  |  |<br>H-C--C--C--C-H<br>|  |  |  |<br>H  H  H  H</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-sm mb-1">Formula Spinta (Scheletrica)</h3>
+                        <p class="text-xs text-slate-300 mb-2">Rappresenta la catena a zig-zag omettendo H ed esplicitando i vertici di C.</p>
+                        <p class="text-xs font-mono bg-slate-900 p-2 rounded text-center text-white">/\/\</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/40 border border-slate-700 p-4 rounded-xl">
+                    <h3 class="font-bold text-sky-300 text-sm mb-1">Concetto di Serie Omologa</h3>
+                    <p class="text-xs text-slate-300">Una serie omologa è una successione di composti chimici con la stessa formula generale, le cui molecole differiscono per un'unità costante <strong>-CH₂-</strong> (gruppo metilenico). Esempi di formule generali:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3 text-center text-xs">
+                        <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-slate-400">Alcani:</span> <strong class="text-sky-400">CₙH₂ₙ₊₂</strong></div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-slate-400">Alcheni / Cicloalcani:</span> <strong class="text-sky-400">CₙH₂ₙ</strong></div>
+                        <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-slate-400">Alchini:</span> <strong class="text-sky-400">CₙH₂ₙ₋₂</strong></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: IUPAC VS TRADIZIONALE ODONTOTECNICA -->
+        <section id="sec-iupac" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark"></i> <span id="iupac-title">Nomenclatura IUPAC e Tradizionale in Odontotecnica</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="iupac-desc">In ambito professionale odontotecnico, molti monomeri e solventi sono ancora indicati con nomi tradizionali storici.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-sky-300 border-b border-slate-700">
+                                <th class="p-3">Nome IUPAC Ufficiale</th>
+                                <th class="p-3">Nome Tradizionale / Comune</th>
+                                <th class="p-3">Formula / Gruppo</th>
+                                <th class="p-3">Rilevanza in Odontotecnica / Polimeri</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Etene</td>
+                                <td class="p-3 text-sky-400 font-bold">Etilene</td>
+                                <td class="p-3 font-mono">CH₂=CH₂</td>
+                                <td class="p-3 text-xs">Monomero base per resine sintetiche termoplastiche.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Etino</td>
+                                <td class="p-3 text-sky-400 font-bold">Acetilene</td>
+                                <td class="p-3 font-mono">HC≡CH</td>
+                                <td class="p-3 text-xs">Gas per cannelli di saldatura ad alta temperatura in laboratorio.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Etenile (Radicale)</td>
+                                <td class="p-3 text-sky-400 font-bold">Vinile</td>
+                                <td class="p-3 font-mono">CH₂=CH-</td>
+                                <td class="p-3 text-xs">Base dei polimeri vinilici e resine per impronte (polivinilsilossani).</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">2-propenile (Radicale)</td>
+                                <td class="p-3 text-sky-400 font-bold">Allile</td>
+                                <td class="p-3 font-mono">CH₂=CH-CH₂-</td>
+                                <td class="p-3 text-xs">Gruppo funzionale presente in derivati e monomeri acrilici.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">2-metil-1,3-butadiene</td>
+                                <td class="p-3 text-sky-400 font-bold">Isoprene</td>
+                                <td class="p-3 font-mono">CH₂=C(CH₃)-CH=CH₂</td>
+                                <td class="p-3 text-xs">Unità base della gomma naturale e degli elastomeri per impronte.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Metilbenzene</td>
+                                <td class="p-3 text-sky-400 font-bold">Toluene</td>
+                                <td class="p-3 font-mono">C₆H₅-CH₃</td>
+                                <td class="p-3 text-xs">Solvente organico per resine e vernici da laboratorio.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">1,2-dimetilbenzene</td>
+                                <td class="p-3 text-sky-400 font-bold">o-Xilene (Ortoxilene)</td>
+                                <td class="p-3 font-mono">C₆H₄(CH₃)₂</td>
+                                <td class="p-3 text-xs">Solvente aromatica per pulizia e sgrassaggio accessori.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: ISOMERIA -->
+        <section id="sec-isomerism" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-shapes"></i> <span id="iso-title">Isomeria di Struttura & Geometrica (Cis/Trans)</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="iso-desc">Gli isomeri sono composti con la stessa formula bruta ma diversa disposizione degli atomi.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- STRUTTURA -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-base mb-2">1. Isomeria di Struttura (Catena)</h3>
+                        <p class="text-xs text-slate-300 mb-4">Gli atomi sono legati in sequenze differenti. Esempio per $C_4H_{10}$:</p>
+                        <div class="space-y-3">
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <span class="text-xs text-sky-400 font-bold">Butano lineare:</span>
+                                <p class="text-xs font-mono text-white">CH₃-CH₂-CH₂-CH₃ (P.eb. -0.5°C)</p>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <span class="text-xs text-amber-400 font-bold">Isobutano (2-metilpropano):</span>
+                                <p class="text-xs font-mono text-white">CH₃-CH(CH₃)-CH₃ (P.eb. -11.7°C)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CIS / TRANS -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-sky-300 text-base mb-2">2. Isomeria Geometrica (Cis / Trans)</h3>
+                        <p class="text-xs text-slate-300 mb-4">Dovuta alla **rigidità del doppio legame C=C** che impedisce la libera rotazione. Esempio per 2-butene ($C_4H_8$):</p>
+                        <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <span class="font-bold text-emerald-400">cis-2-butene</span>
+                                <p class="text-[11px] text-slate-400 mt-1">Gruppi -CH₃ sullo **stesso lato** del doppio legame.</p>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                <span class="font-bold text-purple-400">trans-2-butene</span>
+                                <p class="text-[11px] text-slate-400 mt-1">Gruppi -CH₃ su **lati opposti** rispetto al doppio legame.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 7: QUIZ DI VERIFICA -->
+        <section id="sec-quiz" class="hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-sky-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap"></i> <span id="quiz-title">Quiz di Autovalutazione Rapida</span>
+                </h2>
+                <p class="text-sm text-slate-300 mb-6" id="quiz-desc">Metti alla prova la tua memoria su prefissi, nomenclatura e regole di priorità!</p>
+
+                <div id="quiz-container" class="space-y-6">
+                    <!-- DYNAMICALLY POPULATED -->
+                </div>
+
+                <div class="mt-6 flex justify-between items-center border-t border-slate-800 pt-4">
+                    <button onclick="checkQuiz()" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg font-semibold text-sm transition">
+                        Verifica Risposte
+                    </button>
+                    <div id="quiz-score" class="font-bold text-lg text-sky-300"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LOGIC & SCRIPTS -->
+    <script>
+        // TRANSLATIONS DATA
+        const translations = {
+            it: {
+                title: "Idrocarburi & Nomenclatura",
+                subtitle: "Modulo Chimica • Odontotecnica Classe IV",
+                download: "Salva App",
+                navMap: "Mappa a Nodi",
+                navPref: "Primi 4 & Prefissi",
+                navBranch: "Catene Ramificate & Priorità",
+                navForm: "Tipi di Formule",
+                navIupac: "IUPAC vs Tradizionale",
+                navIso: "Isomeria (Cis/Trans)",
+                navQuiz: "Quiz di Verifica",
+                btnCenter: "Centra Vista",
+                mapTitle: "Mappa Concettuale Interattiva a Nodi",
+                mapDesc: "Clicca sui nodi per esplorare le relazioni. Puoi trascinare e zoomare."
+            },
+            en: {
+                title: "Hydrocarbons & Nomenclature",
+                subtitle: "Chemistry Module • Dental Technology Year 4",
+                download: "Save App",
+                navMap: "Node Map",
+                navPref: "First 4 & Prefixes",
+                navBranch: "Branched Chains & Priority",
+                navForm: "Formula Types",
+                navIupac: "IUPAC vs Traditional",
+                navIso: "Isomerism (Cis/Trans)",
+                navQuiz: "Verification Quiz",
+                btnCenter: "Center View",
+                mapTitle: "Interactive Conceptual Node Map",
+                mapDesc: "Click nodes to explore connections. Drag and zoom enabled."
+            },
+            es: {
+                title: "Hidrocarburos y Nomenclatura",
+                subtitle: "Módulo Química • Prótesis Dental 4º Curso",
+                download: "Guardar App",
+                navMap: "Mapa de Nodos",
+                navPref: "Primeros 4 y Prefijos",
+                navBranch: "Cadenas Ramificadas y Prioridades",
+                navForm: "Tipos de Fórmulas",
+                navIupac: "IUPAC vs Tradicional",
+                navIso: "Isomería (Cis/Trans)",
+                navQuiz: "Cuestionario",
+                btnCenter: "Centrar Vista",
+                mapTitle: "Mapa Conceptual Interactivo de Nodos",
+                mapDesc: "Haz clic en los nodos para explorar relaciones. Arrastra y acerca."
+            }
+        };
+
+        // MAP NODES DATA
+        const nodesData = [
+            { id: "root", label: "IDROCARBURI", x: 0, y: 0, color: "#0284c7", radius: 42, info: "Composti organici costituiti esclusivamente da atomi di Carbonio e Idrogeno." },
+            { id: "alifatici", label: "ALIFATICI", x: -160, y: -70, color: "#4f46e5", radius: 34, info: "Idrocarburi a catena aperta (lineare/ramificata) o ciclica non aromatica." },
+            { id: "aromatici", label: "AROMATICI", x: 160, y: -70, color: "#e11d48", radius: 34, info: "Composti ad anello esagonale con legami pi-greco delocalizzati (es. Benzene)." },
+            { id: "alcani", label: "ALCANI", x: -260, y: -160, color: "#10b981", radius: 30, info: "Saturi (legami semplici C-C), ibridazione sp3, formula CnH2n+2." },
+            { id: "alcheni", label: "ALCHENI", x: -180, y: -210, color: "#f59e0b", radius: 30, info: "Insaturi (doppio legame C=C), ibridazione sp2, formula CnH2n." },
+            { id: "alchini", label: "ALCHINI", x: -90, y: -220, color: "#ec4899", radius: 30, info: "Insaturi (triplo legame C≡C), ibridazione sp, formula CnH2n-2." },
+            { id: "cicloalcani", label: "CICLO-ALCANI", x: -300, y: -60, color: "#06b6d4", radius: 30, info: "Saturi ad anello chiuso, formula CnH2n (es. Ciclopropano, Cicloesano)." },
+            { id: "isomeria", label: "ISOMERIA", x: 0, y: 150, color: "#a855f7", radius: 34, info: "Stessa formula bruta, diversa struttura o disposizione nello spazio." },
+            { id: "nom", label: "NOMEN-CLATURA", x: 180, y: 80, color: "#f97316", radius: 34, info: "Regole IUPAC ufficiali e nomi tradizionali di uso dentistico (es. Acetilene, Vinile)." }
+        ];
+
+        const connections = [
+            ["root", "alifatici"], ["root", "aromatici"], ["root", "isomeria"], ["root", "nom"],
+            ["alifatici", "alcani"], ["alifatici", "alcheni"], ["alifatici", "alchini"], ["alifatici", "cicloalcani"]
+        ];
+
+        // CANVAS STATE
+        let canvas, ctx;
+        let zoom = 1, panX = 0, panY = 0;
+        let isDragging = false, startX, startY;
+        let selectedNode = null;
+
+        window.onload = function() {
+            canvas = document.getElementById("mapCanvas");
+            ctx = canvas.getContext("2d");
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // MOUSE EVENTS FOR CANVAS
+            canvas.addEventListener('mousedown', e => {
+                isDragging = true;
+                startX = e.clientX - panX;
+                startY = e.clientY - panY;
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                if (isDragging) {
+                    panX = e.clientX - startX;
+                    panY = e.clientY - startY;
+                    drawMap();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => isDragging = false);
+            canvas.addEventListener('mouseleave', () => isDragging = false);
+
+            canvas.addEventListener('wheel', e => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+                zoom = Math.max(0.4, Math.min(2.0, zoom * zoomFactor));
+                drawMap();
+            });
+
+            canvas.addEventListener('click', e => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left - canvas.width / 2 - panX) / zoom;
+                const mouseY = (e.clientY - rect.top - canvas.height / 2 - panY) / zoom;
+
+                selectedNode = nodesData.find(n => Math.hypot(n.x - mouseX, n.y - mouseY) <= n.radius);
+                if (selectedNode) {
+                    showInfo(selectedNode.label, selectedNode.info);
+                } else {
+                    closeInfo();
+                }
+                drawMap();
+            });
+
+            centerMap();
+            initQuiz();
+        };
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            drawMap();
+        }
+
+        function centerMap() {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            drawMap();
+        }
+
+        function drawMap() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width / 2 + panX, canvas.height / 2 + panY);
+            ctx.scale(zoom, zoom);
+
+            // DRAW CONNECTIONS
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 3;
+            connections.forEach(([fromId, toId]) => {
+                const fn = nodesData.find(n => n.id === fromId);
+                const tn = nodesData.find(n => n.id === toId);
+                if (fn && tn) {
+                    ctx.beginPath();
+                    ctx.moveTo(fn.x, fn.y);
+                    ctx.lineTo(tn.x, tn.y);
+                    ctx.stroke();
+                }
+            });
+
+            // DRAW NODES
+            nodesData.forEach(node => {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                ctx.fillStyle = node.color;
+                ctx.fill();
+
+                if (selectedNode && selectedNode.id === node.id) {
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 4;
+                } else {
+                    ctx.strokeStyle = "#0f172a";
+                    ctx.lineWidth = 2;
+                }
+                ctx.stroke();
+
+                // TEXT INSIDE CIRCLE WITH WRAP
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 11px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                const parts = node.label.split('-');
+                if (parts.length > 1) {
+                    ctx.fillText(parts[0], node.x, node.y - 6);
+                    ctx.fillText(parts[1], node.x, node.y + 6);
+                } else {
+                    ctx.fillText(node.label, node.x, node.y);
+                }
+            });
+
+            ctx.restore();
+        }
+
+        function showInfo(title, body) {
+            document.getElementById("info-title").innerText = title;
+            document.getElementById("info-body").innerText = body;
+            document.getElementById("node-info").classList.remove("hidden");
+        }
+
+        function closeInfo() {
+            document.getElementById("node-info").classList.add("hidden");
+            selectedNode = null;
+            drawMap();
+        }
+
+        // TAB SWITCHING
+        function switchTab(tabKey) {
+            document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.remove("active", "bg-sky-600", "text-white");
+                btn.classList.add("bg-slate-800", "text-slate-300");
+            });
+
+            document.getElementById(`sec-${tabKey}`).classList.remove("hidden");
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            activeBtn.classList.add("active");
+
+            if (tabKey === 'map') {
+                setTimeout(resizeCanvas, 50);
+            }
+        }
+
+        // LANGUAGE CHANGE
+        function changeLanguage(lang) {
+            const t = translations[lang] || translations.it;
+            document.getElementById("txt-title").innerText = t.title;
+            document.getElementById("txt-subtitle").innerText = t.subtitle;
+            document.getElementById("txt-download").innerText = t.download;
+            document.getElementById("nav-map").innerText = t.navMap;
+            document.getElementById("nav-prefixes").innerText = t.navPref;
+            document.getElementById("nav-branched").innerText = t.navBranch;
+            document.getElementById("nav-formulas").innerText = t.navForm;
+            document.getElementById("nav-iupac").innerText = t.navIupac;
+            document.getElementById("nav-isomerism").innerText = t.navIso;
+            document.getElementById("nav-quiz").innerText = t.navQuiz;
+            document.getElementById("btn-center").innerText = t.btnCenter;
+            document.getElementById("map-title").innerText = t.mapTitle;
+            document.getElementById("map-desc").innerText = t.mapDesc;
+        }
+
+        // QUIZ SYSTEM
+        const quizQuestions = [
+            { q: "Qual è il nome del radicale alchilico a 3 atomi di carbonio (-C₃H₇)?", options: ["Metile", "Etile", "Propile", "Butile"], ans: 2 },
+            { q: "Nelle catene ramificate saturi, da dove inizia la numerazione?", options: ["Sempre da sinistra", "Dall'estremità più vicina ai sostituenti per dare i numeri più bassi", "Sempre dal carbonio centrale", "Dall'estremità con il radicale più lungo"], ans: 1 },
+            { q: "In presenza di un doppio legame ed un radicale, chi ha la priorità nella numerazione?", options: ["Il radicale metile", "Il doppio legame", "Hanno la stessa priorità", "Dipende dalla lunghezza della catena"], ans: 1 },
+            { q: "Qual è la formula generale della serie omologa degli alcani?", options: ["CnH2n", "CnH2n-2", "CnH2n+2", "CnHn"], ans: 2 },
+            { q: "Come viene denominato tradizionalmente l'etino in ambito industriale e odontotecnico?", options: ["Etilene", "Acetilene", "Vinile", "Isoprene"], ans: 1 }
+        ];
+
+        function initQuiz() {
+            const container = document.getElementById("quiz-container");
+            container.innerHTML = "";
+            quizQuestions.forEach((item, idx) => {
+                const qDiv = document.createElement("div");
+                qDiv.className = "bg-slate-800/50 p-4 rounded-xl border border-slate-700";
+                qDiv.innerHTML = `
+                    <p class="font-bold text-sky-300 text-sm mb-3">${idx + 1}. ${item.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        ${item.options.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 bg-slate-900 p-2.5 rounded border border-slate-800 cursor-pointer text-xs text-slate-300 hover:border-sky-500/50">
+                                <input type="radio" name="q${idx}" value="${oIdx}" class="text-sky-600 focus:ring-sky-500">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizQuestions.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                if (selected && parseInt(selected.value) === item.ans) {
+                    score++;
+                }
+            });
+            document.getElementById("quiz-score").innerText = `Punteggio: ${score} / ${quizQuestions.length}`;
+        }
+
+        // DOWNLOAD SELF-CONTAINED HTML
+        function downloadApp() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "idrocarburi_odontotecnica_app.html";
+            a.click();
+        }
+    </script>
+</body>
+</html>

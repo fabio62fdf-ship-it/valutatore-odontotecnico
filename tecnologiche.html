@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proprietà Tecnologiche dei Materiali - Lab Odontotecnico</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #2b2b2b;
+            --card-bg: #ffffff;
+            --primary: #0056b3;
+            --primary-hover: #003d80;
+            --accent: #d9534f;
+            --accent-green: #28a745;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+        }
+
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #e9ecef;
+            padding: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--primary);
+        }
+
+        /* WORKINGS VISUAL CARDS */
+        .work-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .work-card {
+            background: white;
+            border-radius: var(--border-radius);
+            border: 2px solid #e0e0e0;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .work-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .work-visual {
+            height: 140px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid #eee;
+        }
+
+        .work-body {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        .lab-tag {
+            background: #e3f2fd;
+            color: #0d47a1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        /* DSA MINIMAL MIND MAP */
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .node-main {
+            background: var(--primary);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .node-branches {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .node-box {
+            background: #ffffff;
+            border: 3px solid var(--primary);
+            border-radius: 16px;
+            padding: 15px;
+            min-width: 180px;
+            max-width: 210px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .node-title {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .node-sub {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        /* QUIZ STYLES */
+        .quiz-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin: 6px 0;
+            background: #f8f9fa;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            background: #e2e6ea;
+        }
+
+        .quiz-option.correct {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .quiz-option.wrong {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+
+        .quiz-feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .score-box {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .footer-download {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .dl-btn {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+            transition: transform 0.2s;
+        }
+
+        .dl-btn:hover {
+            transform: scale(1.05);
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 id="app-title">Proprietà Tecnologiche dei Materiali</h1>
+    <div id="app-subtitle">Modulo 5 - Odontotecnica e Scienza dei Materiali</div>
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLanguage('ITA')">ITA 🇮🇹</button>
+        <button class="lang-btn" onclick="setLanguage('ESP')">ESP 🇪🇸</button>
+        <button class="lang-btn" onclick="setLanguage('ENG')">ENG 🇬🇧</button>
+    </div>
+</header>
+
+<nav>
+    <button class="nav-btn active" onclick="showTab('lavorazioni')" id="nav-lav">⚙️ Lavorazioni</button>
+    <button class="nav-btn" onclick="showTab('mappa')" id="nav-map">🧠 Mappa DSA</button>
+    <button class="nav-btn" onclick="showTab('glossario')" id="nav-glo">📖 Glossario</button>
+    <button class="nav-btn" onclick="showTab('quiz')" id="nav-qui">📝 Quiz (20)</button>
+</nav>
+
+<main>
+    <!-- TAB 1: LAVORAZIONI -->
+    <div id="lavorazioni" class="tab-content active">
+        <div class="work-grid" id="workings-container"></div>
+    </div>
+
+    <!-- TAB 2: MAPPA NODI DSA MINIMAL -->
+    <div id="mappa" class="tab-content">
+        <div class="card">
+            <h2 style="text-align:center; color: var(--primary);" id="map-heading">Mappa Concettuale Semplificata (Solo Parole Chiave)</h2>
+            <div class="map-container" id="dsa-map"></div>
+        </div>
+    </div>
+
+    <!-- TAB 3: GLOSSARIO -->
+    <div id="glossario" class="tab-content">
+        <div id="glossary-container"></div>
+    </div>
+
+    <!-- TAB 4: QUIZ -->
+    <div id="quiz" class="tab-content">
+        <div class="score-box" id="score-display">Punteggio: 0 / 20</div>
+        <div id="quiz-container"></div>
+    </div>
+
+    <div class="footer-download">
+        <button class="dl-btn" onclick="downloadOfflineApp()" id="btn-download">💾 Scarica App HTML Offline</button>
+    </div>
+</main>
+
+<script>
+const contentData = {
+    ITA: {
+        title: "Proprietà Tecnologiche dei Materiali",
+        subtitle: "Modulo 5 - Odontotecnica e Scienza dei Materiali",
+        navLav: "⚙️ Lavorazioni",
+        navMap: "🧠 Mappa DSA",
+        navGlo: "📖 Glossario",
+        navQui: "📝 Quiz (20)",
+        mapHeading: "Mappa Concettuale Semplificata (Solo Parole Chiave)",
+        scoreText: "Punteggio",
+        dlBtn: "💾 Scarica App HTML Offline",
+        workings: [
+            {
+                title: "Laminazione (Malleabilità)",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><circle cx="70" cy="30" r="22" fill="#6c757d"/><circle cx="70" cy="70" r="22" fill="#6c757d"/><rect x="10" y="46" width="60" height="8" fill="#d9534f"/><rect x="70" y="48" width="120" height="4" fill="#d9534f"/></svg>`,
+                desc: "Compressione del materiale tra rulli per ridurlo in lamine sottili.",
+                lab: "🔬 Lab: Fogli d'oro e lamine metalliche."
+            },
+            {
+                title: "Trafilatura (Duttilità)",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><polygon points="80,20 110,40 110,60 80,80" fill="#495057"/><rect x="10" y="40" width="75" height="20" fill="#0056b3"/><rect x="110" y="46" width="80" height="8" fill="#0056b3"/></svg>`,
+                desc: "Trazione del materiale attraverso una filiera per ridurlo in fili sottili.",
+                lab: "🔬 Lab: Fili ortodontici."
+            },
+            {
+                title: "Fusione e Colata",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><path d="M 50 20 L 80 20 L 70 60 L 40 60 Z" fill="#ff9900"/><path d="M 65 55 Q 75 70 85 80" stroke="#ff4500" stroke-width="6" fill="none"/><rect x="70" y="70" width="60" height="25" fill="#6c757d" rx="4"/></svg>`,
+                desc: "Riscaldamento fino allo stato liquido e versamento in una forma.",
+                lab: "🔬 Lab: Fusione leghe dentali (Cr-Co, Oro)."
+            },
+            {
+                title: "Saldatura",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="45" width="70" height="15" fill="#6c757d"/><rect x="110" y="45" width="70" height="15" fill="#6c757d"/><circle cx="100" cy="52" r="12" fill="#ffcc00"/></svg>`,
+                desc: "Unione fissa di due pezzi metallici tramite calore.",
+                lab: "🔬 Lab: Saldatura laser o castolin."
+            },
+            {
+                title: "Tempra",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="30" y="30" width="40" height="40" fill="#dc3545" rx="4"/><text x="75" y="55" font-size="20">➔ 🧊</text><rect x="130" y="30" width="40" height="40" fill="#0056b3" rx="4"/></svg>`,
+                desc: "Riscaldamento seguito da raffreddamento rapido per modificare la durezza.",
+                lab: "🔬 Lab: Durezza ganci scheletrati."
+            },
+            {
+                title: "Rugosità (Ra)",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="50" width="160" height="30" fill="#adb5bd"/><path d="M 20 50 Q 30 40 40 50 T 60 50 T 80 50 T 100 50 T 120 50 T 140 50 T 160 50" stroke="#dc3545" stroke-width="3" fill="none"/></svg>`,
+                desc: "Misura delle micro-irregolarità superficiali.",
+                lab: "🔬 Lab: Lucidatura per evitare placca."
+            }
+        ],
+        mapNodes: [
+            { title: "PLASTICITÀ", sub: "Deformazione permanente" },
+            { title: "MALLEABILITÀ", sub: "Lamine (Laminazione)" },
+            { title: "DUTTILITÀ", sub: "Fili (Trafilatura)" },
+            { title: "FUSIBILITÀ", sub: "Stato liquido (Colata)" },
+            { title: "SALDABILITÀ", sub: "Unione metalli" },
+            { title: "TEMPRABILITÀ", sub: "Calore + Raffreddamento" },
+            { title: "RUGOSITÀ (Ra)", sub: "Micro-irregolarità" }
+        ],
+        glossary: [
+            { term: "Proprietà Tecnologiche", def: "Attitudine dei materiali a subire lavorazioni." },
+            { term: "Plasticità", def: "Deformarsi permanentemente senza rompersi." },
+            { term: "Malleabilità", def: "Riduzione in lamine sottili." },
+            { term: "Duttilità", def: "Riduzione in fili." },
+            { term: "Laminazione", def: "Lavorazione tramite rulli per lamine." },
+            { term: "Trafilatura", def: "Lavorazione per ottenere fili." },
+            { term: "Fusibilità", def: "Fondere e scorrere fluidamente." },
+            { term: "Colata", def: "Versamento del metallo fuso nelle forme." },
+            { term: "Saldabilità", def: "Unione di pezzi mediante materiale." },
+            { term: "Temprabilità", def: "Modifica della durezza con riscaldamento." },
+            { term: "Tempra Positiva", def: "Aumento di durezza." },
+            { term: "Tempra Negativa", def: "Diminuzione di durezza." },
+            { term: "Lavorabilità all'Utensile", def: "Asportazione di truciolo." },
+            { term: "Rugosità (Ra)", def: "Irregolarità geometrica superficiale." },
+            { term: "Rugosimetro", def: "Apparecchio per misurare la rugosità." },
+            { term: "Placca Batterica", def: "Maggiore accumulo se Ra è elevata." },
+            { term: "Resistenza a Fatica", def: "Diminuisce all'aumentare della rugosità." },
+            { term: "Usura Ceramica", def: "Rischio usura antagonista se alta Ra." },
+            { term: "Corrosione", def: "Aumenta nei metalli con alta rugosità." },
+            { term: "Fili Ortodontici", def: "Applicazione classica della duttilità." }
+        ],
+        quiz: [
+            { q: "Cosa si intende per proprietà tecnologiche?", opts: ["Resistenza chimica", "Attitudine a subire lavorazioni", "Colore e lucentezza", "Durezza assoluta"], a: 1, exp: "Riguardano la lavorabilità." },
+            { q: "La malleabilità è la proprietà di lasciarsi ridurre in:", opts: ["Fili", "Polveri", "Lamine", "Blocchi"], a: 2, exp: "Produce lamine." },
+            { q: "La trafilatura è la lavorazione associata a:", opts: ["Malleabilità", "Duttilità", "Fusibilità", "Temprabilità"], a: 1, exp: "Riduce in fili." },
+            { q: "Quale dispositivo odontotecnico sfrutta la duttilità?", opts: ["Corona in ceramica", "Filo ortodontico", "Perno in fibra", "Gesso per modelli"], a: 1, exp: "Fili ortodontici." },
+            { q: "Una buona fusibilità richiede che il metallo sia:", opts: ["Molto viscoso", "Molto fluido allo stato liquido", "Ad alta rugosità", "Soggetto a forti espansioni"], a: 1, exp: "Deve essere fluido." },
+            { q: "L'operazione di versamento del metallo fuso nelle forme si chiama:", opts: ["Sinterizzazione", "Colata", "Trafilatura", "Tempra"], a: 1, exp: "Colata." },
+            { q: "La saldabilità riguarda principalmente quale classe di materiali?", opts: ["Polimeri", "Ceramici", "Materiali Metallici", "Gessi"], a: 2, exp: "Materiali metallici." },
+            { q: "Cosa si ottiene con una Tempra Positiva?", opts: ["Aumento di durezza", "Diminuzione di durezza", "Aumento di flessibilità", "Fusione del pezzo"], a: 0, exp: "Aumento di durezza." },
+            { q: "Cos'è la rugosità superficiale Ra?", opts: ["La durezza del nucleo", "L'irregolarità microgeometrica della superficie", "La temperatura di fusione", "Il peso specifico"], a: 1, exp: "Irregolarità superficiale." },
+            { q: "Come si misura la rugosità Ra?", opts: ["In chilogrammi", "In micrometri (µm)", "In Gradi Celsius", "In Pascal"], a: 1, exp: "Micrometri." },
+            { q: "Cosa comporta un'elevata rugosità su un restauro dentale?", opts: ["Minore corrosione", "Maggiore accumulo di placca batterica", "Maggiore estetica", "Minore usura dell'antagonista"], a: 1, exp: "Accumulo placca." },
+            { q: "Se un restauro ceramico è molto rugoso, cosa succede all'antagonista?", opts: ["Lo protegge", "Rischia di usurarlo gravemente", "Ne migliora lo smalto", "Nessun effetto"], a: 1, exp: "Usura antagonista." },
+            { q: "Come influisce la rugosità sulla corrosione dei metalli?", opts: ["La riduce", "Aumenta la tendenza a corrodersi", "Non ha influenza", "La blocca del tutto"], a: 1, exp: "Aumenta la corrosione." },
+            { q: "Lo strumento per misurare la rugosità si chiama:", opts: ["Spettrometro", "Rugosimetro", "Calibro", "Durometro"], a: 1, exp: "Rugosimetro." },
+            { q: "La lavorabilità all'utensile avviene mediante:", opts: ["Fusione", "Asportazione di truciolo", "Saldatura laser", "Compressione liquida"], a: 1, exp: "Asportazione di truciolo." },
+            { q: "Che effetto ha un'alta rugosità sulla resistenza a fatica?", opts: ["Aumenta la resistenza", "Riduce la resistenza a fatica", "La rende infinita", "Non varia"], a: 1, exp: "Riduce resistenza a fatica." },
+            { q: "In fusione, evitare l'interazione con l'esterno si ottiene:", opts: ["Fondendo all'aria aperta", "Fondendo sottovuoto o in gas nobili", "Fondendo ad acqua", "Aumentando la rugosità"], a: 1, exp: "Sottovuoto o gas nobili." },
+            { q: "La tempra negativa causa:", opts: ["Aumento di durezza", "Diminuzione di durezza", "Rottura immediata", "Aumento di rugosità"], a: 1, exp: "Diminuzione di durezza." },
+            { q: "Quale lavorazione sagoma il pezzo tramite compressione tra rulli?", opts: ["Laminazione", "Trafilatura", "Saldatura", "Colata"], a: 0, exp: "Laminazione." },
+            { q: "Perché in odontotecnica si lucida a specchio la struttura metallica?", opts: ["Per bellezza visiva soltanto", "Per ridurre rugosità, placca e corrosione", "Per aumentarne il peso", "Per cambiare punto di fusione"], a: 1, exp: "Riduce placca e corrosione." }
+        ]
+    },
+    ESP: {
+        title: "Propiedades Tecnológicas de los Materiales",
+        subtitle: "Módulo 5 - Prótesis Dental y Ciencia de Materiales",
+        navLav: "⚙️ Procesos",
+        navMap: "🧠 Mapa DEA",
+        navGlo: "📖 Glosario",
+        navQui: "📝 Cuestionario (20)",
+        mapHeading: "Mapa Conceptual Simplificado (Solo Palabras Clave)",
+        scoreText: "Puntuación",
+        dlBtn: "💾 Descargar App HTML Offline",
+        workings: [
+            {
+                title: "Laminación",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><circle cx="70" cy="30" r="22" fill="#6c757d"/><circle cx="70" cy="70" r="22" fill="#6c757d"/><rect x="10" y="46" width="60" height="8" fill="#d9534f"/><rect x="70" y="48" width="120" height="4" fill="#d9534f"/></svg>`,
+                desc: "Compresión entre rodillos para láminas finas.",
+                lab: "🔬 Lab: Hojas de oro y láminas."
+            },
+            {
+                title: "Trefilado",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><polygon points="80,20 110,40 110,60 80,80" fill="#495057"/><rect x="10" y="40" width="75" height="20" fill="#0056b3"/><rect x="110" y="46" width="80" height="8" fill="#0056b3"/></svg>`,
+                desc: "Tracción a través de hilera para hilos finos.",
+                lab: "🔬 Lab: Alambres ortodóncicos."
+            },
+            {
+                title: "Fundición",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><path d="M 50 20 L 80 20 L 70 60 L 40 60 Z" fill="#ff9900"/><path d="M 65 55 Q 75 70 85 80" stroke="#ff4500" stroke-width="6" fill="none"/><rect x="70" y="70" width="60" height="25" fill="#6c757d" rx="4"/></svg>`,
+                desc: "Estado líquido y vertido en molde.",
+                lab: "🔬 Lab: Colado de aleaciones dentales."
+            },
+            {
+                title: "Soldadura",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="45" width="70" height="15" fill="#6c757d"/><rect x="110" y="45" width="70" height="15" fill="#6c757d"/><circle cx="100" cy="52" r="12" fill="#ffcc00"/></svg>`,
+                desc: "Unión de piezas mediante calor.",
+                lab: "🔬 Lab: Soldadura láser."
+            },
+            {
+                title: "Temple",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="30" y="30" width="40" height="40" fill="#dc3545" rx="4"/><text x="75" y="55" font-size="20">➔ 🧊</text><rect x="130" y="30" width="40" height="40" fill="#0056b3" rx="4"/></svg>`,
+                desc: "Calentamiento y enfriamiento rápido.",
+                lab: "🔬 Lab: Dureza de retenedores."
+            },
+            {
+                title: "Rugosidad (Ra)",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="50" width="160" height="30" fill="#adb5bd"/><path d="M 20 50 Q 30 40 40 50 T 60 50 T 80 50 T 100 50 T 120 50 T 140 50 T 160 50" stroke="#dc3545" stroke-width="3" fill="none"/></svg>`,
+                desc: "Medición microgeométrica superficial.",
+                lab: "🔬 Lab: Pulido contra placa bacteriana."
+            }
+        ],
+        mapNodes: [
+            { title: "PLASTICIDAD", sub: "Deformación permanente" },
+            { title: "MALEABILIDAD", sub: "Láminas (Laminación)" },
+            { title: "DUCTILIDAD", sub: "Hilos (Trefilado)" },
+            { title: "FUNDIBILIDAD", sub: "Estado líquido (Colado)" },
+            { title: "SOLDABILIDAD", sub: "Unión metales" },
+            { title: "TEMPLABILIDAD", sub: "Calor + Enfriamiento" },
+            { title: "RUGOSIDAD (Ra)", sub: "Micro-irregularidades" }
+        ],
+        glossary: [
+            { term: "Propiedades Tecnológicas", def: "Aptitud para subirse a procesos." },
+            { term: "Plasticidad", def: "Deformarse permanentemente sin rotura." },
+            { term: "Maleabilidad", def: "Reducción en láminas finas." },
+            { term: "Ductilidad", def: "Reducción en hilos." },
+            { term: "Laminación", def: "Proceso con rodillos." },
+            { term: "Trefilado", def: "Proceso para hilos." },
+            { term: "Fundibilidad", def: "Fundir y fluir en moldes." },
+            { term: "Colado", def: "Vertido de metal líquido." },
+            { term: "Soldabilidad", def: "Unión de piezas metálicas." },
+            { term: "Templabilidad", def: "Cambio de dureza térmico." },
+            { term: "Temple Positivo", def: "Aumento de dureza." },
+            { term: "Temple Negativo", def: "Disminución de dureza." },
+            { term: "Maquinabilidad", def: "Arranque de viruta." },
+            { term: "Rugosidad (Ra)", def: "Irregularidad superficial." },
+            { term: "Rugosímetro", def: "Instrumento de medición." },
+            { term: "Placa Bacteriana", def: "Acumulación con alta Ra." },
+            { term: "Resistencia a Fatiga", def: "Disminuye con alta Ra." },
+            { term: "Desgaste Cerámica", def: "Riesgo en antagonista." },
+            { term: "Corrosión", def: "Aumenta en superficies rugosas." },
+            { term: "Alambres Ortodóncicos", def: "Aplicación de ductilidad." }
+        ],
+        quiz: [
+            { q: "¿Qué son las propiedades tecnológicas?", opts: ["Resistencia química", "Aptitud para la fabricación/trabajo", "Color del material", "Durezza absoluta"], a: 1, exp: "Trabajabilidad." },
+            { q: "La maleabilidad permite reducir un material a:", opts: ["Hilos", "Polvos", "Láminas", "Bloques"], a: 2, exp: "Láminas." },
+            { q: "El trefilado está asociado a la propiedad de:", opts: ["Maleabilidad", "Ductilidad", "Fundibilidad", "Templabilidad"], a: 1, exp: "Ductilidad." },
+            { q: "¿Qué dispositivo dental usa la ductilidad?", opts: ["Corona cerámica", "Alambre ortodóncico", "Perno de fibra", "Modelo de yeso"], a: 1, exp: "Alambre ortodóncico." },
+            { q: "Una buena fundibilidad requiere que el metal sea:", opts: ["Muy viscoso", "Muy fluido en estado líquido", "Muy rugoso", "De gran expansión"], a: 1, exp: "Fluido." },
+            { q: "El vertido del metal líquido en el cilindro se llama:", opts: ["Sinterización", "Colado", "Trefilado", "Temple"], a: 1, exp: "Colado." },
+            { q: "¿A qué materiales se aplica principalmente la soldabilidad?", opts: ["Polímeros", "Cerámicas", "Materiales Metálicos", "Yesos"], a: 2, exp: "Materiales metálicos." },
+            { q: "¿Qué produce el Temple Positivo?", opts: ["Aumento de dureza", "Disminución de dureza", "Aumento de flexibilidad", "Fusión"], a: 0, exp: "Aumento de dureza." },
+            { q: "¿Qué es la rugosidad superficial Ra?", opts: ["Dureza del núcleo", "Irregularidad microgeométrica superficial", "Punto de fusión", "Peso específico"], a: 1, exp: "Irregularidad superficial." },
+            { q: "¿En qué unidad se mide la rugosidad Ra?", opts: ["Kilogramos", "Micrómetros (µm)", "Grados Celsius", "Pascales"], a: 1, exp: "Micrómetros." },
+            { q: "¿Qué provoca una alta rugosidad en una prótesis?", opts: ["Menor corrosión", "Mayor acumulación de placa bacteriana", "Mejor estética", "Menor desgaste"], a: 1, exp: "Placa bacteriana." },
+            { q: "Si la cerámica dental tiene alta Ra, ¿qué le ocurre al diente opuesto?", opts: ["Lo protege", "Riesgo de desgaste severo", "Mejora el esmalte", "Ningún efecto"], a: 1, exp: "Desgaste." },
+            { q: "¿Cómo afecta la rugosidad a la corrosión metálica?", opts: ["La reduce", "Aumenta la tendencia a corroerse", "No influye", "La bloquea"], a: 1, exp: "Aumenta corrosión." },
+            { q: "El instrumento para medir Ra se llama:", opts: ["Espectrómetro", "Rugosímetro", "Calibre", "Durómetro"], a: 1, exp: "Rugosímetro." },
+            { q: "El mecanizado a la herramienta se realiza mediante:", opts: ["Fundición", "Arranque de viruta", "Soldadura láser", "Compresión"], a: 1, exp: "Arranque de viruta." },
+            { q: "¿Cómo afecta la rugosidad a la resistencia a la fatiga?", opts: ["La aumenta", "La reduce", "La hace infinita", "No cambia"], a: 1, exp: "La reduce." },
+            { q: "Para evitar reacciones durante la fundición se usa:", opts: ["Aire libre", "Vacío o gases nobles", "Agua", "Mayor rugosidad"], a: 1, exp: "Vacío o gases nobles." },
+            { q: "El temple negativo causa:", opts: ["Aumento de dureza", "Disminución de dureza", "Rotura", "Aumento de Ra"], a: 1, exp: "Disminución de dureza." },
+            { q: "Proceso que conforma el metal entre rodillos:", opts: ["Laminación", "Trefilado", "Soldadura", "Colado"], a: 0, exp: "Laminación." },
+            { q: "¿Por qué se pule a espejo una prótesis metálica?", opts: ["Solo por estética", "Para reducir rugosidad, placa y corrosión", "Para ganar peso", "Para cambiar el punto de fusión"], a: 1, exp: "Reduce rugosidad y placa." }
+        ]
+    },
+    ENG: {
+        title: "Technological Properties of Materials",
+        subtitle: "Module 5 - Dental Technology & Materials Science",
+        navLav: "⚙️ Processes",
+        navMap: "🧠 SEN Map",
+        navGlo: "📖 Glossary",
+        navQui: "📝 Quiz (20)",
+        mapHeading: "Simplified Concept Map (Keywords Only)",
+        scoreText: "Score",
+        dlBtn: "💾 Download Offline HTML App",
+        workings: [
+            {
+                title: "Rolling",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><circle cx="70" cy="30" r="22" fill="#6c757d"/><circle cx="70" cy="70" r="22" fill="#6c757d"/><rect x="10" y="46" width="60" height="8" fill="#d9534f"/><rect x="70" y="48" width="120" height="4" fill="#d9534f"/></svg>`,
+                desc: "Compressing between rollers into thin sheets.",
+                lab: "🔬 Lab: Gold foils and metal sheets."
+            },
+            {
+                title: "Wire Drawing",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><polygon points="80,20 110,40 110,60 80,80" fill="#495057"/><rect x="10" y="40" width="75" height="20" fill="#0056b3"/><rect x="110" y="46" width="80" height="8" fill="#0056b3"/></svg>`,
+                desc: "Pulling through dies into thin wires.",
+                lab: "🔬 Lab: Orthodontic wires."
+            },
+            {
+                title: "Casting",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><path d="M 50 20 L 80 20 L 70 60 L 40 60 Z" fill="#ff9900"/><path d="M 65 55 Q 75 70 85 80" stroke="#ff4500" stroke-width="6" fill="none"/><rect x="70" y="70" width="60" height="25" fill="#6c757d" rx="4"/></svg>`,
+                desc: "Liquid state and pouring into mold.",
+                lab: "🔬 Lab: Casting dental alloys."
+            },
+            {
+                title: "Welding",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="45" width="70" height="15" fill="#6c757d"/><rect x="110" y="45" width="70" height="15" fill="#6c757d"/><circle cx="100" cy="52" r="12" fill="#ffcc00"/></svg>`,
+                desc: "Joining parts using heat.",
+                lab: "🔬 Lab: Laser welding."
+            },
+            {
+                title: "Quenching",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="30" y="30" width="40" height="40" fill="#dc3545" rx="4"/><text x="75" y="55" font-size="20">➔ 🧊</text><rect x="130" y="30" width="40" height="40" fill="#0056b3" rx="4"/></svg>`,
+                desc: "Heating followed by rapid cooling.",
+                lab: "🔬 Lab: Clasp hardness control."
+            },
+            {
+                title: "Roughness (Ra)",
+                svg: `<svg width="200" height="100" viewBox="0 0 200 100"><rect x="20" y="50" width="160" height="30" fill="#adb5bd"/><path d="M 20 50 Q 30 40 40 50 T 60 50 T 80 50 T 100 50 T 120 50 T 140 50 T 160 50" stroke="#dc3545" stroke-width="3" fill="none"/></svg>`,
+                desc: "Surface micro-irregularities measurement.",
+                lab: "🔬 Lab: Polishing to avoid plaque."
+            }
+        ],
+        mapNodes: [
+            { title: "PLASTICITY", sub: "Permanent deformation" },
+            { title: "MALLEABILITY", sub: "Sheets (Rolling)" },
+            { title: "DUCTILITY", sub: "Wires (Drawing)" },
+            { title: "CASTABILITY", sub: "Liquid state (Casting)" },
+            { title: "WELDABILITY", sub: "Metal joining" },
+            { title: "HARDENABILITY", sub: "Heat + Cooling" },
+            { title: "ROUGHNESS (Ra)", sub: "Micro-irregularities" }
+        ],
+        glossary: [
+            { term: "Technological Properties", def: "Aptitude to undergo processes." },
+            { term: "Plasticity", def: "Deform permanently without breaking." },
+            { term: "Malleability", def: "Reduction into thin sheets." },
+            { term: "Ductility", def: "Reduction into wires." },
+            { term: "Rolling", def: "Thickness reduction via rollers." },
+            { term: "Wire Drawing", def: "Pulling through dies." },
+            { term: "Castability", def: "Melting and flowing in molds." },
+            { term: "Casting", def: "Pouring liquid metal." },
+            { term: "Weldability", def: "Joining parts securely." },
+            { term: "Hardenability", def: "Hardness change via heat." },
+            { term: "Positive Quenching", def: "Hardness increase." },
+            { term: "Negative Quenching", def: "Hardness decrease." },
+            { term: "Machinability", def: "Chip removal." },
+            { term: "Surface Roughness (Ra)", def: "Micro-geometric measurement." },
+            { term: "Profilometer", def: "Instrument to measure Ra." },
+            { term: "Bacterial Plaque", def: "Accumulates with high Ra." },
+            { term: "Fatigue Resistance", def: "Drops if roughness is high." },
+            { term: "Ceramic Wear", def: "Risk on opposing tooth." },
+            { term: "Corrosion", def: "Increases on rough metals." },
+            { term: "Orthodontic Wires", def: "Application of ductility." }
+        ],
+        quiz: [
+            { q: "What are technological properties?", opts: ["Chemical resistance", "Aptitude to undergo manufacturing", "Material color", "Absolute hardness"], a: 1, exp: "Workability." },
+            { q: "Malleability allows a material to be reduced into:", opts: ["Wires", "Powders", "Thin sheets", "Blocks"], a: 2, exp: "Thin sheets." },
+            { q: "Wire drawing is associated with which property?", opts: ["Malleability", "Ductility", "Castability", "Hardenability"], a: 1, exp: "Ductility." },
+            { q: "Which dental device relies on ductility?", opts: ["Ceramic crown", "Orthodontic wire", "Fiber post", "Plaster model"], a: 1, exp: "Orthodontic wire." },
+            { q: "Good castability requires liquid metal to be:", opts: ["Highly viscous", "Highly fluid", "Highly rough", "Extremely expanding"], a: 1, exp: "Highly fluid." },
+            { q: "Pouring liquid metal into a refractory mold is called:", opts: ["Sintering", "Casting", "Drawing", "Quenching"], a: 1, exp: "Casting." },
+            { q: "Weldability is primarily a feature of:", opts: ["Polymers", "Ceramics", "Metallic Materials", "Plasters"], a: 2, exp: "Metallic materials." },
+            { q: "What is achieved with Positive Quenching?", opts: ["Hardness increase", "Hardness decrease", "Flexibility increase", "Melting"], a: 0, exp: "Hardness increase." },
+            { q: "What is surface roughness Ra?", opts: ["Core hardness", "Micro-geometric surface irregularity", "Melting point", "Specific gravity"], a: 1, exp: "Micro-irregularity." },
+            { q: "What unit is Ra measured in?", opts: ["Kilograms", "Micrometers (µm)", "Degrees Celsius", "Pascals"], a: 1, exp: "Micrometers." },
+            { q: "High roughness on a dental restoration causes:", opts: ["Less corrosion", "Increased plaque accumulation", "Better aesthetics", "Less tooth wear"], a: 1, exp: "Plaque accumulation." },
+            { q: "If dental ceramic has high Ra, what happens to the opposing tooth?", opts: ["Protects it", "Risk of severe wear", "Strengthens enamel", "No effect"], a: 1, exp: "Severe wear." },
+            { q: "How does roughness affect metal corrosion?", opts: ["Reduces it", "Increases corrosion tendency", "No effect", "Blocks it"], a: 1, exp: "Increases corrosion." },
+            { q: "The instrument used to measure Ra is called a:", opts: ["Spectrometer", "Profilometer / Rugosimeter", "Caliper", "Durometer"], a: 1, exp: "Profilometer." },
+            { q: "Machinability involves shaping via:", opts: ["Melting", "Chip removal", "Laser welding", "Compression"], a: 1, exp: "Chip removal." },
+            { q: "How does high Ra affect fatigue resistance?", opts: ["Increases it", "Reduces it", "Makes it infinite", "No change"], a: 1, exp: "Reduces it." },
+            { q: "Preventing metal oxidation during melting requires:", opts: ["Melting in open air", "Melting in vacuum or inert gas", "Melting under water", "High roughness"], a: 1, exp: "Vacuum or inert gas." },
+            { q: "Negative quenching results in:", opts: ["Hardness increase", "Hardness decrease", "Immediate fracture", "Ra increase"], a: 1, exp: "Hardness decrease." },
+            { q: "Process forming metal between rollers:", opts: ["Rolling", "Drawing", "Welding", "Casting"], a: 0, exp: "Rolling." },
+            { q: "Why mirror-polish a dental metal restoration?", opts: ["Purely for looks", "To reduce Ra, plaque, and corrosion", "To add weight", "To alter melting point"], a: 1, exp: "Reduce Ra, plaque, and corrosion." }
+        ]
+    }
+};
+
+let currentLang = 'ITA';
+let userScore = 0;
+let answeredQuestions = new Set();
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    userScore = 0;
+    answeredQuestions.clear();
+    renderUI();
+}
+
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function renderUI() {
+    const langData = contentData[currentLang];
+
+    document.getElementById('app-title').innerText = langData.title;
+    document.getElementById('app-subtitle').innerText = langData.subtitle;
+    document.getElementById('nav-lav').innerText = langData.navLav;
+    document.getElementById('nav-map').innerText = langData.navMap;
+    document.getElementById('nav-glo').innerText = langData.navGlo;
+    document.getElementById('nav-qui').innerText = langData.navQui;
+    document.getElementById('map-heading').innerText = langData.mapHeading;
+    document.getElementById('btn-download').innerText = langData.dlBtn;
+    document.getElementById('score-display').innerText = `${langData.scoreText}: ${userScore} / 20`;
+
+    // 1. Workings
+    document.getElementById('workings-container').innerHTML = langData.workings.map(w => `
+        <div class="work-card">
+            <div class="work-header">${w.title}</div>
+            <div class="work-visual">${w.svg}</div>
+            <div class="work-body">
+                <p>${w.desc}</p>
+                <div class="lab-tag">${w.lab}</div>
+            </div>
+        </div>
+    `).join('');
+
+    // 2. Minimal Map
+    document.getElementById('dsa-map').innerHTML = `
+        <div class="node-main">PROPRIETÀ TECNOLOGICHE</div>
+        <div class="node-branches">
+            ${langData.mapNodes.map(n => `
+                <div class="node-box">
+                    <div class="node-title">${n.title}</div>
+                    <div class="node-sub">${n.sub}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // 3. Glossary
+    document.getElementById('glossary-container').innerHTML = langData.glossary.map(g => `
+        <div class="card">
+            <h3 style="margin:0 0 6px 0; color:var(--primary);">${g.term}</h3>
+            <p style="margin:0;">${g.def}</p>
+        </div>
+    `).join('');
+
+    // 4. Quiz
+    document.getElementById('quiz-container').innerHTML = langData.quiz.map((q, qIndex) => `
+        <div class="quiz-card" id="q-card-${qIndex}">
+            <h3 style="margin-top:0;">${qIndex + 1}. ${q.q}</h3>
+            ${q.opts.map((opt, oIndex) => `
+                <button class="quiz-option" onclick="checkAnswer(${qIndex}, ${oIndex})">${opt}</button>
+            `).join('')}
+            <div class="quiz-feedback" id="feedback-${qIndex}"></div>
+        </div>
+    `).join('');
+}
+
+function checkAnswer(qIndex, selectedOpt) {
+    if (answeredQuestions.has(qIndex)) return;
+    answeredQuestions.add(qIndex);
+    const qData = contentData[currentLang].quiz[qIndex];
+    const card = document.getElementById(`q-card-${qIndex}`);
+    const options = card.querySelectorAll('.quiz-option');
+    const feedback = document.getElementById(`feedback-${qIndex}`);
+
+    options.forEach((optBtn, idx) => {
+        optBtn.style.cursor = 'default';
+        if (idx === qData.a) optBtn.classList.add('correct');
+        else if (idx === selectedOpt) optBtn.classList.add('wrong');
+    });
+
+    feedback.style.display = 'block';
+    if (selectedOpt === qData.a) {
+        userScore++;
+        feedback.style.background = '#d4edda';
+        feedback.style.color = '#155724';
+        feedback.innerText = `✓ Corretto! ${qData.exp}`;
+    } else {
+        feedback.style.background = '#f8d7da';
+        feedback.style.color = '#721c24';
+        feedback.innerText = `✗ Errato. ${qData.exp}`;
+    }
+
+    document.getElementById('score-display').innerText = `${contentData[currentLang].scoreText}: ${userScore} / 20`;
+}
+
+function downloadOfflineApp() {
+    const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'App_Proprieta_Tecnologiche_Materiali.html';
+    a.click();
+}
+
+window.onload = () => { renderUI(); };
+</script>
+</body>
+</html>

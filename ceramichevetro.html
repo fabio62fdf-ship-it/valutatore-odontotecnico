@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiali Ceramici e Vetroceramiche - Lab Odontotecnico</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #2b2b2b;
+            --card-bg: #ffffff;
+            --primary: #800020; /* bordeaux ceramico */
+            --primary-hover: #5a0016;
+            --accent: #d9534f;
+            --accent-green: #28a745;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+        }
+
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #e9ecef;
+            padding: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--primary);
+        }
+
+        /* LAB INTERACTIVE STYLES */
+        .lab-container {
+            background: #ffffff;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        canvas {
+            background: #111;
+            border-radius: 8px;
+            max-width: 100%;
+            display: block;
+            margin: 15px auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            align-items: center;
+        }
+
+        .ctrl-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        input[type="range"] {
+            width: 200px;
+        }
+
+        .footer-download {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .dl-btn {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+            transition: transform 0.2s;
+        }
+
+        .dl-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 id="app-title">Materiali Ceramici e Vetroceramiche</h1>
+    <div id="app-subtitle">Modulo 4 - Odontotecnica e Scienza dei Materiali</div>
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLanguage('ITA')">ITA 🇮🇹</button>
+        <button class="lang-btn" onclick="setLanguage('ESP')">ESP 🇪🇸</button>
+        <button class="lang-btn" onclick="setLanguage('ENG')">ENG 🇬🇧</button>
+    </div>
+</header>
+
+<nav>
+    <button class="nav-btn active" onclick="showTab('definizioni')" id="nav-def">📖 Definizioni & Chimica</button>
+    <button class="nav-btn" onclick="showTab('minerali')" id="nav-min">💎 Minerali & CET</button>
+    <button class="nav-btn" onclick="showTab('lab1')" id="nav-lab1">⚗️ Lab Vetro & Viscosità</button>
+    <button class="nav-btn" onclick="showTab('lab2')" id="nav-lab2">🔥 Lab Devetrificazione</button>
+</nav>
+
+<main>
+    <!-- TAB 1: DEFINIZIONI & CHIMICA -->
+    <div id="definizioni" class="tab-content active">
+        <div id="def-container"></div>
+    </div>
+
+    <!-- TAB 2: MINERALI & CET -->
+    <div id="minerali" class="tab-content">
+        <div id="min-container"></div>
+    </div>
+
+    <!-- TAB 3: LAB 1 (VISCOSITÀ SILICE) -->
+    <div id="lab1" class="tab-content">
+        <div class="lab-container">
+            <h2 id="lab1-title">Laboratorio 1: Comportamento dei Tetraedri Silicatici (Viscosità e Vetro Metastabile)</h2>
+            <p id="lab1-desc">Regola la velocità di raffreddamento. Se il raffreddamento è lento, le particelle tornano in ordine cristallino; se è veloce, restano distanti formando un vetro metastabile amorfo.</p>
+            <canvas id="canvasLab1" width="600" height="300"></canvas>
+            <div class="controls">
+                <label><span id="lbl-speed">Velocità di Raffreddamento:</span> <input type="range" id="coolingSpeed" min="1" max="10" value="5" oninput="updateLab1Speed()"></label>
+                <button class="ctrl-btn" onclick="resetLab1()" id="btn-reset1">Riavvia Fusione</button>
+            </div>
+            <p id="lab1-status" style="font-weight:bold; margin-top:15px; color:var(--primary);"></p>
+        </div>
+    </div>
+
+    <!-- TAB 4: LAB 2 (DEVETRIFICAZIONE) -->
+    <div id="lab2" class="tab-content">
+        <div class="lab-container">
+            <h2 id="lab2-title">Laboratorio 2: Devetrificazione Controllata (Crescita Cristalli)</h2>
+            <p id="lab2-desc">Imposta il tempo di permanenza ad alta temperatura (sotto quella di fusione). Più tempo passi in sosta termica, più cristalli si formano nella vetroceramica.</p>
+            <canvas id="canvasLab2" width="600" height="300"></canvas>
+            <div class="controls">
+                <label><span id="lbl-time">Tempo di Permanenza:</span> <input type="range" id="holdingTime" min="0" max="100" value="10" oninput="updateLab2Time()"></label>
+                <button class="ctrl-btn" onclick="startDevitrification()" id="btn-start2">Avvia Trattamento Termico</button>
+            </div>
+            <p id="lab2-status" style="font-weight:bold; margin-top:15px; color:var(--primary);"></p>
+        </div>
+    </div>
+
+    <div class="footer-download">
+        <button class="dl-btn" onclick="downloadOfflineApp()" id="btn-download">💾 Scarica App HTML Offline</button>
+    </div>
+</main>
+
+<script>
+// DATI MULTILINGUA
+const contentData = {
+    ITA: {
+        title: "Materiali Ceramici e Vetroceramiche",
+        subtitle: "Modulo 4 - Odontotecnica e Scienza dei Materiali",
+        navDef: "📖 Definizioni & Chimica",
+        navMin: "💎 Minerali & CET",
+        navLab1: "⚗️ Lab Vetro & Viscosità",
+        navLab2: "🔥 Lab Devetrificazione",
+        dlBtn: "💾 Scarica App HTML Offline",
+        lblSpeed: "Velocità di Raffreddamento:",
+        btnReset1: "Riavvia Fusione",
+        lblTime: "Tempo di Permanenza:",
+        btnStart2: "Avvia Trattamento Termico",
+        lab1Title: "Laboratorio 1: Tetraedri Silicatici e Vetro Metastabile",
+        lab1Desc: "Osserva la 'fatica' delle particelle: con raffreddamento lento tornano a ordinarsi; con raffreddamento rapido la viscosità blocca il liquido in uno stato metastabile amorfo (vetro).",
+        lab2Title: "Laboratorio 2: Devetrificazione Controllata",
+        lab2Desc: "Sfruttando la metastabilità del vetro e applicando una sosta termica sotto la temperatura di fusione, si innesca la nucleazione e la crescita controllata di cristalli (vetroceramica).",
+        defs: [
+            {
+                term: "Definizione Formale di Ceramica",
+                desc: "I materiali ceramici sono materiali inorganici non metallici costituiti da composti di elementi metallici e semimetalli con non metalli. In generale, sono caratterizzati da frattura fragile."
+            },
+            {
+                term: "Approfondimento: Cos'è un Non Metallo?",
+                desc: "Dal punto di vista chimico, i non metalli (come Ossigeno O, Azoto N, Carbonio C) hanno alta elettronegatività: tendono ad attrarre e catturare elettroni per completare il loro guscio esterno."
+            },
+            {
+                term: "Approfondimento: Cos'è un Metallo?",
+                desc: "Elementi (come Alluminio Al, Magnesio Mg, Titanio Ti, Calcio Ca, Ferro Fe) caratterizzati da bassa energia di ionizzazione, inclini a cedere elettroni formando ioni positivi."
+            },
+            {
+                term: "Approfondimento: Cosa significa 'Inorganico'?",
+                desc: "Significa che la struttura non è basata su catene di idrocarburi tipiche della chimica del carbonio organico, bensì su reticoli minerali stabili legati da forze forti."
+            },
+            {
+                term: "Incontro tra Metallo e Non Metallo",
+                desc: "Quando si combinano, si instaurano legami ionici o covalenti molto forti. Gli elettroni vengono condivisi o trasferiti rigidamente, impedendo il libero movimento elettronico (da cui derivano la scarsa conducibilità elettrica/termica e le alte temperature di fusione)."
+            },
+            {
+                term: "Fragilità e Deformazione Critica dello 0,1%",
+                desc: "I ceramici sono rigidi ma fragili perché le dislocazioni cristalline non possono scorrere. Di conseguenza, tollerano una deformazione elastica piccolissima (pari o inferiore allo 0,1%) prima di subire una frattura catastrofica per propagazione istantanea delle fessure (fessure di Griffith)."
+            }
+        ],
+        minerals: [
+            {
+                term: "I Minerali e i Feldspati (Agenti Vetrogeni e Fondenti)",
+                desc: "I feldspati (allumino-silicati di potassio, sodio e calcio come ortoclasio, albite e anortite) hanno basse temperature di fusione. Durante la cottura ceramica agiscono come fondenti, formando una fase liquida che in seguito vetrifica, abbassando l'intervallo di lavorabilità."
+            },
+            {
+                term: "La Leucite e l'Aumento del CET",
+                desc: "La leucite è un feldspatoide (metasilicato di potassio e alluminio) con struttura tetragonale che diventa cubica sopra i 615°C. Possiede un elevato Coefficiente di Dilatazione Termica (CET). La sua presenza controllata all'interno della matrice vetrosa alza e regola il CET della ceramica, rendendolo perfettamente compatibile con la sottostruttura metallica nella tecnica metallo-ceramica."
+            },
+            {
+                term: "Silice e Stato Metastabile",
+                desc: "La silice fusa forma un liquido ad altissima viscosità. Durante il raffreddamento, i tetraedri silicatici fanno molta 'fatica' a riavvicinarsi e ordinarsi; se il raffreddamento è rapido, il sistema si blocca in uno stato amorfo metastabile (vetro), pronto per successive devetrificazioni controllate."
+            }
+        ]
+    },
+    ESP: {
+        title: "Materiales Cerámicos y Vitrocerámicas",
+        subtitle: "Módulo 4 - Prótesis Dental y Ciencia de Materiales",
+        navDef: "📖 Definiciones y Química",
+        navMin: "💎 Minerales y CET",
+        navLab1: "⚗️ Lab Vidrio y Viscosidad",
+        navLab2: "🔥 Lab Desvitrificación",
+        dlBtn: "💾 Descargar App HTML Offline",
+        lblSpeed: "Velocidad de Enfriamiento:",
+        btnReset1: "Reiniciar Fusión",
+        lblTime: "Tiempo de Permanencia:",
+        btnStart2: "Iniciar Tratamiento Térmico",
+        lab1Title: "Laboratorio 1: Tetraedros de Silicatos y Vidrio Metaestable",
+        lab1Desc: "Observa el esfuerzo de las partículas: con enfriamiento lento vuelven a ordenarse; con enfriamiento rápido la viscosidad bloquea el líquido en un estado amorfo metaestable (vidrio).",
+        lab2Title: "Laboratorio 2: Desvitrificación Controlada",
+        lab2Desc: "Aprovechando la metaestabilidad del vidrio y aplicando una pausa térmica por debajo de la temperatura de fusión, se induce la nucleación y el crecimiento controlado de cristales (vitrocerámica).",
+        defs: [
+            {
+                term: "Definición Formal de Cerámica",
+                desc: "Los materiales cerámicos son materiales inorgánicos no metálicos compuestos por elementos metálicos y semimetálicos con no metales. En general, se caracterizan por una fractura frágil."
+            },
+            {
+                term: "Profundización: ¿Qué es un No Metal?",
+                desc: "Químicamente, los no metales (como Oxígeno O, Nitrógeno N, Carbono C) tienen alta electronegatividad: tienden a atraer y capturar electrones para completar su capa externa."
+            },
+            {
+                term: "Profundización: ¿Qué es un Metal?",
+                desc: "Elementos (como Aluminio Al, Magnesio Mg, Titanio Ti, Calcio Ca, Hierro Fe) con baja energía de ionización, propensos a ceder electrones formando iones positivos."
+            },
+            {
+                term: "Profundización: ¿Qué significa 'Inorgánico'?",
+                desc: "Significa que la estructura no se basa en cadenas de hidrocarburos típicas de la química del carbono orgánico, sino en redes minerales estables."
+            },
+            {
+                term: "Encuentro entre Metal y No Metal",
+                desc: "Al combinarse, se forman enlaces iónicos o covalentes muy fuertes. Los electrones se comparten o transfieren rígidamente, impidiendo el libre movimiento electrónico (lo que genera baja conductividad y altos puntos de fusión)."
+            },
+            {
+                term: "Fragilidad y Deformación Crítica del 0,1%",
+                desc: "Los cerámicos son rígidos pero frágiles porque las dislocaciones no pueden deslizarse. Toleran una deformación elástica diminuta (igual o inferior al 0,1%) antes de sufrir una fractura catastrófica por propagación instantánea de grietas (grietas de Griffith)."
+            }
+        ],
+        minerals: [
+            {
+                term: "Minerales y Feldespatos (Agentes Vitriógenos y Fundentes)",
+                desc: "Los feldespatos (aluminosilicatos de potasio, sodio y calcio) tienen puntos de fusión bajos. Durante la cocción actúan como fundentes, formando una fase líquida que luego vitrifica, reduciendo el rango de trabajabilidad."
+            },
+            {
+                term: "La Leucita y el Aumento del CET",
+                desc: "La leucita es un feldespatoide con estructura tetragonal que pasa a cúbica sobre los 615°C. Posee un alto Coeficiente de Dilatación Térmica (CET). Su presencia controlada en la matriz vítrea eleva y regula el CET de la cerámica, haciéndolo compatible con la estructura metálica."
+            },
+            {
+                term: "Sílice y Estado Metaestable",
+                desc: "La sílice fundida forma un líquido de altísima viscosidad. Durante el enfriamiento, los tetraedros de silicatos tardan en acercarse y ordenarse; si el enfriamiento es rápido, el sistema se bloquea en un estado amorfo metaestable (vidrio)."
+            }
+        ]
+    },
+    ENG: {
+        title: "Ceramic Materials & Glass-Ceramics",
+        subtitle: "Module 4 - Dental Technology & Materials Science",
+        navDef: "📖 Definitions & Chemistry",
+        navMin: "💎 Minerals & CTE",
+        navLab1: "⚗️ Lab Glass & Viscosity",
+        navLab2: "🔥 Lab Devitrification",
+        dlBtn: "💾 Download Offline HTML App",
+        lblSpeed: "Cooling Speed:",
+        btnReset1: "Restart Melting",
+        lblTime: "Holding Time:",
+        btnStart2: "Start Heat Treatment",
+        lab1Title: "Laboratory 1: Silicate Tetrahedra & Metastable Glass",
+        lab1Desc: "Observe particle effort: slow cooling allows orderly rearrangement; rapid cooling locks the liquid into a metastable amorphous state (glass).",
+        lab2Title: "Laboratory 2: Controlled Devitrification",
+        lab2Desc: "Leveraging glass metastability by applying thermal holding below melting temperature triggers nucleation and controlled crystal growth (glass-ceramics).",
+        defs: [
+            {
+                term: "Formal Definition of Ceramics",
+                desc: "Ceramic materials are inorganic, non-metallic materials consisting of compounds of metallic and semi-metallic elements with non-metals. Overall, they are characterized by brittle fracture."
+            },
+            {
+                term: "Deep Dive: What is a Non-Metal?",
+                desc: "Chemically, non-metals (such as Oxygen O, Nitrogen N, Carbon C) have high electronegativity: they tend to attract and capture electrons to complete their outer shell."
+            },
+            {
+                term: "Deep Dive: What is a Metal?",
+                desc: "Elements (such as Aluminum Al, Magnesium Mg, Titanium Ti, Calcium Ca, Iron Fe) with low ionization energy, prone to releasing electrons to form positive ions."
+            },
+            {
+                term: "Deep Dive: What does 'Inorganic' mean?",
+                desc: "It means the structure is not based on hydrocarbon chains typical of organic carbon chemistry, but rather on stable mineral lattices."
+            },
+            {
+                term: "Metal and Non-Metal Interaction",
+                desc: "When combined, very strong ionic or covalent bonds form. Electrons are rigidly shared or transferred, preventing free electronic movement (resulting in low thermal/electrical conductivity and high melting points)."
+            },
+            {
+                term: "Brittleness & 0.1% Critical Deformation",
+                desc: "Ceramics are stiff yet brittle because dislocations cannot glide. Consequently, they tolerate tiny elastic deformation (equal to or less than 0.1%) before suffering catastrophic fracture via rapid Griffith crack propagation."
+            }
+        ],
+        minerals: [
+            {
+                term: "Minerals & Feldspars (Glass-Formers & Fluxes)",
+                desc: "Feldspars (potassium, sodium, and calcium alumino-silicates) have low melting points. During firing, they act as fluxes, forming a liquid phase that subsequently vitrifies, lowering the working temperature range."
+            },
+            {
+                term: "Leucite and CTE Increase",
+                desc: "Leucite is a feldspathoid with a tetragonal structure turning cubic above 615°C. It possesses a high Coefficient of Thermal Expansion (CTE). Its controlled presence within the glass matrix raises and adjusts the ceramic CTE to perfectly match metal substructures."
+            },
+            {
+                term: "Silica & Metastable State",
+                desc: "Fused silica forms an extremely high-viscosity liquid. During cooling, silicate tetrahedra struggle to regroup and order; rapid cooling traps the system in a metastable amorphous state (glass)."
+            }
+        ]
+    }
+};
+
+let currentLang = 'ITA';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    renderUI();
+}
+
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function renderUI() {
+    const d = contentData[currentLang];
+    document.getElementById('app-title').innerText = d.title;
+    document.getElementById('app-subtitle').innerText = d.subtitle;
+    document.getElementById('nav-def').innerText = d.navDef;
+    document.getElementById('nav-min').innerText = d.navMin;
+    document.getElementById('nav-lab1').innerText = d.navLab1;
+    document.getElementById('nav-lab2').innerText = d.navLab2;
+    document.getElementById('btn-download').innerText = d.dlBtn;
+    document.getElementById('lbl-speed').innerText = d.lblSpeed;
+    document.getElementById('btn-reset1').innerText = d.btnReset1;
+    document.getElementById('lbl-time').innerText = d.lblTime;
+    document.getElementById('btn-start2').innerText = d.btnStart2;
+    document.getElementById('lab1-title').innerText = d.lab1Title;
+    document.getElementById('lab1-desc').innerText = d.lab1Desc;
+    document.getElementById('lab2-title').innerText = d.lab2Title;
+    document.getElementById('lab2-desc').innerText = d.lab2Desc;
+
+    // Render Tab 1
+    document.getElementById('def-container').innerHTML = d.defs.map(item => `
+        <div class="card">
+            <h3 style="margin:0 0 8px 0; color:var(--primary);">${item.term}</h3>
+            <p style="margin:0;">${item.desc}</p>
+        </div>
+    `).join('');
+
+    // Render Tab 2
+    document.getElementById('min-container').innerHTML = d.minerals.map(item => `
+        <div class="card">
+            <h3 style="margin:0 0 8px 0; color:var(--primary);">${item.term}</h3>
+            <p style="margin:0;">${item.desc}</p>
+        </div>
+    `).join('');
+}
+
+// SIMULAZIONE LAB 1 (VISCOSITÀ SILICE & TETRAEDRI)
+const canvas1 = document.getElementById('canvasLab1');
+const ctx1 = canvas1.getContext('2d');
+let particles1 = [];
+let simState = 'melting'; // melting, cooling, done
+let coolingRate = 5;
+
+function initLab1() {
+    particles1 = [];
+    for(let i=0; i<40; i++) {
+        particles1.push({
+            x: Math.random() * (canvas1.width - 60) + 30,
+            y: Math.random() * (canvas1.height - 60) + 30,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            targetX: 50 + (i % 8) * 65,
+            targetY: 50 + Math.floor(i / 8) * 40
+        });
+    }
+}
+
+function updateLab1Speed() {
+    coolingRate = parseInt(document.getElementById('coolingSpeed').value);
+}
+
+function resetLab1() {
+    initLab1();
+}
+
+function animateLab1() {
+    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    
+    let statusText = "";
+    if (coolingRate <= 3) {
+        statusText = currentLang === 'ITA' ? "Raffreddamento LENTO: Le particelle hanno tempo di riordinarsi nel reticolo cristallino." : (currentLang === 'ESP' ? "Enfriamiento LENTO: Las partículas tienen tiempo de reordenarse." : "SLOW cooling: Particles have time to re-order into a crystal lattice.");
+    } else if (coolingRate >= 8) {
+        statusText = currentLang === 'ITA' ? "Raffreddamento RAPIDO: Elevata viscosità! Le particelle restano distanti (Vetro metastabile amorfo)." : (currentLang === 'ESP' ? "Enfriamiento RÁPIDO: ¡Alta viscosidad! Las partículas quedan distantes (Vidrio metaestable)." : "FAST cooling: High viscosity! Particles stay distant (Metastable amorphous glass).");
+    } else {
+        statusText = currentLang === 'ITA' ? "Raffreddamento MODERATO: Viscosità intermedia." : (currentLang === 'ESP' ? "Enfriamiento MODERADO: Viscosidad intermedia." : "MODERATE cooling: Intermediate viscosity.");
+    }
+    document.getElementById('lab1-status').innerText = statusText;
+
+    particles1.forEach(p => {
+        if (coolingRate <= 3) {
+            // Lento: attrito verso il target ordinato
+            p.x += (p.targetX - p.x) * 0.05;
+            p.y += (p.targetY - p.y) * 0.05;
+        } else {
+            // Veloce: bloccate quasi casuali o lente
+            let factor = 0.1 / coolingRate;
+            p.x += p.vx * factor;
+            p.y += p.vy * factor;
+            // rimbalzo bordi
+            if(p.x < 20 || p.x > canvas1.width-20) p.vx *= -1;
+            if(p.y < 20 || p.y > canvas1.height-20) p.vy *= -1;
+        }
+
+        // Disegna Tetraedro (Cerchio con nucleo)
+        ctx1.fillStyle = coolingRate <= 3 ? "#28a745" : "#d9534f";
+        ctx1.beginPath();
+        ctx1.arc(p.x, p.y, 12, 0, Math.PI * 2);
+        ctx1.fill();
+        ctx1.strokeStyle = "#fff";
+        ctx1.lineWidth = 2;
+        ctx1.stroke();
+    });
+
+    requestAnimationFrame(animateLab1);
+}
+
+// SIMULAZIONE LAB 2 (DEVETRIFICAZIONE CONTROLLATA)
+const canvas2 = document.getElementById('canvasLab2');
+const ctx2 = canvas2.getContext('2d');
+let holdingTimeVal = 10;
+
+function updateLab2Time() {
+    holdingTimeVal = parseInt(document.getElementById('holdingTime').value);
+}
+
+function startDevitrification() {
+    // trigger anim update via slider
+}
+
+function animateLab2() {
+    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+    // Numero di cristalli proporzionale al tempo di permanenza
+    let crystalCount = Math.floor(holdingTimeVal * 0.6);
+    
+    let statusText = currentLang === 'ITA' ? 
+        `Tempo di permanenza: ${holdingTimeVal}% -> Cristalli precipitati nella matrice vetrosa: ${crystalCount}` : 
+        (currentLang === 'ESP' ? `Tiempo de permanencia: ${holdingTimeVal}% -> Cristales precipitados: ${crystalCount}` : 
+        `Holding time: ${holdingTimeVal}% -> Precipitated crystals in glass matrix: ${crystalCount}`);
+    
+    document.getElementById('lab2-status').innerText = statusText;
+
+    // Disegna matrice vetrosa di fondo (sfondo opaco chiaro)
+    ctx2.fillStyle = "#222";
+    ctx2.fillRect(0,0,canvas2.width, canvas2.height);
+
+    // Disegna microcristalli generati per devetrificazione controllata
+    for(let i=0; i<crystalCount; i++) {
+        let cx = (i * 47) % (canvas2.width - 40) + 20;
+        let cy = (i * 31) % (canvas2.height - 40) + 20;
+        let size = 6 + (i % 8);
+
+        ctx2.fillStyle = "#ffcc00";
+        ctx2.beginPath();
+        ctx2.moveTo(cx, cy - size);
+        ctx2.lineTo(cx + size, cy);
+        ctx2.lineTo(cx, cy + size);
+        ctx2.lineTo(cx - size, cy);
+        ctx2.closePath();
+        ctx2.fill();
+        ctx2.strokeStyle = "#fff";
+        ctx2.stroke();
+    }
+
+    requestAnimationFrame(animateLab2);
+}
+
+function downloadOfflineApp() {
+    const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'App_Materiali_Ceramici_Modulo4.html';
+    a.click();
+}
+
+window.onload = () => {
+    renderUI();
+    initLab1();
+    animateLab1();
+    animateLab2();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore Interattivo di Legami Chimici</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-orange: #fb923c;
+            --accent-purple: #c084fc;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--accent-blue);
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-element {
+            background-color: #334155;
+            color: #fff;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 10px 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-element span {
+            font-size: 0.75rem;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .btn-element:hover {
+            background-color: #475569;
+            transform: translateY(-2px);
+        }
+
+        .btn-element.selected-1 {
+            border-color: var(--accent-blue);
+            background-color: #0369a1;
+        }
+
+        .btn-element.selected-2 {
+            border-color: var(--accent-orange);
+            background-color: #c2410c;
+        }
+
+        .selection-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 15px 0;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .selected-box {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .badge-metal { background-color: #b91c1c; color: #fff; }
+        .badge-nonmetal { background-color: #047857; color: #fff; }
+
+        .result-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bond-type-tag {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tag-ionic { background-color: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+        .tag-covalent-polar { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+        .tag-covalent-pure { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+        .tag-metallic { background-color: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid #c084fc; }
+
+        .visual-representation {
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .explanation {
+            line-height: 1.6;
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-speech { background-color: #0284c7; color: white; }
+        .btn-speech:hover { background-color: #0369a1; }
+
+        .btn-download { background-color: #16a34a; color: white; }
+        .btn-download:hover { background-color: #15803d; }
+
+        .note-card {
+            background-color: #1e293b;
+            border-left: 4px solid var(--accent-blue);
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .note-card h4 {
+            color: var(--text-color);
+            margin: 0 0 8px 0;
+        }
+
+        .author-box {
+            background-color: #0f172a;
+            border: 1px dashed var(--accent-purple);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .author-box strong {
+            color: var(--accent-purple);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simulatore Interattivo di Legami Chimici</h1>
+    <div class="subtitle">Laboratorio didattico per l'analisi dei legami ionici, covalenti e metallici</div>
+
+    <div class="container">
+        <!-- Selezione Elementi -->
+        <div class="card">
+            <div class="section-title">Seleziona due Elementi (anche uguali):</div>
+            <div class="element-grid" id="elementGrid"></div>
+
+            <div class="selection-display">
+                <div class="selected-box" id="boxElem1">Elemento 1<br><span style="font-size:0.8rem; color:#64748b;">(Clicca un elemento)</span></div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-blue);">+</div>
+                <div class="selected-box" id="boxElem2">Elemento 2<br><span style="font-size:0.8rem; color:#64748b;">(Clicca un elemento)</span></div>
+            </div>
+        </div>
+
+        <!-- Risultato del Legame -->
+        <div class="card result-box" id="resultCard" style="display: none;">
+            <div class="section-title">Risultato dell'Analisi del Legame</div>
+            <div id="bondTag" class="bond-type-tag"></div>
+            
+            <div class="visual-representation" id="visualBox"></div>
+
+            <div class="explanation" id="explanationBox"></div>
+
+            <div class="controls">
+                <button class="btn-action btn-speech" onclick="speakExplanation()">🔊 Ascolta Spiegazione</button>
+                <button class="btn-action btn-download" onclick="downloadHTML()">💾 Scarica App (.html)</button>
+            </div>
+        </div>
+
+        <!-- Postilla sull'Elettronegatività -->
+        <div class="card note-card">
+            <h4>📌 Postilla Didattica sull'Elettronegatività (EN) e Regola dell'Ottetto</h4>
+            <p style="margin: 0;">
+                L'<strong>Elettronegatività (scala di Pauling)</strong> misura la capacità di un atomo di attrarre a sé gli elettroni di legame.
+                Tuttavia, le soglie rigide (es. ΔEN > 1.7 = legame ionico) sono approssimazioni. In questo simulatore viene data **priorità alla regola dell'ottetto e alla natura degli elementi**: l'unione tra un Metallo Alcalino/Alcalino-terroso e un Non-metallo origina <em>sempre un legame ionico</em> (es. Na₂S, Li₂S, MgF₂), in quanto la rimozione totale dell'elettrone di valenza consente al metallo di svuotare il livello esterno ed esporre l'ottetto sottostante stabile.
+            </p>
+        </div>
+
+        <!-- Nota di Sviluppo -->
+        <div class="author-box">
+            <strong>Nota di Sviluppo & Metodologia Didattica:</strong><br>
+            Questa applicazione è stata sviluppata ed elaborata utilizzando l'Intelligenza Artificiale <strong>Gemini</strong>, strutturata e personalizzata sulla base degli <strong>appunti didattici, delle indicazioni metodologiche e delle regole di chimica definite dal docente</strong> per garantire il rispetto della stabilità dell'ottetto, la corretta rappresentazione dei cationi nel legame metallico e la reale stechiometria dei composti ionici.
+        </div>
+    </div>
+
+    <script>
+        // Database Elementi Didattici
+        const elements = {
+            'H':  { name: 'Idrogeno', en: 2.20, valence: 1, type: 'nonmetal', ionCharge: '+1' },
+            'Li': { name: 'Litio', en: 0.98, valence: 1, type: 'metal', ionCharge: '+1' },
+            'Na': { name: 'Sodio', en: 0.93, valence: 1, type: 'metal', ionCharge: '+1' },
+            'K':  { name: 'Potassio', en: 0.82, valence: 1, type: 'metal', ionCharge: '+1' },
+            'Mg': { name: 'Magnesio', en: 1.31, valence: 2, type: 'metal', ionCharge: '+2' },
+            'Ca': { name: 'Calcio', en: 1.00, valence: 2, type: 'metal', ionCharge: '+2' },
+            'C':  { name: 'Carbonio', en: 2.55, valence: 4, type: 'nonmetal', ionCharge: null },
+            'N':  { name: 'Azoto', en: 3.04, valence: 5, type: 'nonmetal', ionCharge: '-3' },
+            'O':  { name: 'Ossigeno', en: 3.44, valence: 6, type: 'nonmetal', ionCharge: '-2' },
+            'F':  { name: 'Fluoro', en: 3.98, valence: 7, type: 'nonmetal', ionCharge: '-1' },
+            'Cl': { name: 'Cloro', en: 3.16, valence: 7, type: 'nonmetal', ionCharge: '-1' },
+            'S':  { name: 'Zolfo', en: 2.58, valence: 6, type: 'nonmetal', ionCharge: '-2' }
+        };
+
+        let selected1 = null;
+        let selected2 = null;
+
+        // Inizializza Griglia Elementi
+        function initGrid() {
+            const grid = document.getElementById('elementGrid');
+            grid.innerHTML = '';
+            for (let symbol in elements) {
+                const el = elements[symbol];
+                const btn = document.createElement('button');
+                btn.className = 'btn-element';
+                btn.id = `btn-${symbol}`;
+                btn.innerHTML = `${symbol}<span>${el.en}</span>`;
+                btn.onclick = () => selectElement(symbol);
+                grid.appendChild(btn);
+            }
+        }
+
+        // Gestione Selezione
+        function selectElement(symbol) {
+            if (!selected1 || (selected1 && selected2)) {
+                selected1 = symbol;
+                selected2 = null;
+            } else {
+                selected2 = symbol;
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            // Aggiorna Pulsanti
+            document.querySelectorAll('.btn-element').forEach(btn => {
+                btn.classList.remove('selected-1', 'selected-2');
+            });
+            if (selected1) document.getElementById(`btn-${selected1}`)?.classList.add('selected-1');
+            if (selected2) document.getElementById(`btn-${selected2}`)?.classList.add('selected-2');
+
+            // Aggiorna Display Selezione
+            const box1 = document.getElementById('boxElem1');
+            const box2 = document.getElementById('boxElem2');
+
+            if (selected1) {
+                const el1 = elements[selected1];
+                box1.innerHTML = `${selected1} <br><span class="badge ${el1.type === 'metal' ? 'badge-metal' : 'badge-nonmetal'}">${el1.type === 'metal' ? 'Metallo' : 'Non-Metallo'}</span><br><span style="font-size:0.8rem;">EN: ${el1.en}</span>`;
+            } else {
+                box1.innerHTML = `Elemento 1<br><span style="font-size:0.8rem; color:#64748b;">(Clicca un elemento)</span>`;
+            }
+
+            if (selected2) {
+                const el2 = elements[selected2];
+                box2.innerHTML = `${selected2} <br><span class="badge ${el2.type === 'metal' ? 'badge-metal' : 'badge-nonmetal'}">${el2.type === 'metal' ? 'Metallo' : 'Non-Metallo'}</span><br><span style="font-size:0.8rem;">EN: ${el2.en}</span>`;
+            } else {
+                box2.innerHTML = `Elemento 2<br><span style="font-size:0.8rem; color:#64748b;">(Clicca un elemento)</span>`;
+            }
+
+            // Calcola Legame se entrambi presi
+            if (selected1 && selected2) {
+                calculateBond();
+            } else {
+                document.getElementById('resultCard').style.display = 'none';
+            }
+        }
+
+        // Calcolo Algoritmo del Legame
+        function calculateBond() {
+            const el1 = elements[selected1];
+            const el2 = elements[selected2];
+            const deltaEN = Math.abs(el1.en - el2.en).toFixed(2);
+
+            const resultCard = document.getElementById('resultCard');
+            const bondTag = document.getElementById('bondTag');
+            const visualBox = document.getElementById('visualBox');
+            const explanationBox = document.getElementById('explanationBox');
+
+            resultCard.style.display = 'flex';
+
+            // CASO 1: METALLO + METALLO -> LEGAME METALLICO
+            if (el1.type === 'metal' && el2.type === 'metal') {
+                bondTag.innerText = "Legame Metallico";
+                bondTag.className = "bond-type-tag tag-metallic";
+
+                const e1Charge = el1.valence;
+                const e2Charge = el2.valence;
+
+                visualBox.innerHTML = `
+                    <div style="color: var(--accent-purple); font-weight: bold;">
+                        [ ${selected1}<sup>${el1.ionCharge}</sup> ] [ ${selected2}<sup>${el2.ionCharge}</sup> ]
+                    </div>
+                    <div style="font-size: 0.9rem; margin-top: 8px; color: #cbd5e1;">
+                        🌊 Mare di Elettroni Delocalizzati (${selected1} mette ${e1Charge} e⁻, ${selected2} mette ${e2Charge} e⁻)
+                    </div>
+                `;
+
+                explanationBox.innerHTML = `
+                    Unione tra due metalli (<strong>${el1.name}</strong> e <strong>${el2.name}</strong>). <br>
+                    Gli atomi ceditore si trasformano nei cationi reticolari <strong>${selected1}<sup>${el1.ionCharge}</sup></strong> e <strong>${selected2}<sup>${el2.ionCharge}</sup></strong>, che mettono in comune i loro elettroni di valenza formando un "mare di elettroni" libero di muoversi. Questo garantisce la tipica conducibilità elettrica, termica e la malleabilità dei metalli.
+                `;
+                return;
+            }
+
+            // CASO 2: METALLO + NON-METALLO -> LEGAME IONICO (Priorità Stabilità Ottetto)
+            if ((el1.type === 'metal' && el2.type === 'nonmetal') || (el1.type === 'nonmetal' && el2.type === 'metal')) {
+                const metal = el1.type === 'metal' ? el1 : el2;
+                const metalSym = el1.type === 'metal' ? selected1 : selected2;
+                const nonMetal = el1.type === 'nonmetal' ? el1 : el2;
+                const nonMetalSym = el1.type === 'nonmetal' ? selected1 : selected2;
+
+                bondTag.innerText = "Legame Ionico";
+                bondTag.className = "bond-type-tag tag-ionic";
+
+                // Calcolo stechiometria carica
+                const metalVal = metal.valence; // e- ceduti
+                const nonMetalNeeded = 8 - nonMetal.valence; // e- acquistati per ottetto (eccezione H=1)
+                const neededNonMetalVal = (nonMetalSym === 'H') ? 1 : nonMetalNeeded;
+
+                // Calcolo MCM per coefficienti stechiometrici
+                function gcd(a, b) { return b == 0 ? a : gcd(b, a % b); }
+                const lcm = (metalVal * neededNonMetalVal) / gcd(metalVal, neededNonMetalVal);
+
+                const countMetal = lcm / metalVal;
+                const countNonMetal = lcm / neededNonMetalVal;
+
+                // Formula chimica
+                const subMetal = countMetal > 1 ? `<sub>${countMetal}</sub>` : '';
+                const subNonMetal = countNonMetal > 1 ? `<sub>${countNonMetal}</sub>` : '';
+                const formula = `${metalSym}${subMetal}${nonMetalSym}${subNonMetal}`;
+
+                const metalChargeStr = `+${metalVal}`;
+                const nonMetalChargeStr = `-${neededNonMetalVal}`;
+
+                visualBox.innerHTML = `
+                    <div style="color: #fde047; font-weight: bold; font-size: 1.8rem;">
+                        ${countMetal > 1 ? countMetal : ''}${metalSym}<sup>${metalChargeStr}</sup> + ${countNonMetal > 1 ? countNonMetal : ''}${nonMetalSym}<sup>${nonMetalChargeStr}</sup> &rarr; <strong>${formula}</strong>
+                    </div>
+                `;
+
+                explanationBox.innerHTML = `
+                    Unione tra un Metallo (<strong>${metal.name}</strong>) e un Non-Metallo (<strong>${nonMetal.name}</strong>). <br>
+                    La differenza di elettronegatività è ΔEN = <strong>${deltaEN}</strong>. <br>
+                    <strong>Spiegazione Didattica:</strong> Il metallo cede completamente i suoi elettroni di valenza al non-metallo affinché entrambi raggiungano la configurazione stabile dell'ottetto. Servono esattamente <strong>${countMetal} atomo/i di ${metalSym}</strong> e <strong>${countNonMetal} atomo/i di ${nonMetalSym}</strong> per bilanciare le cariche e garantire la neutralità elettrica del composto (<strong>${formula}</strong>).
+                `;
+                return;
+            }
+
+            // CASO 3: NON-METALLO + NON-METALLO -> LEGAME COVALENTE
+            if (el1.type === 'nonmetal' && el2.type === 'nonmetal') {
+                let bondCategory = "";
+                let tagClass = "";
+
+                if (deltaEN < 0.4) {
+                    bondCategory = "Legame Covalente Apolare (Puro)";
+                    tagClass = "tag-covalent-pure";
+                } else {
+                    bondCategory = "Legame Covalente Polare";
+                    tagClass = "tag-covalent-polar";
+                }
+
+                bondTag.innerText = bondCategory;
+                bondTag.className = `bond-type-tag ${tagClass}`;
+
+                // Calcolo Molteplicità del Legame Covalente
+                let bondTypeStr = "";
+                let dashStr = "";
+
+                if (selected1 === selected2) {
+                    // Molecole biatomiche omonucleari
+                    if (selected1 === 'H' || selected1 === 'F' || selected1 === 'Cl') {
+                        bondTypeStr = "1 Legame Covalente Singolo (1 coppia condivisa)";
+                        dashStr = `${selected1} — ${selected2}`;
+                    } else if (selected1 === 'O' || selected1 === 'S') {
+                        bondTypeStr = "1 Legame Covalente Doppio (2 coppie condivise)";
+                        dashStr = `${selected1} ═ ${selected2}`;
+                    } else if (selected1 === 'N') {
+                        bondTypeStr = "1 Legame Covalente Triplo (3 coppie condivise)";
+                        dashStr = `${selected1} ≡ ${selected2}`;
+                    } else if (selected1 === 'C') {
+                        bondTypeStr = "Rete Covalente / Legami Multipli";
+                        dashStr = `${selected1} ═ ${selected2}`;
+                    }
+                } else {
+                    // Eteronucleari
+                    const val1 = el1.valence === 7 ? 1 : (el1.valence === 6 ? 2 : (el1.valence === 5 ? 3 : 4));
+                    const val2 = el2.valence === 7 ? 1 : (el2.valence === 6 ? 2 : (el2.valence === 5 ? 3 : 4));
+                    const shared = Math.min(val1, val2);
+
+                    if (shared === 1) {
+                        bondTypeStr = "Legame Covalente Singolo (—)";
+                        dashStr = `${selected1} — ${selected2}`;
+                    } else if (shared === 2) {
+                        bondTypeStr = "Legame Covalente Doppio (═)";
+                        dashStr = `${selected1} ═ ${selected2}`;
+                    } else if (shared >= 3) {
+                        bondTypeStr = "Legame Covalente Triplo (≡)";
+                        dashStr = `${selected1} ≡ ${selected2}`;
+                    }
+                }
+
+                visualBox.innerHTML = `
+                    <div style="font-weight: bold; font-size: 2rem; color: var(--accent-blue);">
+                        ${dashStr}
+                    </div>
+                    <div style="font-size: 0.95rem; margin-top: 5px; color: #4ade80;">
+                        ${bondTypeStr}
+                    </div>
+                `;
+
+                explanationBox.innerHTML = `
+                    Unione tra due Non-Metalli (<strong>${el1.name}</strong> e <strong>${el2.name}</strong>). <br>
+                    Differenza di Elettronegatività: ΔEN = <strong>${deltaEN}</strong>. <br>
+                    <strong>Tipologia:</strong> ${bondCategory}. Gli elettroni vengono messi in comune in coppie per completare i rispettivi livelli di valenza. Presenza di: <strong>${bondTypeStr}</strong>.
+                `;
+            }
+        }
+
+        // Sintesi Vocale Didattica
+        function speakExplanation() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const bondText = document.getElementById('bondTag').innerText;
+                const expText = document.getElementById('explanationBox').innerText;
+                const fullText = `Tipo di legame: ${bondText}. ${expText}`;
+
+                const utterance = new SpeechSynthesisUtterance(fullText);
+                utterance.lang = 'it-IT';
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("La sintesi vocale non è supportata su questo browser.");
+            }
+        }
+
+        // Download Offline dell'Applicazione
+        function downloadHTML() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'simulatore_legami_chimici.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Inizio
+        window.onload = initGrid;
+    </script>
+</body>
+</html>

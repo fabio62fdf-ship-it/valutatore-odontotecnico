@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="it"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwOTQ4Mjg5NDMyOTYwMDM0NDk4MSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2RhYWIwMzMxZWRkY2MwMmVfc2ltdWxhdG9yZV9sZWdhbWlfY2hpbWljaS5odG1sLTE4NyJ9LCJleHAiOjE3OTM5NjUzNzEsImlhdCI6MTc5Mzk2MTc3MSwiYWxnIjoiUlMyNTYifQ.RRrW9_KI3LgC-M-hyfxFwilavGN_EhaYJOAWvQJfEqSlOH7cYvEVA46VNP49ADWYYljjCktoVVah3Xi2FXyK-tZ8HiUrnMON2IAgWu4x9vLm-kcpOMGn_Q1BfenmGjkthCsHOEY50NGiPiBynAumpdcPROiEeiSGaVNu9a-QTXNjbTI314wHbLXtPIHe33tiwXAmg5TG9iL4dbpNsSTAx9WbdQ5cZggNZco0r3-t-qIvKJ9_A_jrEgzmqLIhWOCogI3ZksvioWl6E_E242xoOgjjJ-zuyv3XzBlKbR9YSfyzk9Wg8nXqKlSeTLaaI1h2Dc8ZcVp1UZ4BX7WLh1Vk5w","c_daab0331eddcc02e_simulatore_legami_chimici.html-187")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore Interattivo Legami Chimici</title>
+    <!-- Tailwind CSS per interfaccia moderna ad alto contrasto -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .atom-badge {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .atom-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .electron-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .6; transform: scale(1.15); }
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.absolute{position:absolute}.relative{position:relative}.-right-2{right:-0.5rem}.-top-2{top:-0.5rem}.z-10{z-index:10}.-my-2{margin-top:-0.5rem;margin-bottom:-0.5rem}.mx-auto{margin-left:auto;margin-right:auto}.my-1{margin-top:0.25rem;margin-bottom:0.25rem}.my-2{margin-top:0.5rem;margin-bottom:0.5rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mr-2{margin-right:0.5rem}.mt-1{margin-top:0.25rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-8{margin-top:2rem}.mt-2{margin-top:0.5rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-2\.5{height:0.625rem}.h-20{height:5rem}.h-12{height:3rem}.min-h-\[200px\]{min-height:200px}.min-h-screen{min-height:100vh}.w-full{width:100%}.w-20{width:5rem}.w-12{width:3rem}.min-w-\[240px\]{min-width:240px}.max-w-2xl{max-width:42rem}.max-w-5xl{max-width:64rem}.max-w-sm{max-width:24rem}.flex-grow{flex-grow:1}.rotate-90{--tw-rotate:90deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.list-inside{list-style-position:inside}.list-disc{list-style-type:disc}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-500\/30{border-color:rgb(245 158 11 / 0.3)}.border-blue-500\/30{border-color:rgb(59 130 246 / 0.3)}.border-indigo-500\/30{border-color:rgb(99 102 241 / 0.3)}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-700\/60{border-color:rgb(51 65 85 / 0.6)}.border-slate-700\/80{border-color:rgb(51 65 85 / 0.8)}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-teal-500\/30{border-color:rgb(20 184 166 / 0.3)}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-slate-900{--tw-border-opacity:1;border-color:rgb(15 23 42 / var(--tw-border-opacity, 1))}.border-indigo-300{--tw-border-opacity:1;border-color:rgb(165 180 252 / var(--tw-border-opacity, 1))}.border-indigo-500\/40{border-color:rgb(99 102 241 / 0.4)}.border-indigo-500\/50{border-color:rgb(99 102 241 / 0.5)}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.bg-amber-500\/10{background-color:rgb(245 158 11 / 0.1)}.bg-blue-500\/10{background-color:rgb(59 130 246 / 0.1)}.bg-blue-950\/80{background-color:rgb(23 37 84 / 0.8)}.bg-indigo-500\/10{background-color:rgb(99 102 241 / 0.1)}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-800\/90{background-color:rgb(30 41 59 / 0.9)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/80{background-color:rgb(15 23 42 / 0.8)}.bg-slate-950\/80{background-color:rgb(2 6 23 / 0.8)}.bg-teal-500\/10{background-color:rgb(20 184 166 / 0.1)}.bg-teal-600{--tw-bg-opacity:1;background-color:rgb(13 148 136 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-indigo-500{--tw-bg-opacity:1;background-color:rgb(99 102 241 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-indigo-950\/80{background-color:rgb(30 27 75 / 0.8)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.from-blue-400{--tw-gradient-from:#60a5fa var(--tw-gradient-from-position);--tw-gradient-to:rgb(96 165 250 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-amber-500{--tw-gradient-from:#f59e0b var(--tw-gradient-from-position);--tw-gradient-to:rgb(245 158 11 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-teal-300{--tw-gradient-to:rgb(94 234 212 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #5eead4 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-indigo-400{--tw-gradient-to:#818cf8 var(--tw-gradient-to-position)}.to-orange-600{--tw-gradient-to:#ea580c var(--tw-gradient-to-position)}.to-teal-700{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-indigo-300{--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-teal-300{--tw-text-opacity:1;color:rgb(94 234 212 / var(--tw-text-opacity, 1))}.text-teal-400{--tw-text-opacity:1;color:rgb(45 212 191 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-500{transition-duration:500ms}.hover\:bg-amber-500\/20:hover{background-color:rgb(245 158 11 / 0.2)}.hover\:bg-blue-500\/20:hover{background-color:rgb(59 130 246 / 0.2)}.hover\:bg-blue-600:hover{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-500\/20:hover{background-color:rgb(99 102 241 / 0.2)}.hover\:bg-slate-600:hover{--tw-bg-opacity:1;background-color:rgb(71 85 105 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-500:hover{--tw-bg-opacity:1;background-color:rgb(20 184 166 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-500\/20:hover{background-color:rgb(20 184 166 / 0.2)}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:border-teal-500:focus{--tw-border-opacity:1;border-color:rgb(20 184 166 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:rotate-0{--tw-rotate:0deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.sm\:flex-row{flex-direction:row}.sm\:gap-8{gap:2rem}.sm\:p-6{padding:1.5rem}.sm\:text-5xl{font-size:3rem;line-height:1}.sm\:text-6xl{font-size:3.75rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:w-auto{width:auto}.md\:flex-row{flex-direction:row}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}}</style></head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 bg-slate-900 text-slate-100">
+
+    <!-- Header Principale -->
+    <header class="max-w-5xl mx-auto w-full text-center mb-6">
+        <div class="inline-flex items-center gap-3 bg-blue-950/80 border border-blue-500/30 px-4 py-2 rounded-full text-blue-400 mb-3">
+            <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 8s;"></i>
+            <span class="font-bold tracking-wide text-xs sm:text-sm uppercase">Laboratorio Didattico di Chimica</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-teal-300 to-indigo-400 mb-2">
+            Simulatore di Legami Chimici
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Seleziona due elementi per analizzare la natura del legame (Metallico, Ionico o Covalente), la stechiometria e la stabilità dell'ottetto.
+        </p>
+    </header>
+
+    <!-- Contenuto Principale -->
+    <main class="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-grow">
+        
+        <!-- SEZIONE SELEZIONE ELEMENTI -->
+        <section class="lg:col-span-4 bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2 border-b border-slate-700 pb-3">
+                <i class="fa-solid fa-flask text-teal-400"></i> Seleziona Reagenti
+            </h2>
+
+            <!-- Elemento A -->
+            <div class="mb-5">
+                <label for="elemASelect" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    Primo Atomo (Elemento A)
+                </label>
+                <select id="elemASelect" onchange="calcolaLegame()" class="w-full bg-slate-900 border-2 border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:border-blue-500 font-semibold text-base transition-colors"><option value="H">Idrogeno (H) - NON-METALLO - EN: 2.2</option><option value="Li">Litio (Li) - METALLO - EN: 0.98</option><option value="Na">Sodio (Na) - METALLO - EN: 0.93</option><option value="K">Potassio (K) - METALLO - EN: 0.82</option><option value="Mg">Magnesio (Mg) - METALLO - EN: 1.31</option><option value="Ca">Calcio (Ca) - METALLO - EN: 1</option><option value="C">Carbonio (C) - NON-METALLO - EN: 2.55</option><option value="N">Azoto (N) - NON-METALLO - EN: 3.04</option><option value="O">Ossigeno (O) - NON-METALLO - EN: 3.44</option><option value="F">Fluoro (F) - NON-METALLO - EN: 3.98</option><option value="Cl">Cloro (Cl) - NON-METALLO - EN: 3.16</option><option value="S">Zolfo (S) - NON-METALLO - EN: 2.58</option></select>
+            </div>
+
+            <!-- Pulsante Inverti / Separatore -->
+            <div class="flex justify-center -my-2 relative z-10">
+                <button onclick="scambiaElementi()" title="Scambia elementi" class="bg-slate-700 hover:bg-blue-600 text-slate-200 hover:text-white p-2.5 rounded-full border-2 border-slate-800 transition-all shadow-md active:scale-95">
+                    <i class="fa-solid fa-right-left rotate-90 sm:rotate-0"></i>
+                </button>
+            </div>
+
+            <!-- Elemento B -->
+            <div class="mt-3 mb-6">
+                <label for="elemBSelect" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    Secondo Atomo (Elemento B)
+                </label>
+                <select id="elemBSelect" onchange="calcolaLegame()" class="w-full bg-slate-900 border-2 border-slate-700 text-slate-100 rounded-xl p-3 focus:outline-none focus:border-teal-500 font-semibold text-base transition-colors"><option value="H">Idrogeno (H) - NON-METALLO - EN: 2.2</option><option value="Li">Litio (Li) - METALLO - EN: 0.98</option><option value="Na">Sodio (Na) - METALLO - EN: 0.93</option><option value="K">Potassio (K) - METALLO - EN: 0.82</option><option value="Mg">Magnesio (Mg) - METALLO - EN: 1.31</option><option value="Ca">Calcio (Ca) - METALLO - EN: 1</option><option value="C">Carbonio (C) - NON-METALLO - EN: 2.55</option><option value="N">Azoto (N) - NON-METALLO - EN: 3.04</option><option value="O">Ossigeno (O) - NON-METALLO - EN: 3.44</option><option value="F">Fluoro (F) - NON-METALLO - EN: 3.98</option><option value="Cl">Cloro (Cl) - NON-METALLO - EN: 3.16</option><option value="S">Zolfo (S) - NON-METALLO - EN: 2.58</option></select>
+            </div>
+
+            <!-- Pulsanti Selezione Rapida Didattici -->
+            <div>
+                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Esempi Guidati:</span>
+                <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+                    <button onclick="caricaEsempio('Mg', 'F')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 p-2 rounded-lg text-left transition">
+                        ⚡ Mg + F (MgF₂)
+                    </button>
+                    <button onclick="caricaEsempio('Na', 'S')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 p-2 rounded-lg text-left transition">
+                        🧂 Na + S (Na₂S)
+                    </button>
+                    <button onclick="caricaEsempio('Na', 'Na')" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 p-2 rounded-lg text-left transition">
+                        🛡️ Na + Na (Na⁺ Mare e⁻)
+                    </button>
+                    <button onclick="caricaEsempio('Mg', 'Mg')" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 p-2 rounded-lg text-left transition">
+                        🛡️ Mg + Mg (Mg²⁺ Mare e⁻)
+                    </button>
+                    <button onclick="caricaEsempio('H', 'O')" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 p-2 rounded-lg text-left transition">
+                        💧 H + O (H₂O)
+                    </button>
+                    <button onclick="caricaEsempio('O', 'O')" class="bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 p-2 rounded-lg text-left transition">
+                        💨 O + O (O₂ Doppio)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEZIONE RISULTATO E VISUALIZZAZIONE -->
+        <section class="lg:col-span-8 space-y-6">
+
+            <!-- Card Principale Risultato -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div id="bondTypeBadge" class="inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 bg-indigo-500 text-white">Legame Metallico</div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <span class="text-xs text-slate-400 uppercase font-semibold block">Formula del Composto / Struttura:</span>
+                        <div id="formulaDisplay" class="text-4xl sm:text-6xl font-black text-white tracking-wider my-1">Ca-Mg (Lega)</div>
+                        <div id="compoundName" class="text-teal-400 font-medium text-sm sm:text-base">Lega Metallica (Calcio - Magnesio)</div>
+                    </div>
+
+                    <!-- Indicatori Elettronegatività -->
+                    <div class="bg-slate-900/80 border border-slate-700/60 p-4 rounded-xl w-full md:w-auto min-w-[240px] space-y-2 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">ΔEN (Diff. Elettronegatività):</span>
+                            <span id="deltaENVal" class="font-bold text-amber-400 text-base">0.31</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                            <div id="deltaENBar" class="bg-amber-400 h-2.5 rounded-full transition-all duration-500" style="width: 9.39394%;"></div>
+                        </div>
+                        <div class="text-[11px] text-slate-400 flex justify-between pt-1">
+                            <span>0 (Apolare)</span>
+                            <span>0.4</span>
+                            <span>1.7</span>
+                            <span>3.3 (Ionico)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dettaglio Molteplicità Legami Covalenti -->
+                <div id="covalentDetailsBox" class="mt-4 pt-4 border-t border-slate-700/80 hidden">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-diagram-project text-teal-400"></i> Molteplicità Legami Covalenti:
+                    </div>
+                    <div id="covalentDetailsContent" class="flex flex-wrap gap-2 text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rappresentazione Schematica Interattiva -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-base font-bold text-slate-200 mb-4 flex items-center justify-between">
+                    <span><i class="fa-solid fa-chart-pie text-blue-400 mr-2"></i>Struttura e Condivisione Elettronica</span>
+                    <button onclick="leggiSpiegazione()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-volume-high text-teal-400"></i> Ascolta Spiegazione
+                    </button>
+                </h3>
+
+                <!-- Area di visualizzazione visuale atomi/ioni -->
+                <div id="visualizerArea" class="bg-slate-950/80 border border-slate-800 rounded-xl p-6 min-h-[200px] flex items-center justify-center flex-wrap gap-4 sm:gap-8 overflow-x-auto">
+                    <div class="flex flex-col items-center justify-center p-4 text-center w-full">
+                        <div class="grid grid-cols-3 gap-3 bg-slate-900 border-2 border-indigo-500/50 p-5 rounded-2xl relative overflow-hidden max-w-sm">
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Ca<sup>2+</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Mg<sup>2+</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Ca<sup>2+</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Mg<sup>2+</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Ca<sup>2+</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">Mg<sup>2+</sup></div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2 bg-indigo-950/80 px-3 py-1.5 rounded-lg border border-indigo-500/40 text-xs text-indigo-300 font-bold">
+                            <i class="fa-solid fa-[#ffffff] fa-bolt"></i> Mare Elettronico Delocalizzato (12 e⁻ liberi)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spiegazione Didattica del Meccanismo -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-amber-400"></i> Spiegazione del Meccanismo
+                </h3>
+                <p id="explanationText" class="text-slate-300 text-sm leading-relaxed">
+                    Trattandosi dell'unione tra due metalli (<strong>Calcio</strong> e <strong>Magnesio</strong>), si forma un <strong>Legame Metallico</strong>.<br>
+                    Ciascun atomo rilascia i propri elettroni di valenza formandosi cationi metallici specifici: 
+                    <strong>Ca<sup>2+</sup></strong> (2 e⁻/atomo) e 
+                    <strong>Mg<sup>2+</sup></strong> (2 e⁻/atomo).<br>
+                    I cationi si ordinano in un reticolo cristallino immerso in un <strong>mare di elettroni delocalizzati</strong>. 
+                    La carica bivalente (es. <strong>Ca²⁺</strong>) aumenta la densità elettronica, garantendo una forza di coesione reticolare e un punto di fusione nettamente più elevati rispetto ai metalli monovalenti.
+                </p>
+            </div>
+
+            <!-- Postilla Didattica sull'Elettronegatività (EN) -->
+            <div class="bg-slate-800/90 border border-blue-500/30 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-blue-400"></i> Postilla Didattica: Cos'è l'Elettronegatività (EN)?
+                </h3>
+                <div class="text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
+                    <p>
+                        L'<strong>Elettronegatività (EN)</strong> misura la capacità relativa di un atomo di attrarre a sé gli elettroni condivisi in un legame chimico (scala di Linus Pauling).
+                    </p>
+                    <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-200 text-xs my-2">
+                        <strong>Regole Didattiche Prioritarie:</strong>
+                        <ul class="list-disc list-inside mt-1 space-y-1">
+                            <li><strong>Metallo + Metallo:</strong> Legame Metallico (reticolo di cationi specifici M⁺, M²⁺ immersi in un mare di elettroni delocalizzati).</li>
+                            <li><strong>Metallo + Non-Metallo:</strong> Legame Ionico guidato dalla stabilità dell'ottetto (es. Na₂S, MgF₂), prioritario rispetto al valore assoluto di ΔEN.</li>
+                            <li><strong>Non-Metallo + Non-Metallo:</strong> Legame Covalente (Puro per ΔEN ≤ 0.4, Polare per ΔEN &gt; 0.4), con dettagli su legami singoli, doppi o tripli.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer con pulsante di Download HTML Offline -->
+    <footer class="max-w-5xl mx-auto w-full mt-8 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div>
+            Sviluppato per la Didattica Digitale • Per LIM, Smartphone e Tablet
+        </div>
+        <button onclick="scaricaOffline()" class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition flex items-center gap-2 text-sm">
+            <i class="fa-solid fa-download"></i> Scarica App HTML Offline
+        </button>
+    </footer>
+
+    <!-- LOGICA JAVASCRIPT -->
+    <script>
+        // Database Elementi Chimici Principali (Scala Pauling verificata)
+        const ELEMENTI = {
+            'H':  { simbolo: 'H',  nome: 'Idrogeno',    en: 2.20, valenza: 1, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: 1 },
+            'Li': { simbolo: 'Li', nome: 'Litio',       en: 0.98, valenza: 1, tipo: 'metallo',     caricaMetallo: 1,  caricaDefault: 1 },
+            'Na': { simbolo: 'Na', nome: 'Sodio',       en: 0.93, valenza: 1, tipo: 'metallo',     caricaMetallo: 1,  caricaDefault: 1 },
+            'K':  { simbolo: 'K',  nome: 'Potassio',    en: 0.82, valenza: 1, tipo: 'metallo',     caricaMetallo: 1,  caricaDefault: 1 },
+            'Mg': { simbolo: 'Mg', nome: 'Magnesio',    en: 1.31, valenza: 2, tipo: 'metallo',     caricaMetallo: 2,  caricaDefault: 2 },
+            'Ca': { simbolo: 'Ca', nome: 'Calcio',      en: 1.00, valenza: 2, tipo: 'metallo',     caricaMetallo: 2,  caricaDefault: 2 },
+            'C':  { simbolo: 'C',  nome: 'Carbonio',    en: 2.55, valenza: 4, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: 4 },
+            'N':  { simbolo: 'N',  nome: 'Azoto',       en: 3.04, valenza: 3, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: -3 },
+            'O':  { simbolo: 'O',  nome: 'Ossigeno',    en: 3.44, valenza: 2, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: -2 },
+            'F':  { simbolo: 'F',  nome: 'Fluoro',      en: 3.98, valenza: 1, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: -1 },
+            'Cl': { simbolo: 'Cl', nome: 'Cloro',       en: 3.16, valenza: 1, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: -1 },
+            'S':  { simbolo: 'S',  nome: 'Zolfo',       en: 2.58, valenza: 2, tipo: 'non-metallo', caricaMetallo: 0,  caricaDefault: -2 }
+        };
+
+        function inizializzaSelect() {
+            const selectA = document.getElementById('elemASelect');
+            const selectB = document.getElementById('elemBSelect');
+            
+            selectA.innerHTML = '';
+            selectB.innerHTML = '';
+
+            Object.keys(ELEMENTI).forEach(sym => {
+                const el = ELEMENTI[sym];
+                const optA = document.createElement('option');
+                optA.value = sym;
+                optA.textContent = `${el.nome} (${el.simbolo}) - ${el.tipo.toUpperCase()} - EN: ${el.en}`;
+                selectA.appendChild(optA);
+
+                const optB = document.createElement('option');
+                optB.value = sym;
+                optB.textContent = `${el.nome} (${el.simbolo}) - ${el.tipo.toUpperCase()} - EN: ${el.en}`;
+                selectB.appendChild(optB);
+            });
+
+            selectA.value = 'Mg';
+            selectB.value = 'F';
+        }
+
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        function calcolaLegame() {
+            const symA = document.getElementById('elemASelect').value;
+            const symB = document.getElementById('elemBSelect').value;
+
+            const elA = ELEMENTI[symA];
+            const elB = ELEMENTI[symB];
+
+            const diffEN = Math.abs(elA.en - elB.en).toFixed(2);
+            
+            const isBothMetals = (elA.tipo === 'metallo' && elB.tipo === 'metallo');
+            const haMetallo = (elA.tipo === 'metallo' || elB.tipo === 'metallo');
+            const haNonMetallo = (elA.tipo === 'non-metallo' || elB.tipo === 'non-metallo');
+            const isIonico = !isBothMetals && haMetallo && haNonMetallo;
+
+            let coeffA = 1;
+            let coeffB = 1;
+            let tipoLegame = '';
+            let badgeClass = '';
+
+            document.getElementById('covalentDetailsBox').classList.add('hidden');
+
+            if (isBothMetals) {
+                tipoLegame = 'Legame Metallico';
+                badgeClass = 'bg-indigo-500 text-white';
+                coeffA = 1;
+                coeffB = 1;
+            } else if (isIonico) {
+                let valA = (elA.tipo === 'metallo') ? elA.valenza : Math.abs(elA.caricaDefault);
+                let valB = (elB.tipo === 'metallo') ? elB.valenza : Math.abs(elB.caricaDefault);
+
+                const divisore = gcd(valA, valB);
+                coeffA = valB / divisore;
+                coeffB = valA / divisore;
+
+                tipoLegame = 'Legame Ionico (Ottetto)';
+                badgeClass = 'bg-amber-500 text-slate-950';
+            } else {
+                let valA = (8 - elA.valenza) > 0 && elA.valenza <= 4 ? elA.valenza : (8 - elA.valenza);
+                let valB = (8 - elB.valenza) > 0 && elB.valenza <= 4 ? elB.valenza : (8 - elB.valenza);
+                
+                if (symA === 'H') valA = 1;
+                if (symB === 'H') valB = 1;
+
+                const divisore = gcd(valA, valB);
+                coeffA = valB / divisore;
+                coeffB = valA / divisore;
+
+                if (diffEN >= 0.4) {
+                    tipoLegame = 'Legame Covalente Polare';
+                    badgeClass = 'bg-teal-400 text-slate-950';
+                } else {
+                    tipoLegame = 'Legame Covalente Puro (Apolare)';
+                    badgeClass = 'bg-blue-400 text-slate-950';
+                }
+
+                calcolaMolteplicitaCovalente(elA, elB, coeffA, coeffB);
+            }
+
+            let catione = elA;
+            let anione = elB;
+            let countCatione = coeffA;
+            let countAnione = coeffB;
+
+            if (isIonico && elA.tipo === 'non-metallo' && elB.tipo === 'metallo') {
+                catione = elB;
+                anione = elA;
+                countCatione = coeffB;
+                countAnione = coeffA;
+            }
+
+            const subScript = (num) => num > 1 ? `<sub>${num}</sub>` : '';
+            let formulaHTML = '';
+
+            if (isBothMetals) {
+                formulaHTML = symA === symB ? `${elA.simbolo} (Reticolo)` : `${elA.simbolo}-${elB.simbolo} (Lega)`;
+            } else if (symA === symB) {
+                formulaHTML = `${elA.simbolo}<sub>2</sub>`;
+            } else if (isIonico) {
+                formulaHTML = `${catione.simbolo}${subScript(countCatione)}${anione.simbolo}${subScript(countAnione)}`;
+            } else {
+                formulaHTML = `${elA.simbolo}${subScript(coeffA)}${elB.simbolo}${subScript(coeffB)}`;
+            }
+
+            document.getElementById('formulaDisplay').innerHTML = formulaHTML;
+            document.getElementById('bondTypeBadge').textContent = tipoLegame;
+            document.getElementById('bondTypeBadge').className = `inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 ${badgeClass}`;
+            document.getElementById('deltaENVal').textContent = diffEN;
+
+            const barPercentage = Math.min(100, (diffEN / 3.3) * 100);
+            document.getElementById('deltaENBar').style.width = `${barPercentage}%`;
+
+            document.getElementById('compoundName').textContent = generaNomeComposto(elA, elB, countCatione, countAnione, isIonico, isBothMetals);
+
+            disegnaVisualizzazione(elA, elB, countCatione, countAnione, isIonico, isBothMetals, diffEN, coeffA, coeffB);
+        }
+
+        function calcolaMolteplicitaCovalente(elA, elB, coeffA, coeffB) {
+            const box = document.getElementById('covalentDetailsBox');
+            const container = document.getElementById('covalentDetailsContent');
+            box.classList.remove('hidden');
+            container.innerHTML = '';
+
+            let singoli = 0;
+            let doppi = 0;
+            let tripli = 0;
+
+            const symA = elA.simbolo;
+            const symB = elB.simbolo;
+
+            if (symA === symB) {
+                if (symA === 'H' || symA === 'F' || symA === 'Cl') singoli = 1;
+                else if (symA === 'O' || symA === 'S') doppi = 1;
+                else if (symA === 'N') tripli = 1;
+                else singoli = 1;
+            } else {
+                if ((symA === 'C' && symB === 'O') || (symA === 'O' && symB === 'C')) {
+                    if ((coeffA === 1 && coeffB === 2) || (coeffA === 2 && coeffB === 1)) {
+                        doppi = 2;
+                    } else {
+                        tripli = 1;
+                    }
+                } else {
+                    let valA = (symA === 'H') ? 1 : Math.min(elA.valenza, 8 - elA.valenza);
+                    let valB = (symB === 'H') ? 1 : Math.min(elB.valenza, 8 - elB.valenza);
+
+                    if (valA === 1 || valB === 1) {
+                        singoli = Math.max(coeffA, coeffB);
+                    } else if (valA === 2 && valB === 2) {
+                        doppi = 1;
+                    } else if (valA === 3 && valB === 3) {
+                        tripli = 1;
+                    } else {
+                        singoli = coeffA * valA;
+                    }
+                }
+            }
+
+            if (singoli > 0) {
+                container.innerHTML += `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/40 px-3 py-1 rounded-lg font-bold">${singoli} Legam${singoli > 1 ? 'i Covalenti Singoli' : 'e Covalente Singolo'} (—)</span>`;
+            }
+            if (doppi > 0) {
+                container.innerHTML += `<span class="bg-teal-500/20 text-teal-300 border border-teal-500/40 px-3 py-1 rounded-lg font-bold">${doppi} Legam${doppi > 1 ? 'i Covalenti Doppi' : 'e Covalente Doppio'} (=)</span>`;
+            }
+            if (tripli > 0) {
+                container.innerHTML += `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/40 px-3 py-1 rounded-lg font-bold">${tripli} Legam${tripli > 1 ? 'i Covalenti Tripli' : 'e Covalente Triplo'} (≡)</span>`;
+            }
+
+            const totalCoppie = (singoli * 1) + (doppi * 2) + (tripli * 3);
+            container.innerHTML += `<span class="bg-slate-700/80 text-slate-300 px-3 py-1 rounded-lg">Totale Elettroni Condivisi: <strong>${totalCoppie * 2} e⁻ (${totalCoppie} coppie)</strong></span>`;
+        }
+
+        function generaNomeComposto(elA, elB, countA, countB, isIonico, isBothMetals) {
+            if (isBothMetals) {
+                return elA.simbolo === elB.simbolo ? `Reticolo Metallico di ${elA.nome}` : `Lega Metallica (${elA.nome} - ${elB.nome})`;
+            }
+            if (elA.simbolo === elB.simbolo) return `Molecola Diatomica di ${elA.nome}`;
+            
+            if (isIonico) {
+                const nonMetallo = elA.tipo === 'non-metallo' ? elA : elB;
+                const metallo = elA.tipo === 'metallo' ? elA : elB;
+                if (nonMetallo.simbolo === 'F') return `Fluoruro di ${metallo.nome}`;
+                if (nonMetallo.simbolo === 'Cl') return `Cloruro di ${metallo.nome}`;
+                if (nonMetallo.simbolo === 'O') return `Ossido di ${metallo.nome}`;
+                if (nonMetallo.simbolo === 'S') return `Solfuro di ${metallo.nome}`;
+                if (nonMetallo.simbolo === 'N') return `Nitruro di ${metallo.nome}`;
+                return `Composto Ionico di ${metallo.nome} e ${nonMetallo.nome}`;
+            } else {
+                if ((elA.simbolo === 'H' && elB.simbolo === 'O') || (elA.simbolo === 'O' && elB.simbolo === 'H')) return "Acqua (H₂O)";
+                if ((elA.simbolo === 'C' && elB.simbolo === 'O') || (elA.simbolo === 'O' && elB.simbolo === 'C')) return "Anidride Carbonica (CO₂)";
+                return `Composto Covalente (${elA.nome} + ${elB.nome})`;
+            }
+        }
+
+        function disegnaVisualizzazione(elA, elB, countA, countB, isIonico, isBothMetals, diffEN, coeffA, coeffB) {
+            const visualizer = document.getElementById('visualizerArea');
+            const explanation = document.getElementById('explanationText');
+            visualizer.innerHTML = '';
+
+            if (isBothMetals) {
+                // DETTAGLIO CARICA CATIONICA NEL LEGAME METALLICO
+                const caricaA = elA.caricaMetallo > 1 ? `${elA.caricaMetallo}+` : '+';
+                const caricaB = elB.caricaMetallo > 1 ? `${elB.caricaMetallo}+` : '+';
+                const totElettroniReticolo = (elA.caricaMetallo * 3) + (elB.caricaMetallo * 3);
+
+                visualizer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-4 text-center w-full">
+                        <div class="grid grid-cols-3 gap-3 bg-slate-900 border-2 border-indigo-500/50 p-5 rounded-2xl relative overflow-hidden max-w-sm">
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elA.simbolo}<sup>${caricaA}</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elB.simbolo}<sup>${caricaB}</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elA.simbolo}<sup>${caricaA}</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elB.simbolo}<sup>${caricaB}</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elA.simbolo}<sup>${caricaA}</sup></div>
+                            <div class="w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-300 flex items-center justify-center font-black text-white text-xs shadow-md">${elB.simbolo}<sup>${caricaB}</sup></div>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2 bg-indigo-950/80 px-3 py-1.5 rounded-lg border border-indigo-500/40 text-xs text-indigo-300 font-bold">
+                            <i class="fa-solid fa-[#ffffff] fa-bolt"></i> Mare Elettronico Delocalizzato (${totElettroniReticolo} e⁻ liberi)
+                        </div>
+                    </div>
+                `;
+
+                explanation.innerHTML = `
+                    Trattandosi dell'unione tra due metalli (<strong>${elA.nome}</strong> e <strong>${elB.nome}</strong>), si forma un <strong>Legame Metallico</strong>.<br>
+                    Ciascun atomo rilascia i propri elettroni di valenza formandosi cationi metallici specifici: 
+                    <strong>${elA.simbolo}<sup>${caricaA}</sup></strong> (${elA.caricaMetallo} e⁻/atomo) e 
+                    <strong>${elB.simbolo}<sup>${caricaB}</sup></strong> (${elB.caricaMetallo} e⁻/atomo).<br>
+                    I cationi si ordinano in un reticolo cristallino immerso in un <strong>mare di elettroni delocalizzati</strong>. 
+                    ${(elA.caricaMetallo > 1 || elB.caricaMetallo > 1) ? `La carica bivalente (es. <strong>${elA.caricaMetallo > 1 ? elA.simbolo + '²⁺' : elB.simbolo + '²⁺'}</strong>) aumenta la densità elettronica, garantendo una forza di coesione reticolare e un punto di fusione nettamente più elevati rispetto ai metalli monovalenti.` : 'I metalli monovalenti generano una densità elettronica moderata, associata a maggiore malleabilità e punti di fusione più bassi.'}
+                `;
+
+            } else if (isIonico) {
+                const metallo = elA.tipo === 'metallo' ? elA : elB;
+                const nonMetallo = elA.tipo === 'non-metallo' ? elA : elB;
+                const nMetallo = elA.tipo === 'metallo' ? countA : countB;
+                const nNonMetallo = elA.tipo === 'non-metallo' ? countA : countB;
+
+                const caricaMetalloStr = metallo.valenza > 1 ? `${metallo.valenza}+` : '+';
+                const caricaNonMetalloVal = Math.abs(nonMetallo.caricaDefault);
+                const caricaNonMetalloStr = caricaNonMetalloVal > 1 ? `${caricaNonMetalloVal}-` : '-';
+
+                const cationiGroup = document.createElement('div');
+                cationiGroup.className = "flex flex-wrap gap-4 items-center justify-center";
+                for (let i = 0; i < nMetallo; i++) {
+                    const cationHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="atom-badge relative w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 border-4 border-amber-300 flex items-center justify-center shadow-lg">
+                                <span class="text-2xl font-black text-slate-950">${metallo.simbolo}</span>
+                                <span class="absolute -top-2 -right-2 bg-red-600 text-white font-extrabold text-xs px-2 py-0.5 rounded-full border border-slate-900">${caricaMetalloStr}</span>
+                            </div>
+                            <span class="text-xs text-amber-300 font-bold mt-2">Catione (Cede e⁻)</span>
+                        </div>
+                    `;
+                    cationiGroup.innerHTML += cationHTML;
+                }
+                visualizer.appendChild(cationiGroup);
+
+                visualizer.innerHTML += `
+                    <div class="flex flex-col items-center justify-center px-2">
+                        <i class="fa-solid fa-right-long text-3xl text-amber-400 electron-pulse"></i>
+                        <span class="text-[10px] text-amber-300 uppercase font-bold mt-1">Trasferimento e⁻</span>
+                    </div>
+                `;
+
+                const anioniGroup = document.createElement('div');
+                anioniGroup.className = "flex flex-wrap gap-4 items-center justify-center";
+                for (let i = 0; i < nNonMetallo; i++) {
+                    const anionHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="atom-badge relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 border-4 border-emerald-300 flex items-center justify-center shadow-lg">
+                                <span class="text-2xl font-black text-slate-950">${nonMetallo.simbolo}</span>
+                                <span class="absolute -top-2 -right-2 bg-blue-600 text-white font-extrabold text-xs px-2 py-0.5 rounded-full border border-slate-900">${caricaNonMetalloStr}</span>
+                            </div>
+                            <span class="text-xs text-emerald-300 font-bold mt-2">Anione (Acquista e⁻)</span>
+                        </div>
+                    `;
+                    anioniGroup.innerHTML += anionHTML;
+                }
+                visualizer.appendChild(anioniGroup);
+
+                explanation.innerHTML = `
+                    L'unione tra il metallo <strong>${metallo.nome} (${metallo.simbolo})</strong> e il non-metallo <strong>${nonMetallo.nome} (${nonMetallo.simbolo})</strong> forma un <strong>Legame Ionico</strong> guidato dal raggiungimento della stabilità dell'ottetto.<br>
+                    ${nMetallo > 1 ? nMetallo + ' atomi' : '1 atomo'} di ${metallo.nome} cede/cedono gli elettroni di valenza formando <strong>${nMetallo} cationi (${metallo.simbolo}<sup>${caricaMetalloStr}</sup>)</strong>.<br>
+                    ${nNonMetallo > 1 ? nNonMetallo + ' atomi' : '1 atomo'} di ${nonMetallo.nome} acquista/acquistano elettroni per completare l'ottetto, formando <strong>${nNonMetallo} anioni (${nonMetallo.simbolo}<sup>${caricaNonMetalloStr}</sup>)</strong>.<br>
+                    Stechiometria neutra del composto: <strong>${document.getElementById('formulaDisplay').innerHTML}</strong>.
+                `;
+
+            } else {
+                const atomAHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="atom-badge relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-4 border-blue-300 flex items-center justify-center shadow-lg">
+                            <span class="text-2xl font-black text-white">${elA.simbolo}</span>
+                            <span class="absolute -bottom-1 text-[10px] bg-slate-900 text-slate-300 px-1.5 rounded-full">x${coeffA}</span>
+                        </div>
+                        <span class="text-xs text-blue-300 font-bold mt-2 font-mono">EN: ${elA.en}</span>
+                    </div>
+                `;
+
+                const covalentSummary = document.getElementById('covalentDetailsContent').innerText;
+
+                const shareZone = `
+                    <div class="flex flex-col items-center justify-center bg-slate-900 border-2 border-dashed border-teal-500/50 p-3 rounded-xl max-w-[220px] text-center">
+                        <div class="flex items-center gap-1.5 text-teal-300 font-bold text-sm mb-1">
+                            <i class="fa-solid fa-link"></i> Condivisione
+                        </div>
+                        <span class="text-xs text-slate-300">${covalentSummary}</span>
+                    </div>
+                `;
+
+                const atomBHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="atom-badge relative w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 border-4 border-teal-300 flex items-center justify-center shadow-lg">
+                            <span class="text-2xl font-black text-white">${elB.simbolo}</span>
+                            <span class="absolute -bottom-1 text-[10px] bg-slate-900 text-slate-300 px-1.5 rounded-full">x${coeffB}</span>
+                        </div>
+                        <span class="text-xs text-teal-300 font-bold mt-2 font-mono">EN: ${elB.en}</span>
+                    </div>
+                `;
+
+                visualizer.innerHTML = atomAHTML + shareZone + atomBHTML;
+
+                explanation.innerHTML = `
+                    Unione tra due non-metalli (<strong>${elA.nome}</strong> e <strong>${elB.nome}</strong>): gli elettroni vengono messi in comune per raggiungere la stabilità dell'ottetto.<br>
+                    <strong>Legami covalenti presenti:</strong> ${covalentSummary}.<br>
+                    Con ΔEN = <strong>${diffEN}</strong>, il legame è classificato come <strong>${diffEN >= 0.4 ? 'Covalente Polare' : 'Covalente Apolare / Puro'}</strong>.
+                `;
+            }
+        }
+
+        function scambiaElementi() {
+            const selectA = document.getElementById('elemASelect');
+            const selectB = document.getElementById('elemBSelect');
+            const temp = selectA.value;
+            selectA.value = selectB.value;
+            selectB.value = temp;
+            calcolaLegame();
+        }
+
+        function caricaEsempio(symA, symB) {
+            document.getElementById('elemASelect').value = symA;
+            document.getElementById('elemBSelect').value = symB;
+            calcolaLegame();
+        }
+
+        function leggiSpiegazione() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const testo = document.getElementById('explanationText').innerText;
+                const utterance = new SpeechSynthesisUtterance(testo);
+                utterance.lang = 'it-IT';
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("La sintesi vocale non è supportata dal tuo browser.");
+            }
+        }
+
+        function scaricaOffline() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'simulatore_legami_chimici.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        window.onload = function() {
+            inizializzaSelect();
+            calcolaLegame();
+        };
+    </script>
+
+</body></html>

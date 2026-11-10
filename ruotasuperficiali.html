@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruota della Fortuna - Stati della Materia e Proprietà Superficiali</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel-bg: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        h1 {
+            margin-bottom: 5px;
+            color: #38bdf8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        p.subtitle {
+            color: #94a3b8;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        .scoreboard {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .player-card {
+            background: var(--panel-bg);
+            padding: 10px 25px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s;
+        }
+        .player-card.active {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: scale(1.05);
+        }
+        .player-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .player-card .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .main-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .wheel-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+        }
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            background: #1e293b;
+        }
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 35px solid #ef4444;
+            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5));
+            z-index: 10;
+        }
+        .panel {
+            width: 400px;
+            background: #0f172a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .turn-info {
+            font-size: 1.1rem;
+            color: #38bdf8;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        button.spin-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+        button.spin-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .question-box {
+            display: none;
+            margin-top: 10px;
+        }
+        .question-text {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            color: #f1f5f9;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .option-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #334155;
+            border-color: #38bdf8;
+        }
+        .option-btn.correct {
+            background: #166534 !important;
+            border-color: #22c55e !important;
+        }
+        .option-btn.incorrect {
+            background: #991b1b !important;
+            border-color: #ef4444 !important;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+        .next-turn-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            display: none;
+        }
+        .next-turn-btn:hover {
+            background: var(--accent-hover);
+        }
+        .winner-screen {
+            display: none;
+            text-align: center;
+        }
+        .winner-screen h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        .download-container {
+            margin-top: 25px;
+        }
+        .download-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s ease;
+        }
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ruota della Fortuna - Stati della Materia e Proprietà Superficiali</h1>
+    <p class="subtitle">24 Settori • Punteggi da 0 a 500 • Traguardo vittoria: 1500 punti</p>
+
+    <div class="scoreboard">
+        <div id="p1Card" class="player-card active">
+            <h3>SQUADRA 1</h3>
+            <div id="p1Score" class="score">0 pt</div>
+        </div>
+        <div id="p2Card" class="player-card">
+            <h3>SQUADRA 2</h3>
+            <div id="p2Score" class="score">0 pt</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="wheel-container" id="wheelWrapper">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="420" height="420"></canvas>
+        </div>
+
+        <div class="panel">
+            <div id="gameActiveArea">
+                <div id="turnInfo" class="turn-info">Tocca alla Squadra 1</div>
+                <div id="actionArea">
+                    <button id="spinBtn" class="spin-btn" onclick="spinWheel()">GIRA LA RUOTA</button>
+                </div>
+                
+                <div id="questionBox" class="question-box">
+                    <div id="scoreBadge" style="color: #ffd700; font-weight: bold; margin-bottom: 8px;"></div>
+                    <div id="questionText" class="question-text"></div>
+                    <div id="optionsContainer" class="options-container"></div>
+                    <div id="feedback" class="feedback"></div>
+                    <button id="nextTurnBtn" class="next-turn-btn" onclick="nextTurn()">PROSSIMO TURNO</button>
+                </div>
+            </div>
+
+            <div id="winnerScreen" class="winner-screen">
+                <h2 id="winnerText"></h2>
+                <button class="spin-btn" onclick="resetGame()">GIOCA ANCORA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="download-container">
+        <button class="download-btn" onclick="downloadApp()">💾 Scarica App per Uso Offline (.html)</button>
+    </div>
+
+<script>
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const numSectors = 24;
+const arc = (2 * Math.PI) / numSectors;
+
+let currentPlayer = 1;
+let scores = { 1: 0, 2: 0 };
+let currentScoreValue = 0;
+let currentActiveQuestion = null;
+
+const masterQuestionsDB = {
+    100: [
+        { id: 1, q: "Qual è la differenza fondamentale tra un GAS e un VAPORE?", options: ["Un gas si trova al di sopra della temperatura critica, mentre un vapore è liquefacibile al di sotto di essa per sola pressione", "Il vapore occupa più volume del gas", "Il gas si trova allo stato solido a temperatura ambiente", "Non c'è alcuna differenza scientifica tra gas e vapore"], correct: 0, explanation: "Un aeriforme è un gas se la sua temperatura è maggiore di quella critica; se inferiore è un vapore ed è liquefacibile per sola compressione." },
+        { id: 2, q: "Come si definisce il passaggio di stato diretto da SOLIDO a GAS?", options: ["Sublimazione", "Brinamento", "Condensazione", "Evaporazione"], correct: 0, explanation: "La sublimazione è il passaggio diretto dallo stato solido a quello aeriforme (gassoso)." },
+        { id: 3, q: "Quali sono i tre principali stati di aggregazione della materia?", options: ["Aeriforme, liquido e solido", "Solido, amorfo e polimorfo", "Sol, gel ed emulsione", "Cristallo, vetro e liquido"], correct: 0, explanation: "I tre stati fondamentali di aggregazione sono l'aeriforme (gassoso), il liquido e il solido." },
+        { id: 4, q: "Come diminuisce la tensione superficiale di un liquido?", options: ["All'aumentare della temperatura a causa dell'aumentata velocità delle particelle", "Abbassando la temperatura fino al punto di congelamento", "Aumentando la pressione atmosferica sul recipiente", "Aggiungendo soluti solidi insolubili"], correct: 0, explanation: "All'aumentare della temperatura la velocità delle molecole aumenta, riducendo le forze intermolecolari e quindi la tensione superficiale." },
+        { id: 5, q: "Come si definisce un solido le cui particelle sono disposte in modo disordinato (simile a un liquido ad alta viscosità)?", options: ["Solido amorfo (o vetro)", "Solido monocristallino", "Solido policristallino", "Reticolo cubico"], correct: 0, explanation: "I solidi amorfi hanno particelle disposte in modo disordinato e sono spesso definiti vetri o liquidi ad altissima viscosità." }
+    ],
+    200: [
+        { id: 6, q: "Cosa sono i tensioattivi e qual è la loro struttura molecolare?", options: ["Sostanze con una parte lipofila e una idrofila che riducono la tensione superficiale", "Sostanze prive di carica che congelano i liquidi", "Polimeri elastici che aumentano l'energia superficiale", "Soluti metallici che formano reticoli cristallini"], correct: 0, explanation: "I tensioattivi riducono la tensione superficiale avendo molecole anfipatiche, costituite da una testa idrofila e una coda organica lipofila." },
+        { id: 7, q: "Cosa si intende per 'intervallo di fusione' nei materiali protesici?", options: ["L'intervallo di temperatura in cui fonde una soluzione solida (lega)", "La temperatura esatta in cui un elemento puro fonde", "L'intervallo di rammollimento di un solido amorfo", "La temperatura limite per la sublimazione"], correct: 0, explanation: "Mentre i metalli puri fondono a temperatura costante, le soluzioni solide (leghe metalliche) fondono lungo un intervallo di temperatura." },
+        { id: 8, q: "Come si definisce un sistema colloidale formato da particelle solide disperse in un liquido?", options: ["Sol", "Gel", "Emulsione", "Aerosol"], correct: 0, explanation: "Un Sol è una dispersione colloidale di particelle solide all'interno di un mezzo disperdente liquido." },
+        { id: 9, q: "Qual è la differenza tra idrocolloidi reversibili e irreversibili in odontotecnica?", options: ["Gli idrocolloidi reversibili (AGAR) possono passare da sol a gel e viceversa; gli irreversibili (Alginati) no", "Gli alginati sono reversibili per riscaldamento", "L'AGAR è un gel minerale non utilizzabile per impronte", "Non c'è alcuna differenza nella reazione chimica"], correct: 0, explanation: "L'AGAR passa da idrosol a idrogel e viceversa per variazione termica, mentre l'alginato forma una struttura irreversibile per reazione chimica." },
+        { id: 10, q: "Come si manifesta il fenomeno del polimorfismo nei materiali protesici?", options: ["Quando un composto esiste in forme cristalline differenti (es. la silice SiO2 in quarzo, tridimite e cristobalite)", "Quando un metallo passa da solido ad amorfo per tempra", "Quando un elastomero assume la forma di fibra tessile", "Quando l'acqua evapora da un gel idrocolloide"], correct: 0, explanation: "Il polimorfismo è la capacità di un elemento o composto di cristallizzare in strutture diverse, come le forme della silice (SiO2)." }
+    ],
+    300: [
+        { id: 11, q: "Qual è la relazione tra l'angolo di contatto e la BAGNABILITÀ di un solido da parte di un liquido?", options: ["Minore è l'angolo di contatto, maggiore è la bagnabilità", "Maggiore è l'angolo di contatto, maggiore è la bagnabilità", "La bagnabilità è massima quando l'angolo di contatto è di 180°", "L'angolo di contatto dipende solo dalla gravità"], correct: 0, explanation: "Una bagnabilità elevata si ottiene con angoli di contatto bassi (prossimi a 0°), indice di bassa tensione superficiale del liquido o alta energia superficiale del solido." },
+        { id: 12, q: "Cosa accade nel fenomeno della CAPILLARITÀ se l'angolo di contatto è MINORE di 90°?", options: ["Il liquido sale nel tubo capillare ad un livello superiore rispetto al liquido esterno", "Il liquido scende ad un livello inferiore", "Il liquido non entra nel capillare", "Il liquido solida istantaneamente"], correct: 0, explanation: "Quando l'angolo di contatto è inferiore a 90° (buona bagnabilità), le forze di adesione prevalgono e il liquido risale il tubo capillare." },
+        { id: 13, q: "Che cos'è l'ALLOTROPIA? (Fornisci un esempio tipico)", options: ["L'esistenza dello stesso elemento in strutture e legami diversi (es. Carbonio grafite e diamante)", "La miscelazione di polveri ceramiche e metalliche sotto fusione", "Il passaggio da stato liquido a vapore in un vaso chiuso", "La presenza di dislocazioni nei bordi di grano"], correct: 0, explanation: "L'allotropia si verifica quando lo stesso elemento chimico presenta strutture cristalline e legami differenti, come il carbonio in grafite o diamante." },
+        { id: 14, q: "Cosa si intende per 'tensione di vapore' di un liquido in un recipiente chiuso?", options: ["La pressione esercitata dal vapore in equilibrio con il proprio liquido a una data temperatura", "La velocità con cui il liquido bolle a 100°C", "La forza con cui la membrana superficiale contrae la goccia", "La differenza di pressione tra solido e liquido alla fusione"], correct: 0, explanation: "In un recipiente chiuso si raggiunge un equilibrio dinamico tra molecole che evaporano e condensano; la pressione generata è la tensione di vapore." },
+        { id: 15, q: "Quale difetto reticolare dei metalli è il principale responsabile della loro plasticità e deformabilità?", options: ["Le dislocazioni (piani incompleti di atomi che scivolano sotto sollecitazione)", "Le vacanze reticolari", "La presenza di giunti di grano giganti", "Il rammollimento della matrice amorfa"], correct: 0, explanation: "Le dislocazioni sono difetti di linea che si muovono con facilità nel reticolo metallico quando sottoposti a sforzo, garantendo la deformabilità plastica." }
+    ],
+    400: [
+        { id: 16, q: "Perché in odontoiatria si effettua la mordenzatura dello smalto con acido?", options: ["Per aumentare l'energia superficiale del solido e migliorare la bagnabilità e l'adesione della resina", "Per ridurre la capillarità dei tubuli dentinali", "Per trasformare lo smalto cristallino in solido amorfo", "Per abbassare la tensione di vapore del monomero"], correct: 0, explanation: "La mordenzatura pulisce la superficie e ne aumenta l'energia superficiale, riducendo l'angolo di contatto e favorendo una perfetta bagnabilità da parte dell'adesivo." },
+        { id: 17, q: "In che cosa consiste il processo di SINTERIZZAZIONE usato in metallo-ceramica?", options: ["Nel riscaldamento di polveri ceramiche o metalliche a temperature inferiori alla fusione per saldarle tra loro", "Nella fusione completa della lega in centrifuga a induzione", "Nella trasformazione dell'alginato da sol a gel irreversibile", "Nella cristallizzazione rapida di un vetro inorganico"], correct: 0, explanation: "La sinterizzazione ricompatta le polveri riscaldandole al di sotto del loro punto di fusione, facendo aderire i granuli per diffusione atomica." },
+        { id: 18, q: "Quali ossidi inorganici si aggiungono ai vetri per ottenere rispettivamente le colorazioni Verde-Azzurro e Rosso?", options: ["FeO (Verde-Azzurro) e Cu2O (Rosso)", "Fe2O3 (Verde-Azzurro) e Cr2O3 (Rosso)", "SiO2 (Verde-Azzurro) e FeO (Rosso)", "Al2O3 (Verde-Azzurro) e Cu2O (Rosso)"], correct: 0, explanation: "L'ossido ferroso (FeO) dona al vetro la colorazione verde-azzurro, mentre l'ossido rameoso (Cu2O) conferisce la colorazione rossa." },
+        { id: 19, q: "Come varia la temperatura di un solido puro durante l'intero processo di fusione?", options: ["Resta costante fino a quando tutto il solido non è diventato liquido", "Aumenta in modo lineare man mano che si somministra calore", "Diminuisce a causa del riordino cristallino", "Oscilla in base alla presenza di dislocazioni"], correct: 0, explanation: "Durante il passaggio di stato di un elemento o sostanza pura, la temperatura rimane rigorosamente costante finché coesistono le due fasi." },
+        { id: 20, q: "Che differenza fondamentale c'è tra una soluzione solida di SOSTITUZIONE e una INTERSTIZIALE?", options: ["Nella sostituzione atomi di soluto rimpiazzano atomi di solvente nei nodi; nell'interstiziale si posizionano negli spazi vuoti", "La soluzione di sostituzione si applica solo ai vetri amorfi", "Nelle soluzioni interstiziali gli atomi di soluto sono sempre più grandi del solvente", "Nessuna, sono entrambi colloidi reversibili"], correct: 0, explanation: "Nelle soluzioni solide di sostituzione i nodi del reticolo sono occupati da atomi diversi, mentre in quelle interstiziali atomi piccoli si inseriscono tra i vuoti del reticolo." }
+    ],
+    500: [
+        { id: 21, q: "Cosa distingue la tensione superficiale dei liquidi dall'energia superficiale dei solidi?", options: ["Entrambe derivano da forze di coesione sbilanciate verso l'interno sulle particelle superficiali", "La tensione superficiale riguarda unicamente i gas compressi", "L'energia superficiale dei solidi è sempre nulla rispetto ai liquidi", "I liquidi attraggono le molecole esterne, mentre i solidi le respingono"], correct: 0, explanation: "In entrambi i casi le molecole di superficie possiedono un'energia maggiore rispetto a quelle interne perché attratte solo dalle molecole sottostanti e adiacenti." },
+        { id: 22, q: "Che cos'è l'EBOLLIZIONE rispetto alla semplice evaporazione di un liquido?", options: ["È il punto estremo in cui la tensione di vapore eguaglia la pressione esterna e il vapore si forma in tutta la massa del liquido", "È la formazione di vapore limitata esclusivamente alla superficie del liquido", "È il passaggio da vapore a liquido per aumento di pressione", "È la liquefazione rapida di un gas a temperatura critica"], correct: 0, explanation: "L'ebollizione coinvolge l'intera massa liquida e avviene quando la tensione di vapore del liquido raggiunge la pressione atmosferica esterna." },
+        { id: 23, q: "Da quali elementi geometrici fondamentali è caratterizzata la CELLA ELEMENTARE di un reticolo cristallino?", options: ["Parametri reticolari (lati del parallelepipedo), angoli e nodi", "Bordi di grano, vacanze e dislocazioni di scorrimento", "Geli, soli ed emulsioni idrocolloidali", "Punti di sublimazione e intervalli di rammollimento"], correct: 0, explanation: "Ogni cella elementare è definita dai suoi lati (parametri reticolari), dagli angoli tra di essi e dalle posizioni atomiche (nodi)." },
+        { id: 24, q: "Come si classificano i polimeri in base al loro comportamento al riscaldamento e alle proprietà meccaniche?", options: ["Plastomeri (resine termoplastiche), Elastomeri (gomme) e Fibre tessili", "Monocristallini, policristallini e amorfi", "Idrocolloidi reversibili, irreversibili e a base di silice", "Metalli nobili, leghe vili e ceramiche speciali"], correct: 0, explanation: "I materiali plastici (macromolecole) si dividono in plastomeri, elastomeri e fibre tessili in base alla struttura molecolare e risposta termomeccanica." },
+        { id: 25, q: "In odontotecnica, qual è la funzione dei materiali ceramici speciali rispetto a quelli ordinari?", options: ["I ceramici speciali sono costituiti da ossidi puri per elevate prestazioni meccaniche/estetiche, quelli ordinari da silicati", "I ceramici ordinari servono per rivestimenti da colata metallica", "I ceramici speciali fondono a basse temperature come le cere", "I ceramici ordinari non contengono silice ma solo polimeri"], correct: 0, explanation: "I ceramici ordinari sono a base di silicati (es. porcellane, terracotta), mentre i ceramici speciali impiegano ossidi puri (es. zirconio, allumina) ad altissima resistenza." }
+    ]
+};
+
+let availableQuestions = JSON.parse(JSON.stringify(masterQuestionsDB));
+
+const sectorsData = [
+    { score: 0 }, { score: 100 }, { score: 200 }, { score: 300 }, { score: 400 }, { score: 500 },
+    { score: 0 }, { score: 100 }, { score: 200 }, { score: 300 }, { score: 400 }, { score: 500 },
+    { score: 0 }, { score: 100 }, { score: 200 }, { score: 300 }, { score: 400 }, { score: 500 },
+    { score: 0 }, { score: 100 }, { score: 200 }, { score: 300 }, { score: 400 }, { score: 500 }
+];
+
+const colors = [
+    '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c', '#3498db',
+    '#9b59b6', '#e84393', '#fdcb6e', '#00b894', '#0984e3', '#6c5ce7',
+    '#fab1a0', '#55efc4', '#81ecec', '#74b9ff', '#a29bfe', '#ffeaa7',
+    '#ff7675', '#fd79a8', '#00cec9', '#ffeaa7', '#fab1a0', '#e17055'
+];
+
+let startAngle = 0;
+let outsideRadius = 190;
+let textRadius = 135;
+let ctxCenter = 210;
+
+function drawWheel() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < numSectors; i++) {
+        let angle = startAngle + i * arc;
+        
+        ctx.beginPath();
+        ctx.moveTo(ctxCenter, ctxCenter);
+        ctx.arc(ctxCenter, ctxCenter, outsideRadius, angle, angle + arc, false);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "#ffffff";
+        ctx.stroke();
+
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+        ctx.shadowBlur = 4;
+        ctx.font = "bold 14px Arial";
+        ctx.translate(
+            ctxCenter + Math.cos(angle + arc / 2) * textRadius,
+            ctxCenter + Math.sin(angle + arc / 2) * textRadius
+        );
+        ctx.rotate(angle + arc / 2 + Math.PI / 2);
+        let text = sectorsData[i].score.toString();
+        ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+        ctx.restore();
+    }
+
+    ctx.beginPath();
+    ctx.arc(ctxCenter, ctxCenter, 25, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffd700";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 6;
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#fff";
+    ctx.stroke();
+}
+
+let spinAngleStart = 0;
+let spinTime = 0;
+let spinTimeTotal = 0;
+
+function spinWheel() {
+    document.getElementById('spinBtn').disabled = true;
+    spinAngleStart = Math.random() * 30 + 40;
+    spinTime = 0;
+    spinTimeTotal = Math.random() * 1500 + 1500;
+    rotateWheel();
+}
+
+function rotateWheel() {
+    spinTime += 20;
+    if (spinTime >= spinTimeTotal) {
+        stopRotateWheel();
+        return;
+    }
+    let spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+    startAngle += (spinAngle * Math.PI / 180);
+    drawWheel();
+    setTimeout(rotateWheel, 20);
+}
+
+function easeOut(t, b, c, d) {
+    let ts = (t /= d) * t;
+    let tc = ts * t;
+    return b + c * (tc + -3 * ts + 3 * t);
+}
+
+function stopRotateWheel() {
+    let degrees = startAngle * 180 / Math.PI + 90;
+    let arcd = arc * 180 / Math.PI;
+    let index = Math.floor((360 - (degrees % 360)) / arcd) % numSectors;
+    
+    currentScoreValue = sectorsData[index].score;
+    
+    document.getElementById('spinBtn').style.display = 'none';
+    document.getElementById('questionBox').style.display = 'block';
+    
+    loadQuestion(currentScoreValue);
+}
+
+function loadQuestion(scoreVal) {
+    if (scoreVal === 0) {
+        document.getElementById('scoreBadge').innerText = "0 Punti (Pausa)";
+        document.getElementById('questionText').innerText = "Turno di pausa! Nessuna domanda per questo giro.";
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+        document.getElementById('feedback').innerText = "Il turno passa all'altra squadra.";
+        document.getElementById('nextTurnBtn').style.display = 'block';
+        currentActiveQuestion = null;
+        return;
+    }
+
+    if (!availableQuestions[scoreVal] || availableQuestions[scoreVal].length === 0) {
+        availableQuestions[scoreVal] = JSON.parse(JSON.stringify(masterQuestionsDB[scoreVal]));
+    }
+
+    document.getElementById('scoreBadge').innerText = `Punteggio in palio: ${scoreVal} punti`;
+    
+    const pool = availableQuestions[scoreVal];
+    const randIdx = Math.floor(Math.random() * pool.length);
+    const qObj = pool.splice(randIdx, 1)[0];
+    currentActiveQuestion = qObj;
+
+    document.getElementById('questionText').innerText = qObj.q;
+    
+    const optionsContainer = document.getElementById('optionsContainer');
+    optionsContainer.innerHTML = '';
+    document.getElementById('feedback').innerText = '';
+    document.getElementById('nextTurnBtn').style.display = 'none';
+
+    let opts = qObj.options.map((opt, idx) => ({ text: opt, isCorrect: idx === qObj.correct }));
+    opts.sort(() => Math.random() - 0.5);
+
+    opts.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = item.text;
+        btn.onclick = () => checkAnswer(item.isCorrect, btn, opts);
+        optionsContainer.appendChild(btn);
+    });
+}
+
+function checkAnswer(isCorrect, selectedBtn, opts) {
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    const feedback = document.getElementById('feedback');
+
+    if (isCorrect) {
+        selectedBtn.classList.add('correct');
+        feedback.style.color = '#22c55e';
+        feedback.innerText = `CORRETTO! +${currentScoreValue} punti. ${currentActiveQuestion.explanation}`;
+        scores[currentPlayer] += currentScoreValue;
+        updateScoreboard();
+        checkWinCondition();
+    } else {
+        selectedBtn.classList.add('incorrect');
+        feedback.style.color = '#ef4444';
+        feedback.innerText = `ERRATO! ${currentActiveQuestion.explanation}`;
+        buttons.forEach((b, idx) => {
+            if (opts[idx].isCorrect) b.classList.add('correct');
+        });
+    }
+
+    document.getElementById('nextTurnBtn').style.display = 'block';
+}
+
+function updateScoreboard() {
+    document.getElementById('p1Score').innerText = scores[1] + " pt";
+    document.getElementById('p2Score').innerText = scores[2] + " pt";
+}
+
+function checkWinCondition() {
+    if (scores[1] >= 1500 || scores[2] >= 1500) {
+        document.getElementById('gameActiveArea').style.display = 'none';
+        document.getElementById('wheelWrapper').style.display = 'none';
+        const winner = scores[1] >= 1500 ? "SQUADRA 1" : "SQUADRA 2";
+        document.getElementById('winnerText').innerText = `🎉 LA ${winner} HA VINTO LA PARTITA RAGGIUNGENDO 1500 PUNTI! 🎉`;
+        document.getElementById('winnerScreen').style.display = 'block';
+    }
+}
+
+function nextTurn() {
+    if (scores[1] >= 1500 || scores[2] >= 1500) return;
+
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+    document.getElementById('p1Card').classList.toggle('active', currentPlayer === 1);
+    document.getElementById('p2Card').classList.toggle('active', currentPlayer === 2);
+    document.getElementById('turnInfo').innerText = `Tocca alla Squadra ${currentPlayer}`;
+
+    document.getElementById('questionBox').style.display = 'none';
+    document.getElementById('spinBtn').style.display = 'block';
+    document.getElementById('spinBtn').disabled = false;
+}
+
+function resetGame() {
+    scores = { 1: 0, 2: 0 };
+    currentPlayer = 1;
+    availableQuestions = JSON.parse(JSON.stringify(masterQuestionsDB));
+    updateScoreboard();
+    document.getElementById('p1Card').classList.add('active');
+    document.getElementById('p2Card').classList.remove('active');
+    document.getElementById('turnInfo').innerText = "Tocca alla Squadra 1";
+    document.getElementById('winnerScreen').style.display = 'none';
+    document.getElementById('gameActiveArea').style.display = 'block';
+    document.getElementById('wheelWrapper').style.display = 'block';
+    document.getElementById('questionBox').style.display = 'none';
+    document.getElementById('spinBtn').style.display = 'block';
+    document.getElementById('spinBtn').disabled = false;
+    drawWheel();
+}
+
+function downloadApp() {
+    const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ruota_stati_materia_protesica.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+drawWheel();
+</script>
+
+</body>
+</html>

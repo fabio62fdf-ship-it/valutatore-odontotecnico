@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtuale: Materiali da Rivestimento Odontotecnici</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0d9488;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            display: none;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary-light);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid var(--primary-light);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .sim-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sim-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+        }
+
+        .display-box {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .badge-danger { background: var(--danger); }
+        .badge-success { background: var(--success); }
+        .badge-warning { background: var(--warning); }
+
+        .svg-canvas {
+            width: 100%;
+            height: 250px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .download-btn-container {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .btn-download {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .map-item {
+            background: #ffffff;
+            border: 2px solid var(--primary-light);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .map-item h4 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Materiali da Rivestimento Odontotecnici</h1>
+        <p>Modulo Didattico Interattivo & Simulatore di Laboratorio Virtuale</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="showSection('sec1')">1. Comparazione Leganti</button>
+        <button class="nav-btn" onclick="showSection('sec2')">2. Fisica della Silice</button>
+        <button class="nav-btn" onclick="showSection('sec3')">3. Lab 1: Selezione Lega</button>
+        <button class="nav-btn" onclick="showSection('sec4')">4. Lab 2: Liquido Espansione</button>
+        <button class="nav-btn" onclick="showSection('sec5')">5. Mappa Concettuale</button>
+    </nav>
+
+    <!-- SEZIONE 1: COMPARAZIONE LEGANTI -->
+    <div id="sec1" class="section active">
+        <h2>1. Comparazione dei Leganti da Rivestimento</h2>
+        <p>I materiali da rivestimento sono composti da una componente refrattaria (silice) e da un legante che permette l'indurimento della massa.</p>
+
+        <div class="grid-3">
+            <div class="card">
+                <h3>Legante Gessoso</h3>
+                <p><strong>Composizione:</strong> Gesso duro (alfa-emidrato ~35%) + Silice (~60%).</p>
+                <p><strong>Temp. Max:</strong> 700 °C (consigliata 650 °C).</p>
+                <p><strong>Applicazione:</strong> Leghe nobili ed auree a bassa temperatura di fusione (intarsi, corone, ponti).</p>
+                <p><strong>Rischio:</strong> Oltre i 700 °C si decompone liberando anidride solforosa (SO₂), gas corrosivo per il metallo.</p>
+            </div>
+
+            <div class="card">
+                <h3>Legante Fosfatico</h3>
+                <p><strong>Composizione:</strong> Fosfato monoammonico + Ossido di Magnesio + Silice.</p>
+                <p><strong>Temp. Max:</strong> 900 °C - 950 °C.</p>
+                <p><strong>Applicazione:</strong> Leghe non nobili (Co-Cr, Ni-Cr) e leghe nobili per metallo-ceramica ad alta T di fusione.</p>
+                <p><strong>Caratteristica:</strong> Elevata resistenza meccanica, reazione esotermica di presa.</p>
+            </div>
+
+            <div class="card">
+                <h3>Legante Siliceo</h3>
+                <p><strong>Composizione:</strong> Etilsilicato, alcol etilico, HCl diluito + Silice e MgO.</p>
+                <p><strong>Temp. Max:</strong> Fino a 1175 °C.</p>
+                <p><strong>Applicazione:</strong> Adatto a tutti gli impieghi ad altissima temperatura (es. scheletrati).</p>
+                <p><strong>Caratteristica:</strong> Forma un gel di acido polisilicico con espansione termica elevata (1.7% - 2.1%).</p>
+            </div>
+        </div>
+
+        <table style="margin-top: 30px;">
+            <thead>
+                <tr>
+                    <th>Caratteristica</th>
+                    <th>Legante Gessoso</th>
+                    <th>Legante Fosfatico</th>
+                    <th>Legante Siliceo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Resistenza Meccanica</td>
+                    <td>Media</td>
+                    <td>Elevata</td>
+                    <td>Bassa / Moderata</td>
+                </tr>
+                <tr>
+                    <td>Miscelazione Liquido</td>
+                    <td>Acqua Distillata</td>
+                    <td>Silice Colloidale + Acqua</td>
+                    <td>Miscela Alcolica (2-3 liquidi)</td>
+                </tr>
+                <tr>
+                    <td>Rischio Decomposizione</td>
+                    <td>Sì (&gt;700 °C libera SO₂)</td>
+                    <td>No (fino a 900-950 °C)</td>
+                    <td>No (fino a 1175 °C)</td>
+                </tr>
+                <tr>
+                    <td>Costo Relativo</td>
+                    <td>Economico</td>
+                    <td>Medio</td>
+                    <td>Elevato</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SEZIONE 2: FISICA DELLA SILICE -->
+    <div id="sec2" class="section">
+        <h2>2. Trasformazioni Chimico-Fisiche della Silice (SiO₂)</h2>
+        <p>La silice è il componente refrattario principale. Subisce due tipi distinti di trasformazione:</p>
+
+        <div class="grid-3" style="grid-template-columns: 1fr 1fr; margin-bottom: 25px;">
+            <div class="card" style="border-left-color: var(--danger);">
+                <h3>1. Trasformazione di Ricostruzione</h3>
+                <p>Si tratta del passaggio da una forma polimorfa all'altra (es. Quarzo &rarr; Tridimite &rarr; Cristobalite).</p>
+                <p><strong>Meccanismo:</strong> Richiede la rottura e la riformazione dei legami covalenti Si-O in nuove posizioni strutturali.</p>
+                <p><strong>In Laboratorio Odontotecnico NON avviene:</strong> È un processo estremamente lento che richiede tempi lunghissimi e temperature costanti elevate. Durante il normale ciclo di preriscaldamento del cilindro non c'è il tempo fisico affinché si verifichi.</p>
+            </div>
+
+            <div class="card" style="border-left-color: var(--success);">
+                <h3>2. Inversione Polimorfica (di Spostamento)</h3>
+                <p>È il passaggio dalla forma alpha (bassa temp.) alla forma beta (alta temp.) all'interno della stessa struttura cristallina (es. alpha-Quarzo &rarr; beta-Quarzo).</p>
+                <p><strong>Meccanismo:</strong> I legami Si-O NON si rompono; i tetraedri silicatici ruotano e modificano i loro angoli reciproci.</p>
+                <p><strong>In Laboratorio AVVIENE velocemente:</strong> Produce un'immediata espansione volumetrica con diminuzione della densità, indispensabile per compensare il ritiro del metallo.</p>
+            </div>
+        </div>
+
+        <h3>Grafico Dinamico di Espansione Termica della Silice</h3>
+        <p>Seleziona la forma cristallina per osservare la curva di espansione termica durante il riscaldamento:</p>
+        
+        <div style="margin: 15px 0;">
+            <label><input type="radio" name="silicaType" value="cristobalite" checked onchange="drawSilicaChart()"> Cristobalite (Inversione brusca a ~220-270 °C)</label> &nbsp;&nbsp;
+            <label><input type="radio" name="silicaType" value="quarzo" onchange="drawSilicaChart()"> Quarzo (Inversione a ~573 °C)</label>
+        </div>
+
+        <svg id="silicaChart" class="svg-canvas" viewBox="0 0 500 200"></svg>
+    </div>
+
+    <!-- SEZIONE 3: LAB 1 - SELEZIONE LEGA -->
+    <div id="sec3" class="section">
+        <h2>3. Laboratorio Virtuale 1: Selezione Rivestimento e Compatibilità Leghe</h2>
+        <p>Seleziona una lega metallica da colare per verificare quale tipo di rivestimento è idoneo ed evitare gravi errori di laboratorio.</p>
+
+        <div class="sim-container">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="alloySelect">Seleziona la Lega Metallica:</label>
+                    <select id="alloySelect" onchange="sim1Update()">
+                        <option value="gold">Lega d'Oro Universale / Nobili a bassa T (T. colata ~900-1000 °C)</option>
+                        <option value="agpd">Lega Argento-Palladio (T. colata ~1050-1150 °C)</option>
+                        <option value="nicr">Lega Nichel-Cromo (T. colata ~1300-1380 °C)</option>
+                        <option value="cocr">Lega Cobalto-Cromo (T. colata ~1380-1450 °C)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="binderSelect">Seleziona il Tipo di Rivestimento:</label>
+                    <select id="binderSelect" onchange="sim1Update()">
+                        <option value="gessoso">Legante Gessoso (Temp. Max 700 °C)</option>
+                        <option value="fosfatico">Legante Fosfatico (Temp. Max 950 °C)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="display-box">
+                <div id="sim1Status"></div>
+                <div id="sim1Details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEZIONE 4: LAB 2 - LIQUIDO ESPANSIONE -->
+    <div id="sec4" class="section">
+        <h2>4. Laboratorio Virtuale 2: Modulazione Liquido di Espansione</h2>
+        <p>Il refrattario puro ha un'espansione termica e di presa all'aria praticamente identica sia nel legante gessoso sia in quello fosfatico. Per leghe ad alto ritiro (come il Co-Cr), l'espansione termica non basta: occorre modulare il **liquido di espansione** (sol colloidale di silice cristallina).</p>
+
+        <div class="sim-container">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="colloidSlider">Rapporto Liquido Speciale / Acqua Distillata:</label>
+                    <input type="range" id="colloidSlider" min="0" max="100" value="50" oninput="sim2Update()">
+                    <p style="margin-top: 5px;">Concentrazione Liquido Speciale: <strong><span id="colloidVal">50</span>%</strong> (Acqua: <span id="waterVal">50</span>%)</p>
+                </div>
+
+                <div style="background: #e2e8f0; padding: 15px; border-radius: 8px;">
+                    <h4>Meccanismo Molecolare:</h4>
+                    <p style="font-size: 0.9rem;">Le micro-particelle di silice colloidale si interpongono tra i cristalli di rivestimento in accrescimento durante la presa. Più liquido concentrato si usa, maggiore sarà lo spazio creato tra i cristalli, aumentando la micro-espansione di presa necessaria a compensare il forte ritiro del Co-Cr.</p>
+                </div>
+            </div>
+
+            <div class="display-box">
+                <h4>Visualizzazione Microscopica Intercristallina</h4>
+                <svg id="colloidSvg" class="svg-canvas" viewBox="0 0 300 150"></svg>
+                
+                <div style="margin-top: 15px;">
+                    <p>Espansione di Presa Ottenuta: <strong><span id="expVal">0.8</span>%</strong></p>
+                    <p>Ritiro Lega Co-Cr da Compensare: <strong>~2.0%</strong></p>
+                    <p>Espansione Totale (Presa + Termica): <strong><span id="totExpVal">1.8</span>%</strong></p>
+                    <div id="sim2Result" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEZIONE 5: MAPPA CONCETTUALE -->
+    <div id="sec5" class="section">
+        <h2>5. Mappe e Sintesi Concettuale</h2>
+        <p>Sintesi grafica dei concetti chiave trattati nel modulo formativo sui materiali da rivestimento:</p>
+
+        <div class="map-grid">
+            <div class="map-item">
+                <h4>1. Finalità & Requisiti</h4>
+                <ul>
+                    <li>Preparazione forme per fusione a cera persa.</li>
+                    <li>Porosità idonea alla fuoriuscita dei gas.</li>
+                    <li>Inerzia chimica e resistenza meccanica.</li>
+                    <li>Facile frantumabilità in smuffolatura.</li>
+                </ul>
+            </div>
+
+            <div class="map-item">
+                <h4>2. Legante Gessoso</h4>
+                <ul>
+                    <li>Gesso alfa-emidrato duro + Silice.</li>
+                    <li>Temp. limitata a 700 °C (rischio gas SO₂).</li>
+                    <li>Uso riservato a leghe auree e nobili.</li>
+                    <li>Espansione termica e/o igroscopica.</li>
+                </ul>
+            </div>
+
+            <div class="map-item">
+                <h4>3. Legante Fosfatico</h4>
+                <ul>
+                    <li>Fosfato monoammonico + MgO.</li>
+                    <li>Resiste fino a 900-950 °C.</li>
+                    <li>Indispensabile per Co-Cr e metallo-ceramica.</li>
+                    <li>Usa sol di silice colloidale per l'espansione.</li>
+                </ul>
+            </div>
+
+            <div class="map-item">
+                <h4>4. Fisica della Silice</h4>
+                <ul>
+                    <li>Inversione alpha-beta: rapida e volumetrica.</li>
+                    <li>Ricostruzione: lenta, non avviene in lab.</li>
+                    <li>Cristobalite: inversione brusca a 220-270 °C.</li>
+                    <li>Quarzo: inversione graduale a 573 °C.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="download-btn-container">
+        <button class="btn-download" onclick="downloadApp()">Scarica App Completa in Formato .HTML</button>
+    </div>
+</div>
+
+<script>
+    function showSection(secId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(secId).classList.add('active');
+        event.target.classList.add('active');
+
+        if(secId === 'sec2') drawSilicaChart();
+        if(secId === 'sec3') sim1Update();
+        if(secId === 'sec4') sim2Update();
+    }
+
+    // Grafico Silice (SVG)
+    function drawSilicaChart() {
+        const svg = document.getElementById('silicaChart');
+        const type = document.querySelector('input[name="silicaType"]:checked').value;
+        
+        let pathD = "";
+        let labelText = "";
+
+        if (type === 'cristobalite') {
+            pathD = "M 30 170 L 100 160 L 120 40 L 450 30";
+            labelText = "Cristobalite: Forte balzo di espansione tra 220°C e 270°C";
+        } else {
+            pathD = "M 30 170 L 250 120 L 280 50 L 450 45";
+            labelText = "Quarzo: Espansione più progressiva con picco a 573°C";
+        }
+
+        svg.innerHTML = `
+            <!-- Assi -->
+            <line x1="30" y1="170" x2="470" y2="170" stroke="#94a3b8" stroke-width="2"/>
+            <line x1="30" y1="20" x2="30" y2="170" stroke="#94a3b8" stroke-width="2"/>
+            
+            <!-- Etichette Assi -->
+            <text x="400" y="190" font-size="12" fill="#64748b">Temperatura (°C)</text>
+            <text x="10" y="20" font-size="12" fill="#64748b" transform="rotate(-90 15,20)">Espansione %</text>
+            
+            <!-- Curva -->
+            <path d="${pathD}" fill="none" stroke="#3b82f6" stroke-width="4"/>
+            
+            <!-- Testo Spiegazione -->
+            <text x="50" y="40" font-size="13" font-weight="bold" fill="#1e3a8a">${labelText}</text>
+        `;
+    }
+
+    // Lab 1: Selezione Leghe
+    function sim1Update() {
+        const alloy = document.getElementById('alloySelect').value;
+        const binder = document.getElementById('binderSelect').value;
+        const status = document.getElementById('sim1Status');
+        const details = document.getElementById('sim1Details');
+
+        if (binder === 'gessoso') {
+            if (alloy === 'gold') {
+                status.innerHTML = `<span class="badge badge-success">ACCOPPIAMENTO CORRETTO</span>`;
+                details.innerHTML = `<p><strong>Risultato:</strong> La lega d'oro ha una temperatura di colata compatibile con il rivestimento gessoso (&lt; 700 °C). L'espansione del gesso e della silice è sufficiente a compensare il contenuto ritiro della lega aurea senza degradare la matrice gessosa.</p>`;
+            } else {
+                status.innerHTML = `<span class="badge badge-danger">ERRORE GRAVE: RISCHIO DECOMPOSIZIONE</span>`;
+                details.innerHTML = `<p><strong>Risultato Inaccettabile:</strong> Le leghe ad alta T (Co-Cr, Ni-Cr, Ag-Pd) richiedono temperature di preriscaldamento elevate (&gt; 800-900 °C). A queste temperature il gesso si decompone completamente:</p>
+                <p style="color:var(--danger); font-weight:bold; margin-top:5px;">2 CaSO₄ &rarr; 2 CaO + 2 SO₂&uarr; + O₂&uarr;</p>
+                <p>L'anidride solforosa (SO₂) reagisce con il metallo formando solfuri che rendono il getto poroso, fragile e non utilizzabile.</p>`;
+            }
+        } else { // Fosfatico
+            if (alloy === 'gold') {
+                status.innerHTML = `<span class="badge badge-warning">COMPATIBILE MA NON OTTIMALE</span>`;
+                details.innerHTML = `<p><strong>Risultato:</strong> Il rivestimento fosfatico resiste perfettamente alla temperatura, ma possiede una resistenza meccanica molto elevata che rende difficoltosa la smuffolatura delle leghe d'oro più tenere, con rischio di deformazione dei margini sottili.</p>`;
+            } else {
+                status.innerHTML = `<span class="badge badge-success">ACCOPPIAMENTO OTTIMALE</span>`;
+                details.innerHTML = `<p><strong>Risultato Perfetto:</strong> Il rivestimento a legante fosfatico resiste fino a 950 °C senza alcuna decomposizione. In combinazione con il liquido a base di silice colloidale, compensa adeguatamente l'elevato ritiro da solidificazione tipico delle leghe Co-Cr e Ni-Cr.</p>`;
+            }
+        }
+    }
+
+    // Lab 2: Liquido Espansione
+    function sim2Update() {
+        const val = document.getElementById('colloidSlider').value;
+        document.getElementById('colloidVal').innerText = val;
+        document.getElementById('waterVal').innerText = 100 - val;
+
+        const expPresa = (0.2 + (val * 0.008)).toFixed(2);
+        const expTermica = 1.0; // Valore medio fisso per refrattario
+        const expTot = (parseFloat(expPresa) + expTermica).toFixed(2);
+
+        document.getElementById('expVal').innerText = expPresa;
+        document.getElementById('totExpVal').innerText = expTot;
+
+        const resDiv = document.getElementById('sim2Result');
+        if (expTot < 1.7) {
+            resDiv.innerHTML = `<span class="badge badge-danger">FUSIONE RISTRETTA (Sotto-dimensionata)</span><p style="font-size:0.85rem">Il liquido è troppo diluito. L'espansione non compensa il ritiro del Co-Cr. La struttura non si inserirà sul modello.</p>`;
+        } else if (expTot >= 1.7 && expTot <= 1.95) {
+            resDiv.innerHTML = `<span class="badge badge-success">FUSIONE PERFETTA (Frizione Ottimale)</span><p style="font-size:0.85rem">Espansione esattamente bilanciata con il ritiro della lega. Precisione marginale ottimale.</p>`;
+        } else {
+            resDiv.innerHTML = `<span class="badge badge-warning">FUSIONE LARGA (Sovra-dimensionata)</span><p style="font-size:0.85rem">Concentrazione di silice colloidale troppo elevata. La fusione risulterà troppo poco ritentiva sul moncone.</p>`;
+        }
+
+        // Disegna Microstruttura
+        const svg = document.getElementById('colloidSvg');
+        const numParticles = Math.floor(val / 4);
+        
+        let particlesHtml = '';
+        for(let i=0; i<numParticles; i++) {
+            let cx = 50 + (i * 9) % 200;
+            let cy = 40 + (i * 7) % 70;
+            particlesHtml += `<circle cx="${cx}" cy="${cy}" r="3" fill="#ef4444" />`;
+        }
+
+        svg.innerHTML = `
+            <!-- Cristalli di rivestimento -->
+            <polygon points="20,20 80,30 60,110 10,90" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+            <polygon points="220,20 280,40 290,120 210,100" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+            
+            <!-- Spazio intercristallino -->
+            <rect x="70" y="30" width="130" height="80" fill="#f8fafc" rx="5" stroke="#cbd5e1" stroke-dasharray="4"/>
+            
+            <!-- Particelle di Silice Colloidale -->
+            ${particlesHtml}
+            
+            <text x="80" y="135" font-size="11" fill="#1e293b">Particelle di Silice Interposte (Rosso)</text>
+        `;
+    }
+
+    // Download App
+    function downloadApp() {
+        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Materiali_Rivestimento_Odontotecnica.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Inizializzazione
+    window.onload = function() {
+        drawSilicaChart();
+        sim1Update();
+        sim2Update();
+    };
+</script>
+
+</body>
+</html>

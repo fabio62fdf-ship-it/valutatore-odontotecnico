@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laboratorio Virtuale di Chimica: Saggio alla Fiamma</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1120;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    /* Glow effects */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+    }
+    .btn-lab {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-lab:active {
+      transform: scale(0.96);
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(56, 189, 248, 0.6); }
+      50% { border-color: rgba(56, 189, 248, 1); }
+    }
+    .active-step-ring {
+      animation: pulse-border 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+          <!-- Flame SVG Icon -->
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight">
+            Laboratorio Virtuale: <span class="text-sky-400">Saggio alla Fiamma</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Analisi qualitativa dei cationi metallici, spettroscopia di emissione e transizioni elettroniche</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 w-full sm:w-auto justify-between sm:justify-start">
+        <button onclick="switchTab('explore')" id="tab-explore" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-sky-600 text-white shadow">
+          🔬 Laboratorio
+        </button>
+        <button onclick="switchTab('challenge')" id="tab-challenge" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">
+          🧪 Sfida Incogniti
+        </button>
+        <button onclick="switchTab('theory')" id="tab-theory" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">
+          📘 Teoria & Sicurezza
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6">
+
+    <!-- NOTIFICATION / FEEDBACK BANNER -->
+    <div id="lab-banner" class="mb-4 rounded-xl border border-sky-500/40 bg-sky-950/50 px-4 py-3 flex items-start sm:items-center justify-between gap-3 transition-all">
+      <div class="flex items-start sm:items-center gap-3">
+        <span id="banner-icon" class="text-xl mt-0.5 sm:mt-0">💡</span>
+        <div>
+          <p id="banner-title" class="text-sm font-bold text-sky-300">Benvenuto al banco di analisi chimica</p>
+          <p id="banner-msg" class="text-xs sm:text-sm text-slate-300">Apri la virola dell'aria del becco Bunsen per ottenere una fiamma ossidante azzurra, poi pulisci il filo al Ni-Cr in HCl prima di prelevare un sale.</p>
+        </div>
+      </div>
+      <button onclick="resetWireState()" class="shrink-0 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 font-medium">
+        Reset Filo
+      </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1 & 2 SHARED WORKBENCH (LABORATORY + CHALLENGE)                   -->
+    <!-- ===================================================================== -->
+    <div id="view-workbench" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- LEFT COLUMN: INTERACTIVE LAB CANVAS & CONTROLS (7 cols on lg) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+
+        <!-- CHALLENGE BAR (Visible only in Challenge Mode) -->
+        <div id="challenge-panel" class="hidden glass-panel rounded-2xl p-4 border-amber-500/50 shadow-lg">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <span class="text-xs uppercase tracking-wider font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/30">Modalità Analisi Qualitativa</span>
+              <h2 class="text-base sm:text-lg font-bold text-white mt-1">Identifica i Campioni Incogniti</h2>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 block">Punteggio</span>
+              <span id="challenge-score" class="text-xl font-extrabold font-mono-code text-emerald-400">0 / 3</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 mb-3">
+            Seleziona una provetta incognita, esegui il saggio alla fiamma (ricorda di pulire il filo tra un campione e l'altro e usa il <strong>vetrino al cobalto</strong> se sospetti un mascheramento da Sodio!) e scegli il catione presente.
+          </p>
+
+          <!-- Unknown Sample Selector -->
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <button onclick="selectUnknown('A')" id="unk-btn-A" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-left transition-all">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sm text-white">Provetta A</span>
+                <span id="unk-status-A" class="text-xs">❓</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-0.5">Sale puro incognito</span>
+            </button>
+            <button onclick="selectUnknown('B')" id="unk-btn-B" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-left transition-all">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sm text-white">Provetta B</span>
+                <span id="unk-status-B" class="text-xs">❓</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-0.5">Sale puro incognito</span>
+            </button>
+            <button onclick="selectUnknown('C')" id="unk-btn-C" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-left transition-all">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sm text-white">Provetta C</span>
+                <span id="unk-status-C" class="text-xs">❓</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-0.5">Miscela / Impurezza</span>
+            </button>
+          </div>
+
+          <!-- Answer Submission Row -->
+          <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+            <label for="unknown-guess" class="text-xs font-semibold text-slate-300 shrink-0">Risposta per <span id="current-unk-label" class="text-amber-400 font-bold">Provetta A</span>:</label>
+            <select id="unknown-guess" class="flex-grow bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-sky-500">
+              <option value="">-- Seleziona il catione rilevato --</option>
+              <option value="Ba">Bario (Ba²⁺) - Verde mela</option>
+              <option value="K">Potassio (K⁺) - Lilla / Violetto</option>
+              <option value="Li">Litio (Li⁺) - Rosso carminio</option>
+              <option value="Na">Sodio (Na⁺) - Giallo intenso</option>
+              <option value="Ca">Calcio (Ca²⁺) - Rosso mattone / arancio</option>
+              <option value="Cu">Rame (Cu²⁺) - Azzurro / Blu-verde</option>
+              <option value="K+Na">Potassio con impurità di Sodio (K⁺ + Na⁺)</option>
+            </select>
+            <button onclick="checkUnknownAnswer()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition-colors shrink-0">
+              Verifica
+            </button>
+            <button onclick="generateUnknowns()" title="Genera nuovi campioni" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg border border-slate-700 shrink-0">
+              Nuovi
+            </button>
+          </div>
+          <div id="challenge-feedback" class="hidden mt-2 text-xs p-2.5 rounded-lg"></div>
+        </div>
+
+        <!-- CANVAS SIMULATION CONTAINER -->
+        <div class="glass-panel rounded-2xl p-3 sm:p-4 shadow-xl relative overflow-hidden">
+          <!-- Top Status Bar inside Canvas Card -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/80">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs font-semibold text-slate-300">Banco Ottico & Becco Bunsen</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-400">Stato Filo Ni-Cr:</span>
+              <span id="wire-status-badge" class="font-mono-code font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700">
+                Pulito (Neutro)
+              </span>
+            </div>
+          </div>
+
+          <!-- Responsive Canvas Wrapper -->
+          <div id="canvas-wrapper" class="relative w-full h-[340px] sm:h-[390px] rounded-xl overflow-hidden bg-slate-950 border border-slate-800 select-none cursor-pointer">
+            <canvas id="labCanvas" class="w-full h-full block"></canvas>
+
+            <!-- Cobalt Glass Overlay Indicator -->
+            <div id="cobalt-badge" class="hidden absolute top-3 right-3 bg-blue-900/80 border border-blue-400 text-blue-100 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-blue-500 border border-white"></span>
+              Vetrino al Cobalto ATTIVO (Filtra 589 nm Na)
+            </div>
+
+            <!-- Interactive Canvas Hint -->
+            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-center pointer-events-none text-[11px] text-slate-400">
+              <span>Clicca su Becher HCl, Fiamma o Vetrini per muovere il filo</span>
+              <span id="temp-readout" class="font-mono-code text-sky-400 font-semibold">T ≈ 1350 °C (Zona Ossidante)</span>
+            </div>
+          </div>
+
+          <!-- BENCH CONTROLS: AIR COLLAR, COBALT GLASS, STEP BUTTONS -->
+          <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Bunsen Air Valve + Cobalt Glass -->
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex flex-col justify-between gap-2.5">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="air-slider" class="text-xs font-bold text-slate-200">Virola Aria Bunsen (O₂)</label>
+                  <span id="air-label" class="text-xs font-mono-code font-bold text-sky-400">Aperta (Fiamma Ossidante)</span>
+                </div>
+                <input id="air-slider" type="range" min="0" max="100" value="100" class="w-full accent-sky-500 cursor-pointer h-2 bg-slate-800 rounded-lg" oninput="updateAirValve(this.value)">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                  <span>Chiusa (Gialla luminosa)</span>
+                  <span>Aperta (Azzurra calda)</span>
+                </div>
+              </div>
+
+              <button id="btn-cobalt" onclick="toggleCobaltGlass()" class="btn-lab w-full py-2 px-3 rounded-lg border border-blue-500/40 bg-blue-950/40 hover:bg-blue-900/50 text-blue-200 text-xs font-bold flex items-center justify-center gap-2">
+                <span class="w-3.5 h-3.5 rounded bg-blue-600 border border-blue-300 inline-block"></span>
+                <span id="cobalt-btn-text">Attiva Vetrino al Cobalto</span>
+              </button>
+            </div>
+
+            <!-- Guided 4-Step Procedure Buttons -->
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+              <span class="text-xs font-bold text-slate-200 mb-2 block">Procedura Operativa Guidata:</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="actionDipHCl()" id="step-btn-1" class="btn-lab p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold text-xs flex items-center justify-center shrink-0">1</span>
+                  <span class="text-xs font-semibold text-slate-200 leading-tight">Immergi in HCl</span>
+                </button>
+                <button onclick="actionCleanFlame()" id="step-btn-2" class="btn-lab p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-300 font-bold text-xs flex items-center justify-center shrink-0">2</span>
+                  <span class="text-xs font-semibold text-slate-200 leading-tight">Pulisci in Fiamma</span>
+                </button>
+                <button onclick="actionPickSalt()" id="step-btn-3" class="btn-lab p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center shrink-0">3</span>
+                  <span class="text-xs font-semibold text-slate-200 leading-tight">Preleva Sale</span>
+                </button>
+                <button onclick="actionTestFlame()" id="step-btn-4" class="btn-lab p-2 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-left flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">4</span>
+                  <span class="text-xs font-bold text-emerald-200 leading-tight">Saggio in Fiamma</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SALTS RACK (Visible in Explore Mode) -->
+        <div id="salts-rack-panel" class="glass-panel rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white">Vetrini da Orologio — Cloruri Metallici (Salina)</h3>
+              <p class="text-xs text-slate-400">Seleziona un sale da prelevare con l'ansa del filo al nichel-cromo</p>
+            </div>
+            <span class="text-[11px] font-mono-code text-slate-400 bg-slate-900 px-2.5 py-1 rounded-md border border-slate-800">Anione: Cl⁻ (volatile)</span>
+          </div>
+
+          <div id="salts-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: MICROSCOPIC BOHR ATOM + SPECTROSCOPE + ELEMENT DATA (5 cols on lg) -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- ATOMIC LEVEL SIMULATION (BOHR MODEL) -->
+        <div class="glass-panel rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-purple-400">Livello Sub-Microscopico</span>
+              <h3 class="text-sm sm:text-base font-bold text-white">Cosa succede nell'atomo?</h3>
+            </div>
+            <span id="quantum-state-badge" class="text-xs font-mono-code px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              Stato Fondamentale
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-slate-950/90 rounded-xl p-3 border border-slate-800">
+            <!-- Bohr Atom Canvas -->
+            <div class="sm:col-span-5 flex justify-center">
+              <canvas id="bohrCanvas" class="w-40 h-40 block"></canvas>
+            </div>
+
+            <!-- Real-time Quantum Explanation -->
+            <div class="sm:col-span-7 space-y-2 text-xs">
+              <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[11px]">1. Assorbimento Termico (ΔE):</span>
+                <p id="quantum-step1" class="text-slate-200 font-medium">In attesa di calore dalla fiamma...</p>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[11px]">2. Diseccitazione & Emissione Fotone:</span>
+                <p id="quantum-step2" class="text-slate-200 font-medium">E = h · ν = (h · c) / λ</p>
+              </div>
+              <div class="flex items-center justify-between pt-1 px-1">
+                <span class="text-slate-400">Lunghezza d'onda (λ):</span>
+                <span id="wavelength-readout" class="font-mono-code font-bold text-sm text-sky-400">— nm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMISSION SPECTROSCOPE PANEL -->
+        <div class="glass-panel rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Analisi Ottica</span>
+              <h3 class="text-sm sm:text-base font-bold text-white">Spettroscopio a Righe di Emissione</h3>
+            </div>
+            <span class="text-xs font-mono-code text-slate-400">400 nm — 750 nm</span>
+          </div>
+
+          <!-- Continuous Reference Spectrum -->
+          <div class="mb-2">
+            <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+              <span>Spettro Continuo di Riferimento (Luce Bianca)</span>
+              <span>UV ← Visibile → IR</span>
+            </div>
+            <div class="h-3 w-full rounded-md" style="background: linear-gradient(to right, #4c1d95 0%, #3b82f6 18%, #06b6d4 32%, #22c55e 48%, #eab308 65%, #f97316 80%, #dc2626 100%);"></div>
+          </div>
+
+          <!-- Line Emission Canvas -->
+          <div class="relative rounded-xl overflow-hidden border border-slate-700 bg-black h-24">
+            <canvas id="spectrumCanvas" class="w-full h-full block"></canvas>
+          </div>
+          <div class="flex justify-between text-[10px] font-mono-code text-slate-400 mt-1 px-1">
+            <span>400 nm</span>
+            <span>450</span>
+            <span>500</span>
+            <span>550</span>
+            <span>600</span>
+            <span>650</span>
+            <span>700 nm</span>
+          </div>
+        </div>
+
+        <!-- ELEMENT CHEMICAL CARD -->
+        <div id="element-info-card" class="glass-panel rounded-2xl p-4 shadow-xl flex-grow flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <span id="el-category" class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Scheda Chimica Elemento</span>
+                <h3 id="el-name" class="text-lg font-extrabold text-white">Seleziona un sale sul banco</h3>
+              </div>
+              <div id="el-symbol-box" class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex flex-col items-center justify-center shrink-0">
+                <span id="el-z" class="text-[10px] font-mono-code text-slate-400 leading-none">—</span>
+                <span id="el-symbol" class="text-lg font-extrabold text-white leading-tight">?</span>
+              </div>
+            </div>
+
+            <p id="el-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-3">
+              Ogni elemento metallico possiede una configurazione elettronica unica. Quando i suoi elettroni assorbono energia termica dalla fiamma del Bunsen, compiono salti quantici specifici emettendo radiazioni elettromagnetiche caratteristiche.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Colore Fiamma:</span>
+              <span id="el-flame-color" class="font-bold text-slate-200">—</span>
+            </div>
+            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Configurazione Valenza:</span>
+              <span id="el-config" class="font-mono-code font-bold text-slate-200">—</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: THEORY & LAB SAFETY                                            -->
+    <!-- ===================================================================== -->
+    <div id="view-theory" class="hidden space-y-5">
+      <div class="glass-panel rounded-2xl p-5 sm:p-6">
+        <h2 class="text-xl font-extrabold text-white mb-2">Principio Chimico-Fisico del Saggio alla Fiamma</h2>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Il <strong>saggio alla fiamma</strong> è una tecnica di analisi chimica qualitativa basata sull'emissione di luce caratteristica da parte degli atomi di alcuni elementi metallici quando vengono eccitati termicamente in una fiamma.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold mb-2">1</div>
+            <h3 class="font-bold text-white text-sm mb-1">Perché si usano i Cloruri (e HCl)?</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              I sali cloruri (es. BaCl₂, CuCl₂) sono molto più <strong>volatili</strong> rispetto a solfati, carbonati o nitrati. L'acido cloridrico concentrato (HCl) serve sia a pulire il filo al nichel-cromo (trasformando eventuali ossidi residui in cloruri volatili che evaporano rapidamente nella fiamma), sia a inumidire il campione favorendone l'adesione e la vaporizzazione.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold mb-2">2</div>
+            <h3 class="font-bold text-white text-sm mb-1">Perché il Vetrino al Cobalto?</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Il <strong>Sodio (Na⁺)</strong> è un contaminante ubiquitario (presente persino nel sudore delle dita o nel vetro) ed emette una luce giallo-arancio intensissima (doppietto a 589 nm) che copre facilmente la debole fiamma lilla del <strong>Potassio (K⁺)</strong>. Il vetro blu al cobalto assorbe la luce gialla a 589 nm ma lascia passare le radiazioni violette (404 nm) e rosse (766 nm) del Potassio.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold mb-2">3</div>
+            <h3 class="font-bold text-white text-sm mb-1">Zone della Fiamma del Bunsen</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Con la virola aperta (combustione completa), la fiamma presenta un <strong>cono interno freddo</strong> (gas incombusti, ~300 °C), una <strong>zona riducente</strong> e un <strong>mantello esterno ossidante</strong> quasi incolore che raggiunge i <strong>1350–1500 °C</strong>. Il campione va introdotto sul bordo esterno della zona ossidante per non interferire con il colore proprio della fiamma.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Reference Table -->
+      <div class="glass-panel rounded-2xl p-5 sm:p-6 overflow-x-auto">
+        <h3 class="text-base font-bold text-white mb-3">Tabella Riassuntiva dei Cationi Esaminati</h3>
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400">
+              <th class="py-2.5 px-3">Catione</th>
+              <th class="py-2.5 px-3">Sale utilizzato</th>
+              <th class="py-2.5 px-3">Colore alla Fiamma</th>
+              <th class="py-2.5 px-3">Righe Spettrali Principali (λ)</th>
+              <th class="py-2.5 px-3">Note Analitiche</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-200">
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-lime-400">Bario (Ba²⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">BaCl₂</td>
+              <td class="py-2.5 px-3">Verde mela / Verde giallastro</td>
+              <td class="py-2.5 px-3 font-mono-code">514 nm, 524 nm, 553 nm</td>
+              <td class="py-2.5 px-3 text-slate-400">Colore persistente; sale tossico se ingerito.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-purple-400">Potassio (K⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">KCl</td>
+              <td class="py-2.5 px-3">Lilla / Violetto chiaro</td>
+              <td class="py-2.5 px-3 font-mono-code">404 nm (violetto), 766 nm (rosso)</td>
+              <td class="py-2.5 px-3 text-slate-400">Osservare con vetro al cobalto (appare rosa-porpora).</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-rose-500">Litio (Li⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">LiCl</td>
+              <td class="py-2.5 px-3">Rosso carminio intenso</td>
+              <td class="py-2.5 px-3 font-mono-code">610 nm, 671 nm</td>
+              <td class="py-2.5 px-3 text-slate-400">Molto brillante; al vetro cobalto resta rosso-viola.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-amber-400">Sodio (Na⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">NaCl</td>
+              <td class="py-2.5 px-3">Giallo intenso / Arancio</td>
+              <td class="py-2.5 px-3 font-mono-code">589.0 nm e 589.6 nm (doppietto D)</td>
+              <td class="py-2.5 px-3 text-slate-400">Estremamente sensibile; assorbito dal vetro al cobalto.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-orange-500">Calcio (Ca²⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">CaCl₂</td>
+              <td class="py-2.5 px-3">Rosso mattone / Rosso-arancio</td>
+              <td class="py-2.5 px-3 font-mono-code">616 nm, 622 nm, 554 nm</td>
+              <td class="py-2.5 px-3 text-slate-400">Spesso a sprazzi; al vetro cobalto appare verde-grigio.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-cyan-400">Rame (Cu²⁺)</td>
+              <td class="py-2.5 px-3 font-mono-code">CuCl₂</td>
+              <td class="py-2.5 px-3">Azzurro-blu / Verde-azzurro</td>
+              <td class="py-2.5 px-3 font-mono-code">435 nm, 450 nm, 510 nm</td>
+              <td class="py-2.5 px-3 text-slate-400">CuCl₂ dà alone azzurro intenso al centro e verde ai bordi.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Safety Rules -->
+      <div class="glass-panel rounded-2xl p-5 border-rose-500/40 bg-rose-950/20">
+        <h3 class="text-base font-bold text-rose-300 mb-2 flex items-center gap-2">
+          <span>⚠️</span> Norme di Sicurezza in Laboratorio
+        </h3>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 list-disc list-inside">
+          <li>Indossare sempre <strong>camice in cotone, occhiali protettivi</strong> e raccogliere i capelli lunghi.</li>
+          <li>L'<strong>Acido Cloridrico (HCl)</strong> è corrosivo e libera vapori irritanti: operare sotto cappa aspirante.</li>
+          <li>Non toccare mai l'estremità metallica del filo al Ni-Cr: resta rovente anche quando non è incandescente.</li>
+          <li>Chiudere sempre il rubinetto del gas al termine dell'esperienza e non lasciare mai il Bunsen incustodito.</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER WITH OFFLINE DOWNLOAD BUTTON -->
+  <footer class="bg-slate-900/95 border-t border-slate-800 py-3 px-4 mt-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-slate-400 text-center sm:text-left">
+        Simulatore didattico di Chimica Analitica — Ottimizzato per LIM, Tablet e Smartphone.
+      </p>
+      <button onclick="downloadOfflineHTML()" class="btn-lab w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Scarica Laboratorio HTML (Offline)
+      </button>
+    </div>
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- JAVASCRIPT ENGINE: PHYSICS, FLAME PARTICLES, BOHR MODEL & SPECTROSCOPE  -->
+  <!-- ======================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. CHEMICAL DATABASE (6 SALTS + K+Na CONTAMINATED MIX FOR CHALLENGE)
+    // -------------------------------------------------------------------------
+    const ELEMENTS_DATA = {
+      Ba: {
+        id: 'Ba',
+        symbol: 'Ba',
+        ion: 'Ba²⁺',
+        z: 56,
+        name: 'Bario',
+        salt: 'BaCl₂',
+        saltName: 'Cloruro di Bario',
+        flameColorName: 'Verde mela / Verde giallastro',
+        primaryRGB: [154, 230, 50],
+        secondaryRGB: [190, 242, 100],
+        cobaltRGB: [56, 189, 248], // Filtered appearance
+        mainWavelength: 524,
+        spectralLines: [
+          { nm: 487, color: '#06b6d4', intensity: 0.6 },
+          { nm: 514, color: '#22c55e', intensity: 0.85 },
+          { nm: 524, color: '#84cc16', intensity: 1.0 },
+          { nm: 553, color: '#a3e635', intensity: 0.9 },
+          { nm: 614, color: '#f97316', intensity: 0.5 }
+        ],
+        config: '[Xe] 6s²',
+        desc: 'Il cloruro di bario (BaCl₂) impartisce alla fiamma ossidante una colorazione verde mela brillante persistente, dovuta alle transizioni elettroniche degli atomi di Bario eccitati e delle specie molecolari transitorie BaCl/BaOH.'
+      },
+      K: {
+        id: 'K',
+        symbol: 'K',
+        ion: 'K⁺',
+        z: 19,
+        name: 'Potassio',
+        salt: 'KCl',
+        saltName: 'Cloruro di Potassio',
+        flameColorName: 'Lilla / Violetto chiaro',
+        primaryRGB: [192, 132, 252],
+        secondaryRGB: [232, 121, 249],
+        cobaltRGB: [217, 70, 239], // Appears pinkish-violet through cobalt glass
+        mainWavelength: 404,
+        spectralLines: [
+          { nm: 404, color: '#8b5cf6', intensity: 1.0 },
+          { nm: 405, color: '#a855f7', intensity: 0.9 },
+          { nm: 694, color: '#ef4444', intensity: 0.5 },
+          { nm: 745, color: '#dc2626', intensity: 0.8 }
+        ],
+        config: '[Ar] 4s¹',
+        desc: 'Il potassio produce una fiamma lilla delicata. Poiché spesso i suoi sali contengono tracce di sodio (che copre il lilla con un giallo intenso), è buona norma osservare la fiamma attraverso un vetrino blu al cobalto.'
+      },
+      Li: {
+        id: 'Li',
+        symbol: 'Li',
+        ion: 'Li⁺',
+        z: 3,
+        name: 'Litio',
+        salt: 'LiCl',
+        saltName: 'Cloruro di Litio',
+        flameColorName: 'Rosso carminio intenso',
+        primaryRGB: [244, 63, 94],
+        secondaryRGB: [225, 29, 72],
+        cobaltRGB: [192, 38, 211], // Crimson-violet through cobalt
+        mainWavelength: 671,
+        spectralLines: [
+          { nm: 460, color: '#3b82f6', intensity: 0.45 },
+          { nm: 610, color: '#f97316', intensity: 0.7 },
+          { nm: 671, color: '#f43f5e', intensity: 1.0 }
+        ],
+        config: '[He] 2s¹',
+        desc: 'Il litio è il metallo alcalino più leggero. Eccitato nella fiamma del Bunsen emette una splendida luce rosso carminio intenso caratterizzata da una riga spettrale netta a 670.8 nm.'
+      },
+      Na: {
+        id: 'Na',
+        symbol: 'Na',
+        ion: 'Na⁺',
+        z: 11,
+        name: 'Sodio',
+        salt: 'NaCl',
+        saltName: 'Cloruro di Sodio',
+        flameColorName: 'Giallo intenso / Arancio',
+        primaryRGB: [250, 204, 21],
+        secondaryRGB: [245, 158, 11],
+        cobaltRGB: [59, 130, 246], // Yellow is completely absorbed by cobalt glass!
+        mainWavelength: 589,
+        spectralLines: [
+          { nm: 589, color: '#facc15', intensity: 1.0 },
+          { nm: 590, color: '#eab308', intensity: 0.95 }
+        ],
+        config: '[Ne] 3s¹',
+        desc: 'Il sodio emette il celebre doppietto giallo a 589.0 e 589.6 nm (riga D di Fraunhofer). Il saggio è talmente sensibile (rileva fino a 10⁻¹⁰ g) che il vetrino al cobalto è indispensabile per filtrarlo.'
+      },
+      Ca: {
+        id: 'Ca',
+        symbol: 'Ca',
+        ion: 'Ca²⁺',
+        z: 20,
+        name: 'Calcio',
+        salt: 'CaCl₂',
+        saltName: 'Cloruro di Calcio',
+        flameColorName: 'Rosso mattone / Rosso-arancio',
+        primaryRGB: [249, 115, 22],
+        secondaryRGB: [234, 88, 12],
+        cobaltRGB: [132, 204, 22], // Appears pale greenish-grey through cobalt glass
+        mainWavelength: 622,
+        spectralLines: [
+          { nm: 423, color: '#6366f1', intensity: 0.75 },
+          { nm: 554, color: '#84cc16', intensity: 0.65 },
+          { nm: 616, color: '#f97316', intensity: 0.9 },
+          { nm: 622, color: '#ea580c', intensity: 1.0 }
+        ],
+        config: '[Ar] 4s²',
+        desc: 'Il cloruro di calcio colora la fiamma di rosso mattone (rosso-arancio), spesso a sprazzi. Osservato attraverso il vetro blu al cobalto, il colore vira verso un verde chiaro/grigiastro.'
+      },
+      Cu: {
+        id: 'Cu',
+        symbol: 'Cu',
+        ion: 'Cu²⁺',
+        z: 29,
+        name: 'Rame (II)',
+        salt: 'CuCl₂',
+        saltName: 'Cloruro di Rame(II)',
+        flameColorName: 'Azzurro-blu / Verde-azzurro',
+        primaryRGB: [14, 165, 233],
+        secondaryRGB: [45, 212, 191],
+        cobaltRGB: [37, 99, 235],
+        mainWavelength: 445,
+        spectralLines: [
+          { nm: 435, color: '#3b82f6', intensity: 0.95 },
+          { nm: 450, color: '#0ea5e9', intensity: 1.0 },
+          { nm: 510, color: '#10b981', intensity: 0.85 },
+          { nm: 522, color: '#14b8a6', intensity: 0.8 }
+        ],
+        config: '[Ar] 3d¹⁰ 4s¹',
+        desc: 'Il cloruro di rame(II) (CuCl₂) produce una suggestiva fiamma azzurro-blu brillante al centro con sfumature verde-smeraldo ai bordi, dovute sia all’emissione atomica del rame sia al cloruro rameoso (CuCl) gassoso.'
+      },
+      'K+Na': {
+        id: 'K+Na',
+        symbol: 'K+Na',
+        ion: 'K⁺ + Na⁺',
+        z: '19/11',
+        name: 'Miscela Potassio + tracce di Sodio',
+        salt: 'KCl + NaCl',
+        saltName: 'Campione Contaminato',
+        flameColorName: 'Giallo (senza filtro) → Lilla (con Cobalto)',
+        primaryRGB: [250, 204, 21], // Masked by Na without cobalt glass!
+        secondaryRGB: [245, 158, 11],
+        cobaltRGB: [217, 70, 239], // Reveals Potassium violet!
+        mainWavelength: 404,
+        spectralLines: [
+          { nm: 404, color: '#8b5cf6', intensity: 0.95 },
+          { nm: 589, color: '#facc15', intensity: 1.0 },
+          { nm: 745, color: '#dc2626', intensity: 0.75 }
+        ],
+        config: '[Ar] 4s¹ + [Ne] 3s¹',
+        desc: 'Senza vetro al cobalto, il doppietto giallo del Sodio (589 nm) maschera completamente il Potassio. Attivando il vetro al cobalto, il giallo scompare e si rivela la fiamma lilla del Potassio!'
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // 2. LABORATORY STATE
+    // -------------------------------------------------------------------------
+    let currentTab = 'explore';
+    let airValve = 100; // 0 = yellow luminous, 100 = blue oxidizing
+    let cobaltGlass = false;
+
+    // Wire & Sample State
+    let wireState = 'clean'; // 'clean' | 'hcl_wet' | 'dirty'
+    let loadedElement = null; // key in ELEMENTS_DATA
+    let activeFlameElement = null; // element currently burning in flame
+    let burnTimer = 0; // remaining burn intensity (0 to 1)
+    let isWireCleanVerified = true; // tracks if user cleaned wire before picking new salt
+
+    // Wire Animation Coordinates (normalized 0..1 relative to canvas)
+    let wirePos = { x: 0.25, y: 0.32 };
+    let wireTarget = { x: 0.25, y: 0.32 };
+    let wireZone = 'rest'; // 'rest' | 'hcl' | 'salt' | 'flame'
+
+    // Challenge State
+    let unknowns = { A: 'Li', B: 'Cu', C: 'K+Na' };
+    let unknownSolved = { A: false, B: false, C: false };
+    let currentUnknown = 'A';
+
+    // Particles for realistic flame
+    let flameParticles = [];
+
+    // Bohr animation state
+    let electronAngle = 0;
+    let photonWave = null; // { progress: 0..1, color: '#...' }
+
+    // -------------------------------------------------------------------------
+    // 3. INITIALIZATION & UI BUILDERS
+    // -------------------------------------------------------------------------
+    window.onload = function () {
+      buildSaltsGrid();
+      generateUnknowns(false);
+      resizeCanvases();
+      window.addEventListener('resize', resizeCanvases);
+
+      // Setup canvas click interaction
+      const labCanvas = document.getElementById('labCanvas');
+      labCanvas.addEventListener('click', handleCanvasClick);
+
+      // Start main animation loop
+      requestAnimationFrame(animateAll);
+    };
+
+    function buildSaltsGrid() {
+      const grid = document.getElementById('salts-grid');
+      const keys = ['Ba', 'K', 'Li', 'Na', 'Ca', 'Cu'];
+      grid.innerHTML = '';
+
+      keys.forEach(key => {
+        const el = ELEMENTS_DATA[key];
+        const rgb = `rgb(${el.primaryRGB.join(',')})`;
+        const btn = document.createElement('button');
+        btn.id = `salt-card-${key}`;
+        btn.onclick = () => selectAndPickSalt(key);
+        btn.className = 'btn-lab p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/90 text-left flex items-center gap-2.5 transition-all';
+        btn.innerHTML = `
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-sm shrink-0 border"
+               style="background: rgba(${el.primaryRGB.join(',')}, 0.15); border-color: rgba(${el.primaryRGB.join(',')}, 0.5); color: ${rgb};">
+            ${el.symbol}
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-xs sm:text-sm text-white truncate">${el.name} <span class="font-mono-code text-xs text-slate-400">(${el.salt})</span></div>
+            <div class="text-[11px] text-slate-400 truncate">${el.saltName}</div>
+          </div>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['explore', 'challenge', 'theory'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.className = 'flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-sky-600 text-white shadow';
+        } else {
+          btn.className = 'flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white';
+        }
+      });
+
+      const workbench = document.getElementById('view-workbench');
+      const theory = document.getElementById('view-theory');
+      const challengePanel = document.getElementById('challenge-panel');
+      const saltsRack = document.getElementById('salts-rack-panel');
+      const banner = document.getElementById('lab-banner');
+
+      if (tab === 'theory') {
+        workbench.classList.add('hidden');
+        banner.classList.add('hidden');
+        theory.classList.remove('hidden');
+      } else {
+        theory.classList.add('hidden');
+        workbench.classList.remove('hidden');
+        banner.classList.remove('hidden');
+
+        if (tab === 'challenge') {
+          challengePanel.classList.remove('hidden');
+          saltsRack.classList.add('hidden');
+          selectUnknown(currentUnknown);
+          setBanner('🧪', 'Modalità Sfida Attiva', 'Preleva il campione dalla provetta incognita selezionata e portalo nella fiamma ossidante.');
+        } else {
+          challengePanel.classList.add('hidden');
+          saltsRack.classList.remove('hidden');
+          setBanner('💡', 'Laboratorio Libero', 'Seleziona un cloruro metallico dal banco o segui i 4 passaggi della procedura.');
+        }
+        resizeCanvases();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. LABORATORY ACTIONS & PROCEDURE LOGIC
+    // -------------------------------------------------------------------------
+    function setBanner(icon, title, msg, type = 'info') {
+      const banner = document.getElementById('lab-banner');
+      document.getElementById('banner-icon').textContent = icon;
+      document.getElementById('banner-title').textContent = title;
+      document.getElementById('banner-msg').textContent = msg;
+
+      banner.className = 'mb-4 rounded-xl border px-4 py-3 flex items-start sm:items-center justify-between gap-3 transition-all ';
+      if (type === 'warn') {
+        banner.className += 'border-amber-500/50 bg-amber-950/50 text-amber-200';
+      } else if (type === 'success') {
+        banner.className += 'border-emerald-500/50 bg-emerald-950/50 text-emerald-200';
+      } else {
+        banner.className += 'border-sky-500/40 bg-sky-950/50 text-sky-200';
+      }
+    }
+
+    function updateAirValve(val) {
+      airValve = parseInt(val, 10);
+      const label = document.getElementById('air-label');
+      const tempReadout = document.getElementById('temp-readout');
+
+      if (airValve >= 75) {
+        label.textContent = 'Aperta (Fiamma Ossidante)';
+        label.className = 'text-xs font-mono-code font-bold text-sky-400';
+        tempReadout.textContent = 'T ≈ 1350 °C (Zona Ossidante)';
+      } else if (airValve >= 30) {
+        label.textContent = 'Parziale (Fiamma Intermedia)';
+        label.className = 'text-xs font-mono-code font-bold text-cyan-300';
+        tempReadout.textContent = 'T ≈ 950 °C (Combustione Mista)';
+      } else {
+        label.textContent = 'Chiusa (Fiamma Luminosa)';
+        label.className = 'text-xs font-mono-code font-bold text-amber-400';
+        tempReadout.textContent = 'T ≈ 600 °C (Fiamma Riducente Gialla)';
+      }
+    }
+
+    function toggleCobaltGlass() {
+      cobaltGlass = !cobaltGlass;
+      const badge = document.getElementById('cobalt-badge');
+      const btnText = document.getElementById('cobalt-btn-text');
+      const btn = document.getElementById('btn-cobalt');
+
+      if (cobaltGlass) {
+        badge.classList.remove('hidden');
+        btnText.textContent = 'Disattiva Vetrino al Cobalto';
+        btn.classList.add('bg-blue-600', 'text-white', 'border-blue-300');
+        btn.classList.remove('bg-blue-950/40', 'text-blue-200');
+      } else {
+        badge.classList.add('hidden');
+        btnText.textContent = 'Attiva Vetrino al Cobalto';
+        btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-300');
+        btn.classList.add('bg-blue-950/40', 'text-blue-200');
+      }
+    }
+
+    function updateWireBadge() {
+      const badge = document.getElementById('wire-status-badge');
+      if (wireState === 'clean') {
+        badge.textContent = 'Pulito (Neutro)';
+        badge.className = 'font-mono-code font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700';
+      } else if (wireState === 'hcl_wet') {
+        badge.textContent = 'Inumidito con HCl';
+        badge.className = 'font-mono-code font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-700';
+      } else if (wireState === 'loaded' && loadedElement) {
+        const label = currentTab === 'challenge' ? `Campione ${currentUnknown}` : `${ELEMENTS_DATA[loadedElement].salt}`;
+        badge.textContent = `Carico: ${label}`;
+        badge.className = 'font-mono-code font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700';
+      }
+    }
+
+    // Step 1: Dip in HCl
+    function actionDipHCl() {
+      wireZone = 'hcl';
+      wireTarget = { x: 0.21, y: 0.72 };
+      wireState = 'hcl_wet';
+      loadedElement = null;
+      isWireCleanVerified = true;
+      updateWireBadge();
+      setBanner('💧', 'Passaggio 1: Immersione in HCl', 'Il filo al Ni-Cr è stato immerso in acido cloridrico. Ora portalo nella fiamma (Passaggio 2) per vaporizzare eventuali impurità.', 'info');
+    }
+
+    // Step 2: Clean in Flame
+    function actionCleanFlame() {
+      wireZone = 'flame';
+      wireTarget = { x: 0.50, y: 0.38 };
+      if (wireState === 'hcl_wet' || wireState === 'clean') {
+        wireState = 'clean';
+        loadedElement = null;
+        activeFlameElement = null;
+        burnTimer = 0;
+        isWireCleanVerified = true;
+        updateWireBadge();
+        setBanner('✨', 'Passaggio 2: Filo Pulito e Neutro', 'La fiamma non mostra colorazioni residue. Il filo è pronto per prelevare un sale (Passaggio 3).', 'success');
+      } else {
+        // User tried cleaning without HCl while dirty
+        actionTestFlame();
+      }
+    }
+
+    // Step 3: Pick Salt
+    function selectAndPickSalt(key) {
+      // Highlight selected card
+      document.querySelectorAll('[id^="salt-card-"]').forEach(c => c.classList.remove('ring-2', 'ring-sky-400'));
+      const card = document.getElementById(`salt-card-${key}`);
+      if (card) card.classList.add('ring-2', 'ring-sky-400');
+
+      const wasDirty = !isWireCleanVerified && loadedElement && loadedElement !== key;
+      wireZone = 'salt';
+      wireTarget = { x: 0.79, y: 0.74 };
+      wireState = 'loaded';
+      loadedElement = key;
+      isWireCleanVerified = false;
+      updateWireBadge();
+
+      if (currentTab === 'explore') {
+        updateElementInfoCard(ELEMENTS_DATA[key]);
+      }
+
+      if (wasDirty) {
+        setBanner('⚠️', 'Attenzione: Filo non pulito con HCl!', `Hai prelevato ${ELEMENTS_DATA[key].salt} senza prima lavare il filo in HCl! Potresti osservare residui del sale precedente.`, 'warn');
+      } else {
+        setBanner('🥄', `Sale prelevato: ${ELEMENTS_DATA[key].saltName}`, `Hai raccolto una piccola quantità di ${ELEMENTS_DATA[key].salt} sull'ansa. Ora premi "4. Saggio in Fiamma" o clicca sulla fiamma!`, 'info');
+      }
+    }
+
+    function actionPickSalt() {
+      if (currentTab === 'challenge') {
+        const key = unknowns[currentUnknown];
+        wireZone = 'salt';
+        wireTarget = { x: 0.79, y: 0.74 };
+        wireState = 'loaded';
+        loadedElement = key;
+        isWireCleanVerified = false;
+        updateWireBadge();
+        setBanner('🧪', `Prelevato campione dalla Provetta ${currentUnknown}`, 'Ora porta il filo nella zona ossidante della fiamma per osservarne il colore e lo spettro!', 'info');
+      } else {
+        const targetKey = loadedElement || 'Ba';
+        selectAndPickSalt(targetKey);
+      }
+    }
+
+    // Step 4: Put Wire into Flame
+    function actionTestFlame() {
+      wireZone = 'flame';
+      wireTarget = { x: 0.50, y: 0.36 };
+
+      if (airValve < 45) {
+        setBanner('⚠️', 'Fiamma non idonea al saggio!', 'La virola dell’aria è troppo chiusa: la fiamma gialla luminosa copre il colore del sale. Apri la virola dell’aria al 100%!', 'warn');
+      }
+
+      if (wireState === 'loaded' && loadedElement) {
+        activeFlameElement = loadedElement;
+        burnTimer = 1.0;
+        const el = ELEMENTS_DATA[loadedElement];
+
+        // Trigger photon emission animation in Bohr model
+        triggerQuantumJump(el);
+
+        if (currentTab === 'explore') {
+          updateElementInfoCard(el);
+          setBanner('🔥', `Saggio alla Fiamma: ${el.name} (${el.salt})`, `Colore osservato: ${el.flameColorName} (λ principale ≈ ${el.mainWavelength} nm). Osserva lo spettro a righe e il salto quantico!`, 'success');
+        } else {
+          setBanner('🔥', `Analisi Provetta ${currentUnknown} in corso`, 'Osserva attentamente il colore della fiamma, prova il vetrino al cobalto e confronta le righe dello spettroscopio!', 'success');
+        }
+      } else {
+        activeFlameElement = null;
+        burnTimer = 0;
+        setBanner('ℹ️', 'Nessun sale sul filo', 'Il filo è pulito e non colora la fiamma. Seleziona un sale (Passaggio 3) prima di portarlo sulla fiamma.', 'info');
+      }
+    }
+
+    function resetWireState() {
+      wireZone = 'rest';
+      wireTarget = { x: 0.25, y: 0.32 };
+      wireState = 'clean';
+      loadedElement = null;
+      activeFlameElement = null;
+      burnTimer = 0;
+      isWireCleanVerified = true;
+      updateWireBadge();
+      document.getElementById('quantum-state-badge').textContent = 'Stato Fondamentale';
+      document.getElementById('quantum-step1').textContent = 'In attesa di calore dalla fiamma...';
+      document.getElementById('quantum-step2').textContent = 'E = h · ν = (h · c) / λ';
+      document.getElementById('wavelength-readout').textContent = '— nm';
+      setBanner('🔄', 'Filo resettato', 'Filo al nichel-cromo pulito e pronto per una nuova analisi.', 'info');
+    }
+
+    function handleCanvasClick(e) {
+      const rect = e.target.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+      const relY = (e.clientY - rect.top) / rect.height;
+
+      // Left zone: HCl Beaker
+      if (relX < 0.34 && relY > 0.45) {
+        actionDipHCl();
+      }
+      // Center zone: Bunsen Flame
+      else if (relX >= 0.34 && relX <= 0.66) {
+        actionTestFlame();
+      }
+      // Right zone: Salt Watch Glass / Unknown Tube
+      else if (relX > 0.66 && relY > 0.45) {
+        actionPickSalt();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. ELEMENT CARD & QUANTUM BOHR TRIGGER
+    // -------------------------------------------------------------------------
+    function updateElementInfoCard(el) {
+      document.getElementById('el-category').textContent = `Cloruro Metallico • ${el.salt}`;
+      document.getElementById('el-name').textContent = `${el.name} (${el.ion})`;
+      document.getElementById('el-z').textContent = `Z=${el.z}`;
+      document.getElementById('el-symbol').textContent = el.symbol;
+      document.getElementById('el-symbol').style.color = `rgb(${el.primaryRGB.join(',')})`;
+      document.getElementById('el-desc').textContent = el.desc;
+      document.getElementById('el-flame-color').textContent = el.flameColorName;
+      document.getElementById('el-config').textContent = el.config;
+    }
+
+    function triggerQuantumJump(el) {
+      const mainLine = el.spectralLines.reduce((prev, curr) => curr.intensity > prev.intensity ? curr : prev);
+      photonWave = {
+        progress: 0,
+        color: mainLine.color,
+        nm: el.mainWavelength
+      };
+
+      document.getElementById('quantum-state-badge').textContent = 'Eccitazione → Emissione';
+      document.getElementById('quantum-step1').textContent = `Calore (~1350°C) eccita l'elettrone di valenza di ${el.symbol} da n₁ a n₂.`;
+      document.getElementById('quantum-step2').textContent = `Ricaduta istantanea: emissione di un fotone visibile (${mainLine.color}).`;
+      document.getElementById('wavelength-readout').textContent = `${el.mainWavelength} nm`;
+      document.getElementById('wavelength-readout').style.color = mainLine.color;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. CHALLENGE MODE LOGIC (UNKNOWNS A, B, C)
+    // -------------------------------------------------------------------------
+    function generateUnknowns(notify = true) {
+      const purePool = ['Ba', 'K', 'Li', 'Na', 'Ca', 'Cu'];
+      // Shuffle purePool
+      for (let i = purePool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [purePool[i], purePool[j]] = [purePool[j], purePool[i]];
+      }
+      unknowns = {
+        A: purePool[0],
+        B: purePool[1],
+        C: 'K+Na' // Always includes K+Na mix to test Cobalt glass mastery!
+      };
+      unknownSolved = { A: false, B: false, C: false };
+      ['A', 'B', 'C'].forEach(id => {
+        document.getElementById(`unk-status-${id}`).textContent = '❓';
+      });
+      document.getElementById('challenge-score').textContent = '0 / 3';
+      document.getElementById('challenge-feedback').classList.add('hidden');
+      selectUnknown('A');
+      if (notify) {
+        setBanner('🎲', 'Nuovi Campioni Incogniti Generati', 'Analizza le provette A, B e C usando la fiamma e il vetro al cobalto.', 'info');
+      }
+    }
+
+    function selectUnknown(id) {
+      currentUnknown = id;
+      ['A', 'B', 'C'].forEach(k => {
+        const btn = document.getElementById(`unk-btn-${k}`);
+        if (k === id) {
+          btn.classList.add('border-amber-400', 'bg-slate-800');
+          btn.classList.remove('border-slate-700');
+        } else {
+          btn.classList.remove('border-amber-400', 'bg-slate-800');
+          btn.classList.add('border-slate-700');
+        }
+      });
+      document.getElementById('current-unk-label').textContent = `Provetta ${id}`;
+      document.getElementById('unknown-guess').value = '';
+      document.getElementById('challenge-feedback').classList.add('hidden');
+    }
+
+    function checkUnknownAnswer() {
+      const guess = document.getElementById('unknown-guess').value;
+      const fb = document.getElementById('challenge-feedback');
+      if (!guess) {
+        fb.classList.remove('hidden');
+        fb.className = 'mt-2 text-xs p-2.5 rounded-lg bg-amber-950/70 border border-amber-500/40 text-amber-200';
+        fb.textContent = 'Seleziona prima un catione dal menu a tendina!';
+        return;
+      }
+
+      const actual = unknowns[currentUnknown];
+      fb.classList.remove('hidden');
+
+      if (guess === actual) {
+        unknownSolved[currentUnknown] = true;
+        document.getElementById(`unk-status-${currentUnknown}`).textContent = '✅';
+        const score = Object.values(unknownSolved).filter(Boolean).length;
+        document.getElementById('challenge-score').textContent = `${score} / 3`;
+
+        fb.className = 'mt-2 text-xs p-2.5 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-200';
+        fb.innerHTML = `<strong>Esatto!</strong> La Provetta ${currentUnknown} contiene <strong>${ELEMENTS_DATA[actual].name} (${ELEMENTS_DATA[actual].salt})</strong>. ${ELEMENTS_DATA[actual].desc}`;
+        updateElementInfoCard(ELEMENTS_DATA[actual]);
+      } else {
+        fb.className = 'mt-2 text-xs p-2.5 rounded-lg bg-rose-950/80 border border-rose-500/50 text-rose-200';
+        let hint = 'Osserva nuovamente le righe dello spettroscopio a emissione.';
+        if (actual === 'K+Na' && guess === 'Na') {
+          hint = 'Suggerimento: hai visto il giallo del Sodio, ma hai provato ad attivare il Vetrino al Cobalto per verificare se nasconde il Potassio?';
+        }
+        fb.innerHTML = `<strong>Non corretto.</strong> Riprova il saggio alla fiamma per la Provetta ${currentUnknown}. ${hint}`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. CANVAS RENDERING ENGINE (BUNSEN + FLAME + BOHR + SPECTROSCOPE)
+    // -------------------------------------------------------------------------
+    function resizeCanvases() {
+      const labCanvas = document.getElementById('labCanvas');
+      const labWrap = document.getElementById('canvas-wrapper');
+      if (labCanvas && labWrap) {
+        labCanvas.width = labWrap.clientWidth;
+        labCanvas.height = labWrap.clientHeight;
+      }
+
+      const bohrCanvas = document.getElementById('bohrCanvas');
+      if (bohrCanvas) {
+        bohrCanvas.width = 160;
+        bohrCanvas.height = 160;
+      }
+
+      const specCanvas = document.getElementById('spectrumCanvas');
+      if (specCanvas && specCanvas.parentElement) {
+        specCanvas.width = specCanvas.parentElement.clientWidth;
+        specCanvas.height = specCanvas.parentElement.clientHeight;
+      }
+    }
+
+    function animateAll() {
+      drawLabScene();
+      drawBohrAtom();
+      drawSpectrum();
+      requestAnimationFrame(animateAll);
+    }
+
+    function drawLabScene() {
+      const canvas = document.getElementById('labCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Lab Background Gradient
+      const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.45, 20, W * 0.5, H * 0.5, W * 0.75);
+      bgGrad.addColorStop(0, '#162238');
+      bgGrad.addColorStop(1, '#070b14');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Lab Bench Tabletop
+      const benchY = H * 0.84;
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, benchY, W, H - benchY);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, benchY);
+      ctx.lineTo(W, benchY);
+      ctx.stroke();
+
+      // --- 1. DRAW HCl BEAKER (LEFT) ---
+      const beakerX = W * 0.18;
+      const beakerW = Math.min(76, W * 0.16);
+      const beakerH = 85;
+      const beakerY = benchY - beakerH;
+
+      // HCl Liquid
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.22)';
+      ctx.fillRect(beakerX - beakerW / 2 + 3, beakerY + 26, beakerW - 6, beakerH - 29);
+      // Liquid meniscus
+      ctx.strokeStyle = 'rgba(103, 232, 249, 0.6)';
+      ctx.beginPath();
+      ctx.moveTo(beakerX - beakerW / 2 + 3, beakerY + 26);
+      ctx.lineTo(beakerX + beakerW / 2 - 3, beakerY + 26);
+      ctx.stroke();
+
+      // Glass outline
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.75)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(beakerX - beakerW / 2, beakerY, beakerW, beakerH);
+
+      // Beaker Label
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('HCl conc.', beakerX, beakerY + 56);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillText('Pulizia filo', beakerX, benchY + 15);
+
+      // --- 2. DRAW SALT WATCH GLASS / UNKNOWN TUBE (RIGHT) ---
+      const dishX = W * 0.82;
+      const dishY = benchY - 12;
+
+      // Watch glass curve
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(dishX, dishY - 22, 34, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
+
+      // Salt crystals mound
+      const displayKey = currentTab === 'challenge' ? unknowns[currentUnknown] : (loadedElement || 'Ba');
+      const saltObj = ELEMENTS_DATA[displayKey];
+      ctx.fillStyle = displayKey === 'Cu' ? '#38bdf8' : '#f8fafc';
+      ctx.beginPath();
+      ctx.moveTo(dishX - 18, dishY + 6);
+      ctx.quadraticCurveTo(dishX, dishY - 12, dishX + 18, dishY + 6);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillText(currentTab === 'challenge' ? `Incognito ${currentUnknown}` : saltObj.salt, dishX, benchY + 15);
+
+      // --- 3. DRAW BUNSEN BURNER (CENTER) ---
+      const bunsenX = W * 0.50;
+      const baseH = 16;
+      const tubeW = 24;
+      const tubeH = 95;
+      const tubeTopY = benchY - baseH - tubeH;
+
+      // Base
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.roundRect(bunsenX - 38, benchY - baseH, 76, baseH, [6, 6, 0, 0]);
+      ctx.fill();
+
+      // Chimney barrel
+      const barrelGrad = ctx.createLinearGradient(bunsenX - tubeW / 2, 0, bunsenX + tubeW / 2, 0);
+      barrelGrad.addColorStop(0, '#64748b');
+      barrelGrad.addColorStop(0.5, '#cbd5e1');
+      barrelGrad.addColorStop(1, '#475569');
+      ctx.fillStyle = barrelGrad;
+      ctx.fillRect(bunsenX - tubeW / 2, tubeTopY, tubeW, tubeH);
+
+      // Air Collar (Virola)
+      const collarY = benchY - baseH - 26;
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(bunsenX - tubeW / 2 - 3, collarY, tubeW + 6, 18);
+      // Air hole opening proportional to airValve
+      const holeR = (airValve / 100) * 6.5;
+      ctx.fillStyle = '#090d16';
+      ctx.beginPath();
+      ctx.arc(bunsenX, collarY + 9, holeR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // --- 4. SIMULATE & DRAW BUNSEN FLAME ---
+      updateAndDrawFlame(ctx, bunsenX, tubeTopY, H);
+
+      // --- 5. SMOOTH WIRE MOVEMENT & RENDERING ---
+      wirePos.x += (wireTarget.x - wirePos.x) * 0.14;
+      wirePos.y += (wireTarget.y - wirePos.y) * 0.14;
+
+      const tipX = wirePos.x * W;
+      const tipY = wirePos.y * H;
+      const handleX = tipX - 115;
+      const handleY = tipY - 75;
+
+      // Insulating cork/glass handle
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(handleX, handleY);
+      ctx.lineTo(handleX + 48, handleY + 31);
+      ctx.stroke();
+
+      // Ni-Cr metallic wire
+      ctx.strokeStyle = (wireZone === 'flame') ? '#fb923c' : '#cbd5e1';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(handleX + 48, handleY + 31);
+      ctx.lineTo(tipX - 6, tipY - 4);
+      ctx.stroke();
+
+      // Wire loop (ansa)
+      ctx.beginPath();
+      ctx.arc(tipX, tipY, 5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Salt bead on loop if loaded
+      if (wireState === 'loaded' && loadedElement) {
+        ctx.fillStyle = loadedElement === 'Cu' ? '#38bdf8' : '#ffffff';
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // --- 6. COBALT GLASS OVERLAY (IF ENABLED) ---
+      if (cobaltGlass) {
+        ctx.fillStyle = 'rgba(29, 78, 216, 0.34)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = 'rgba(96, 165, 250, 0.7)';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, W - 4, H - 4);
+      }
+    }
+
+    function updateAndDrawFlame(ctx, cx, baseY, H) {
+      // Determine flame color based on airValve and activeFlameElement
+      let outerRGB = [56, 189, 248]; // Blue oxidizing default
+      let innerRGB = [37, 99, 235];
+
+      if (airValve < 45) {
+        // Luminous yellow-orange flame
+        outerRGB = [251, 191, 36];
+        innerRGB = [245, 158, 11];
+      }
+
+      // If a salt is burning in the flame, override color!
+      if (activeFlameElement && burnTimer > 0.05) {
+        const el = ELEMENTS_DATA[activeFlameElement];
+        const targetRGB = cobaltGlass ? el.cobaltRGB : el.primaryRGB;
+        // Blend based on burnTimer
+        outerRGB = [
+          Math.round(outerRGB[0] * (1 - burnTimer) + targetRGB[0] * burnTimer),
+          Math.round(outerRGB[1] * (1 - burnTimer) + targetRGB[1] * burnTimer),
+          Math.round(outerRGB[2] * (1 - burnTimer) + targetRGB[2] * burnTimer)
+        ];
+        innerRGB = cobaltGlass ? el.cobaltRGB : el.secondaryRGB;
+
+        // Slowly decay burn intensity unless wire stays in flame
+        if (wireZone !== 'flame') {
+          burnTimer = Math.max(0, burnTimer - 0.015);
+        } else {
+          burnTimer = Math.max(0.75, burnTimer - 0.0015);
+        }
+      }
+
+      // Spawn new flame particles
+      for (let i = 0; i < 4; i++) {
+        flameParticles.push({
+          x: cx + (Math.random() - 0.5) * 18,
+          y: baseY,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: -2.2 - Math.random() * 2.2,
+          size: 10 + Math.random() * 10,
+          life: 1.0,
+          decay: 0.02 + Math.random() * 0.015
+        });
+      }
+
+      // Ambient glow around flame
+      const glowRadius = activeFlameElement && burnTimer > 0.2 ? 125 : 85;
+      const glow = ctx.createRadialGradient(cx, baseY - 65, 5, cx, baseY - 65, glowRadius);
+      glow.addColorStop(0, `rgba(${outerRGB.join(',')}, 0.42)`);
+      glow.addColorStop(1, `rgba(${outerRGB.join(',')}, 0)`);
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(cx, baseY - 65, glowRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Update and render flame particles with additive blending
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = flameParticles.length - 1; i >= 0; i--) {
+        const p = flameParticles[i];
+        p.x += p.vx + Math.sin(p.life * 10) * 0.35;
+        p.y += p.vy;
+        p.life -= p.decay;
+
+        if (p.life <= 0) {
+          flameParticles.splice(i, 1);
+          continue;
+        }
+
+        const r = p.size * p.life;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        grad.addColorStop(0, `rgba(${outerRGB.join(',')}, ${p.life * 0.55})`);
+        grad.addColorStop(1, `rgba(${outerRGB.join(',')}, 0)`);
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Inner blue oxidizing cone (visible when airValve >= 45)
+      if (airValve >= 45) {
+        ctx.fillStyle = `rgba(${innerRGB.join(',')}, 0.65)`;
+        ctx.beginPath();
+        ctx.moveTo(cx - 9, baseY);
+        ctx.quadraticCurveTo(cx, baseY - 58, cx + 9, baseY);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. BOHR ATOM MODEL CANVAS (MICROSCOPIC QUANTUM TRANSITION)
+    // -------------------------------------------------------------------------
+    function drawBohrAtom() {
+      const canvas = document.getElementById('bohrCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Orbitals (n=1 ground state, n=2 excited state)
+      const r1 = 34;
+      const r2 = 62;
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r1, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Nucleus
+      const el = activeFlameElement ? ELEMENTS_DATA[activeFlameElement] : null;
+      const nucColor = el ? `rgb(${el.primaryRGB.join(',')})` : '#38bdf8';
+
+      ctx.fillStyle = nucColor;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(el ? el.symbol : 'M⁺', cx, cy);
+
+      // Valence Electron orbiting
+      electronAngle += 0.045;
+      let currentRadius = r1;
+
+      if (photonWave && photonWave.progress < 1) {
+        photonWave.progress += 0.018;
+        // Jump out to n=2 during first half, drop back to n=1 in second half
+        if (photonWave.progress < 0.45) {
+          currentRadius = r1 + (r2 - r1) * (photonWave.progress / 0.45);
+        } else {
+          currentRadius = r2 - (r2 - r1) * Math.min(1, (photonWave.progress - 0.45) / 0.25);
+
+          // Draw emitted photon wave packet leaving the atom
+          const waveDist = (photonWave.progress - 0.45) * 90;
+          const ex = cx + Math.cos(electronAngle) * r1;
+          const ey = cy + Math.sin(electronAngle) * r1;
+
+          ctx.strokeStyle = photonWave.color;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          for (let t = 0; t < 24; t++) {
+            const wx = ex + (waveDist + t) * 0.8;
+            const wy = ey - (waveDist + t) * 0.5 + Math.sin(t * 0.8) * 4;
+            if (t === 0) ctx.moveTo(wx, wy);
+            else ctx.lineTo(wx, wy);
+          }
+          ctx.stroke();
+        }
+
+        // Loop photon animation while element is burning
+        if (photonWave.progress >= 1 && activeFlameElement && burnTimer > 0.2) {
+          photonWave.progress = 0;
+        }
+      }
+
+      const elX = cx + Math.cos(electronAngle) * currentRadius;
+      const elY = cy + Math.sin(electronAngle) * currentRadius;
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(elX, elY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. EMISSION SPECTROSCOPE CANVAS (400 nm - 750 nm)
+    // -------------------------------------------------------------------------
+    function drawSpectrum() {
+      const canvas = document.getElementById('spectrumCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.fillStyle = '#030712';
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle wavelength grid lines
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.35)';
+      ctx.lineWidth = 1;
+      for (let nm = 400; nm <= 750; nm += 50) {
+        const x = ((nm - 400) / 350) * W;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+
+      const activeKey = activeFlameElement || (currentTab === 'explore' ? loadedElement : null);
+      if (!activeKey || !ELEMENTS_DATA[activeKey]) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Nessuna emissione rilevata — Porta un sale nella fiamma', W / 2, H / 2 + 4);
+        return;
+      }
+
+      const el = ELEMENTS_DATA[activeKey];
+      el.spectralLines.forEach(line => {
+        // If cobalt glass is on, suppress lines near 589 nm (Sodium)
+        if (cobaltGlass && line.nm >= 575 && line.nm <= 605) {
+          return;
+        }
+
+        const x = ((line.nm - 400) / 350) * W;
+        const alpha = line.intensity;
+
+        // Glow halo around spectral line
+        const grad = ctx.createLinearGradient(x - 8, 0, x + 8, 0);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.5, line.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.45;
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - 8, 0, 16, H);
+
+        // Sharp emission line
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(x, 4);
+        ctx.lineTo(x, H - 16);
+        ctx.stroke();
+
+        // Wavelength label below line
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${line.nm}`, x, H - 4);
+        ctx.restore();
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 10. OFFLINE HTML DOWNLOAD FUNCTION
+    // -------------------------------------------------------------------------
+    function downloadOfflineHTML() {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'laboratorio_saggio_alla_fiamma.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

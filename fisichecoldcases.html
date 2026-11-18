@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSI ODONTOTECNICA - 50 Cold Cases (Modulo 3)</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --panel: #111827;
+    --panel-light: #1f2937;
+    --accent: #06b6d4;
+    --accent-glow: rgba(6, 182, 212, 0.25);
+    --success: #10b981;
+    --danger: #f43f5e;
+    --warning: #f59e0b;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --border: #374151;
+  }
+
+  * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 14px;
+    background-image: radial-gradient(circle at 50% 0%, #162238 0%, #090d16 70%);
+  }
+
+  .terminal {
+    width: 100%;
+    max-width: 920px;
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .brand span {
+    font-size: 0.75rem;
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    font-weight: bold;
+  }
+
+  .hud {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .hud-pill {
+    background: var(--bg);
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid #1f2937;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    width: 0%;
+    transition: width 0.35s ease;
+  }
+
+  /* START SCREEN */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  @media (min-width: 650px) {
+    .mode-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .mode-card {
+    background: var(--panel-light);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .mode-card:hover, .mode-card.selected {
+    border-color: var(--accent);
+    background: rgba(6, 182, 212, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .mode-card h3 { margin: 0 0 6px 0; color: var(--accent); font-size: 1.1rem; }
+  .mode-card p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .filter-btn {
+    background: var(--bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    color: #090d16;
+    font-weight: bold;
+    border-color: var(--accent);
+  }
+
+  /* PLAY SCREEN */
+  .case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tag-cat {
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  .tag-id {
+    font-family: monospace;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .reclamo-box {
+    background: #0b1120;
+    border-left: 4px solid var(--danger);
+    padding: 16px 18px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+
+  .reclamo-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--danger);
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .reclamo-text {
+    font-size: 1.08rem;
+    line-height: 1.55;
+    color: #e5e7eb;
+    font-style: italic;
+  }
+
+  .dilemma-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    background: var(--panel-light);
+    color: var(--text);
+    border: 2px solid var(--border);
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .opt-letter {
+    background: var(--bg);
+    color: var(--accent);
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #263244;
+  }
+
+  .opt-btn.correct {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.18);
+  }
+  .opt-btn.correct .opt-letter { background: var(--success); color: #064e3b; border-color: var(--success); }
+
+  .opt-btn.wrong {
+    border-color: var(--danger);
+    background: rgba(244, 63, 94, 0.18);
+  }
+  .opt-btn.wrong .opt-letter { background: var(--danger); color: white; border-color: var(--danger); }
+
+  .perizia-box {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 10px;
+    display: none;
+    line-height: 1.55;
+    font-size: 0.98rem;
+  }
+
+  .perizia-box.ok {
+    display: block;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid var(--success);
+    color: #d1fae5;
+  }
+
+  .perizia-box.ko {
+    display: block;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid var(--danger);
+    color: #ffe4e6;
+  }
+
+  .btn-main {
+    background: var(--accent);
+    color: #090d16;
+    border: none;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-main:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  .footer-bar {
+    width: 100%;
+    max-width: 920px;
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn-sec {
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .btn-sec:hover { color: white; border-color: var(--accent); }
+
+  .btn-dl {
+    background: var(--success);
+    color: #064e3b;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.92rem;
+  }
+  .btn-dl:hover { filter: brightness(1.1); }
+
+  .rank-badge {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--panel-light);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+  <header>
+    <div class="brand">
+      <h1>🔬 CSI ODONTOTECNICA</h1>
+      <span>50 COLD CASES • MODULO 3</span>
+    </div>
+    <div class="hud">
+      <div class="hud-pill" id="hud-lives">Reputazione: 🛡️🛡️🛡️</div>
+      <div class="hud-pill" id="hud-streak">Serie: 🔥 0</div>
+      <div class="hud-pill" id="hud-score">Punti: 0</div>
+    </div>
+  </header>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+
+  <!-- SCHERMATA INIZIALE -->
+  <div id="screen-start">
+    <h2 style="margin-top:0; font-size:1.6rem;">Archivio Forense dei Materiali Dentali</h2>
+    <p style="color:var(--muted); line-height:1.6;">
+      Benvenuto al banco perizie. Il database contiene <strong>50 casi clinici e di laboratorio reali</strong> con distrattori tecnici ad alta difficoltà su <em>Proprietà Fisiche, Chimiche, Biologiche e Speciali</em>.
+    </p>
+
+    <div style="margin: 18px 0 8px; font-weight:bold; color:var(--accent); font-size:0.9rem; text-transform:uppercase;">1. Filtra Area Tematica:</div>
+    <div class="filter-bar" id="area-filters">
+      <button class="filter-btn active" data-area="ALL" onclick="selectArea(this)">Tutte le Aree (50 Casi)</button>
+      <button class="filter-btn" data-area="FISICHE" onclick="selectArea(this)">Proprietà Fisiche</button>
+      <button class="filter-btn" data-area="CHIM_BIO" onclick="selectArea(this)">Chimiche & Biologiche</button>
+      <button class="filter-btn" data-area="SPECIALI" onclick="selectArea(this)">Proprietà Speciali & Calcoli</button>
+    </div>
+
+    <div style="margin: 18px 0 8px; font-weight:bold; color:var(--accent); font-size:0.9rem; text-transform:uppercase;">2. Scegli la Durata del Turno:</div>
+    <div class="mode-grid">
+      <div class="mode-card selected" data-len="10" onclick="selectLength(this)">
+        <h3>⚡ Turno Rapido</h3>
+        <p>10 Cold Cases casuali<br>(Ideale per ripasso veloce)</p>
+      </div>
+      <div class="mode-card" data-len="20" onclick="selectLength(this)">
+        <h3>🔍 Turno Completo</h3>
+        <p>20 Cold Cases casuali<br>(Sfida standard di laboratorio)</p>
+      </div>
+      <div class="mode-card" data-len="50" onclick="selectLength(this)">
+        <h3>🏆 Maratona Forense</h3>
+        <p>Tutti i casi disponibili<br>(Solo per veri Maestri)</p>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:24px;">
+      <button class="btn-main" onclick="startGame()">Avvia Indagine Tecnica 🚀</button>
+    </div>
+  </div>
+
+  <!-- SCHERMATA DI GIOCO -->
+  <div id="screen-play" style="display:none;">
+    <div class="case-header">
+      <span class="tag-cat" id="case-cat">Categoria</span>
+      <span class="tag-id" id="case-id">FASCICOLO #01</span>
+    </div>
+
+    <div class="reclamo-box">
+      <span class="reclamo-label">📞 Segnalazione Clinica / Anomalia di Banco</span>
+      <div class="reclamo-text" id="case-scenario">Testo del caso...</div>
+    </div>
+
+    <div class="dilemma-title" id="case-question">Domanda tecnica...</div>
+
+    <div class="options-list" id="options-container"></div>
+
+    <div class="perizia-box" id="perizia-feedback"></div>
+
+    <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+      <span id="remaining-count" style="color:var(--muted); font-size:0.9rem;"></span>
+      <button class="btn-main" id="btn-next" style="display:none;" onclick="nextCase()">Fascicolo Successivo ➡️</button>
+    </div>
+  </div>
+
+  <!-- SCHERMATA FINALE -->
+  <div id="screen-end" style="display:none; text-align:center; padding:16px 0;">
+    <h2 id="end-title" style="font-size:1.9rem; margin-bottom:8px;">Rapporto Chiuso</h2>
+    <div class="rank-badge" id="end-rank">Grado: Perito Senior</div>
+    <p id="end-summary" style="color:var(--muted); font-size:1.1rem; max-width:620px; margin:12px auto 24px; line-height:1.6;"></p>
+    <button class="btn-main" onclick="resetToMenu()">🔄 Nuovo Turno (Nuovi Casi Casuali)</button>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <button class="btn-sec" onclick="resetToMenu()">🏠 Menu & Filtri</button>
+  <button class="btn-dl" onclick="downloadOffline()">💾 Scarica App Completa (.html offline)</button>
+</div>
+
+<script>
+// DATABASE DI 50 COLD CASES CON DISTRATTORI TECNICI REALISTICI
+const coldCases = [
+  // --- AREA: PROPRIETA' FISICHE (DENSITA', MASSA VOLUMICA, PESO SPECIFICO) ---
+  {
+    id: "F-01", area: "FISICHE", cat: "Massa Volumica & Economia",
+    scenario: "Lo studio dentistico chiede un preventivo per un ponte esteso. La lega al Titanio costa di più al grammo rispetto a una lega aurea tradizionale ad altissima densità, eppure il preventivo finale del metallo risulta più economico.",
+    question: "Qual è la spiegazione fisica corretta di questo apparente paradosso?",
+    options: [
+      "A parità di volume del modellato, la bassa massa volumica (ρ) del Titanio richiede una massa (grammi) nettamente inferiore.",
+      "Il Titanio ha una densità relativa superiore all'acqua a 4°C, riducendo l'accelerazione di gravità (g) durante la colata.",
+      "L'elevata conducibilità termica (λ) del Titanio permette di fondere il cilindro con meno energia e meno scarto.",
+      "Il Titanio è una lega eutettica che non subisce contrazione volumetrica al passaggio dallo stato liquido a solido."
+    ],
+    correct: 0,
+    perizia: "Massa volumica ρ = m / V. Poiché lo stampo ha un volume fisso determinato dalla cera, un materiale con densità molto bassa richiede molti meno grammi per riempire lo stesso spazio, compensando il maggior costo unitario al grammo."
+  },
+  {
+    id: "F-02", area: "FISICHE", cat: "Densità Relativa",
+    scenario: "Consultando la scheda tecnica di una resina polimerica leggi: 'Densità relativa = 1,18' senza alcuna unità di misura accanto.",
+    question: "Perché questo valore è adimensionale e cosa indica esattamente?",
+    options: [
+      "È il rapporto tra la densità assoluta della resina e quella dell'acqua distillata a 4°C (che vale 1 g/cm³).",
+      "È il prodotto tra la massa volumica (ρ) e l'accelerazione di gravità terrestre (9,81 m/s²).",
+      "Indica che il materiale ha un assorbimento d'acqua pari all'1,18% in saliva sintetica.",
+      "È il coefficiente di dilatazione termica lineare (α) espresso in millimetri su metro."
+    ],
+    correct: 0,
+    perizia: "La densità relativa si ottiene dividendo la densità assoluta del materiale per quella di un materiale di riferimento (l'acqua a 4°C). Essendo un rapporto tra due grandezze omogenee, le unità si semplificano ed è adimensionale."
+  },
+  {
+    id: "F-03", area: "FISICHE", cat: "Peso Specifico vs Massa Volumica",
+    scenario: "In una relazione tecnica uno studente usa indistintamente i termini 'massa volumica' e 'peso specifico' esprimendoli entrambi in kg/m³.",
+    question: "Qual è l'errore concettuale e dimensionale commesso?",
+    options: [
+      "Il peso specifico (γ) corregge la densità moltiplicandola per l'accelerazione di gravità (γ = ρ · g) e si misura in N/m³.",
+      "La massa volumica si misura in Newton/m³, mentre il peso specifico si esprime sempre in gradi centigradi.",
+      "Il peso specifico si calcola solo per i solidi amorfi, mentre la massa volumica vale solo per i reticoli cristallini.",
+      "La densità assoluta tiene conto della spinta idrostatica della saliva sintetica, il peso specifico no."
+    ],
+    correct: 0,
+    perizia: "La massa volumica (ρ = m/V) è espressa in kg/m³ (o g/cm³), mentre il peso specifico (γ = ρ · g) include l'accelerazione di gravità e si esprime in N/m³."
+  },
+  {
+    id: "F-04", area: "FISICHE", cat: "Comfort Protesico & Densità",
+    scenario: "Un paziente portatore di protesi totale superiore molto estesa lamenta senso di pesantezza e tendenza al distacco della protesi per gravità.",
+    question: "Quale parametro fisico dei materiali scelti ha inciso maggiormente su questo disagio?",
+    options: [
+      "Un'elevata massa volumica (densità assoluta) del materiale utilizzato, che aumenta il peso a parità di volume.",
+      "Un basso coefficiente di conduttività termica (λ) della base protesica.",
+      "Una temperatura di fusione troppo vicina all'intervallo di rammollimento.",
+      "La presenza di fenomeni di passivazione chimica superficiale."
+    ],
+    correct: 0,
+    perizia: "In campo dentale, se la densità di un materiale è alta, a parità di volume anatomico da ricostruire la protesi peserà di più, compromettendo il comfort e la ritenzione."
+  },
+  {
+    id: "F-05", area: "FISICHE", cat: "Calcolo Fusione a Cera Persa",
+    scenario: "Un tirocinante pesa il modellato in cera (1,8 g) e lo moltiplica per la densità della lega (14,5 g/cm³), ottenendo 26,1 g, ma dimentica di pesare i perni di colata in cera.",
+    question: "Cosa accadrà quasi certamente durante la fusione centrifuga?",
+    options: [
+      "Fusione incompleta della protesi: il peso della cera deve includere anche perni e canale di colata per garantire il cono di alimentazione.",
+      "Surriscaldamento della lega perché il volume del cilindro risulta inferiore alla massa volumica.",
+      "Aumento del coefficiente di dilatazione termica (α) del rivestimento refrattario.",
+      "Trasformazione della soluzione solida in una lega eutettica a temperatura costante."
+    ],
+    correct: 0,
+    perizia: "Per quantificare correttamente la lega da fondere si moltiplica il peso specifico/densità della lega per il peso totale della cera (modellato + perni), assicurando metallo sufficiente a riempire l'intera cavità."
+  },
+
+  // --- AREA: CONDUCIBILITA' E DILATAZIONE TERMICA ---
+  {
+    id: "F-06", area: "FISICHE", cat: "Conducibilità Termica (λ)",
+    scenario: "Dopo aver cementato un intarsio metallico profondo senza sottofondo isolante, il paziente avverte dolore acuto bevendo bibite ghiacciate.",
+    question: "Qual è il meccanismo fisico alla base di questa ipersensibilità?",
+    options: [
+      "I metalli hanno un altissimo coefficiente di conduttività termica (λ) e trasmettono rapidamente lo sbalzo termico alla polpa.",
+      "I metalli hanno un'alta dilatazione termica lineare (α) che schiaccia istantaneamente la dentina.",
+      "Il freddo trasforma il metallo da isolante a semiconduttore generando micro-correnti.",
+      "La bassa massa volumica del metallo favorisce l'assorbimento d'acqua nei tubuli dentinali."
+    ],
+    correct: 0,
+    perizia: "Smalto e dentina hanno una bassa conducibilità termica (λ) e proteggono la polpa. Sostituendoli con un metallo (altissima λ), il calore o il freddo si propagano rapidamente attraverso il solido."
+  },
+  {
+    id: "F-07", area: "FISICHE", cat: "Isolamento Termico",
+    scenario: "Devi consigliare al clinico il materiale da ricostruzione più simile ai tessuti dentali naturali (smalto e dentina) in termini di isolamento termico.",
+    question: "Quale classe di materiali presenta bassi valori di λ paragonabili a smalto e dentina?",
+    options: [
+      "Materiali ceramici e materiali plastici/polimerici.",
+      "Leghe auree ad alto titolo e leghe al Cromo-Cobalto.",
+      "Semiconduttori drogati come Silicio e Germanio ad alte temperature.",
+      "Leghe eutettiche ad alta densità relativa."
+    ],
+    correct: 0,
+    perizia: "I materiali ceramici e plastici hanno bassi valori del coefficiente di conduttività termica (λ), comportandosi da buoni isolanti termici proprio come smalto e dentina."
+  },
+  {
+    id: "F-08", area: "FISICHE", cat: "Dilatazione Termica Lineare (α)",
+    scenario: "Un'otturazione in resina composita (base plastica) sottoposta a continui cicli caldo/freddo in bocca presenta infiltrazioni marginali nel tempo.",
+    question: "Perché i materiali plastici soffrono questo problema più delle ceramiche?",
+    options: [
+      "Perché i materiali plastici hanno il coefficiente di dilatazione termica (α) più elevato, contraendosi ed espandendosi molto più del dente.",
+      "Perché i materiali plastici hanno legami ionici fortissimi che impediscono l'adattamento alle pareti cavitarie.",
+      "Perché il coefficiente α dei materiali plastici è negativo al di sopra dei 37°C.",
+      "Perché la resina ha una conduttività termica (λ) superiore a quella dell'oro."
+    ],
+    correct: 0,
+    perizia: "L'ordine crescente di dilatazione termica (α) è: Ceramici < Metalli < Plastici. I materiali plastici subiscono le maggiori variazioni dimensionali al variare della temperatura."
+  },
+  {
+    id: "F-09", area: "FISICHE", cat: "Legami Chimici e Dilatazione",
+    scenario: "Confrontando una ceramica feldspatica e una cera per intarsi, noti che la ceramica ha un coefficiente α nell'ordine di pochi 10⁻⁶ °C⁻¹, molto inferiore alla cera.",
+    question: "Da quale caratteristica microscopica dipende questa differenza?",
+    options: [
+      "Dalla forza dei legami che tengono unite le particelle: più sono forti i legami, minore è la dilatazione termica.",
+      "Dalla massa volumica (ρ): i materiali con densità minore si dilatano sempre meno.",
+      "Dalla solubilità nella saliva sintetica che lubrifica il reticolo cristallino.",
+      "Dalla conducibilità elettrica: gli isolanti elettrici non si dilatano mai."
+    ],
+    correct: 0,
+    perizia: "La dilatazione termica dipende direttamente dall'energia dei legami interatomici/intermolecolari. Legami forti (ceramiche) limitano l'ampiezza di vibrazione termica delle particelle."
+  },
+  {
+    id: "F-10", area: "FISICHE", cat: "Cere e Materiali Termoplastici",
+    scenario: "Un modellato in cera viene lasciato sul banco vicino a una finestra soleggiata prima della messa in rivestimento. Alla prova sul moncone la corona risulta imprecisa.",
+    question: "Quale fenomeno fisico ha alterato la precisione del modellato?",
+    options: [
+      "L'elevata dilatazione termica della cera, seguita da contrazione al successivo raffreddamento.",
+      "La passivazione chimica superficiale della cera a contatto con l'ossigeno.",
+      "Il superamento della temperatura di fusione eutettica della cera.",
+      "L'assorbimento d'acqua atmosferica che ha alterato il peso specifico γ."
+    ],
+    correct: 0,
+    perizia: "Le cere e i materiali termoplastici da impronta hanno coefficienti di dilatazione termica molto alti; sbalzi termici anche modesti causano espansioni e contrazioni che deformano il manufatto."
+  },
+  {
+    id: "F-11", area: "FISICHE", cat: "Formula Dilatazione Lineare",
+    scenario: "Stai calcolando l'allungamento di una barra metallica lunga L₁ riscaldata da T₁ a T₂ tramite la formula α = (L₂ - L₁) / [L₁ · (T₂ - T₁)].",
+    question: "Che cosa rappresenta esattamente il coefficiente α in campo dentale?",
+    options: [
+      "La variazione di lunghezza di un materiale di lunghezza unitaria quando la temperatura aumenta di 1°C.",
+      "La variazione di massa volumica quando la pressione aumenta di 1 atmosfera.",
+      "La quantità di calore che attraversa 1 metro di materiale in 1 secondo.",
+      "Il rapporto tra temperatura di solidus e temperatura di liquidus."
+    ],
+    correct: 0,
+    perizia: "In campo dentale la dilatazione termica si valuta soprattutto come dilatazione termica lineare (α), definita come la variazione di lunghezza per unità di lunghezza per ogni grado centigrado di aumento."
+  },
+
+  // --- AREA: TEMPERATURA DI FUSIONE E STATI DELLA MATERIA ---
+  {
+    id: "F-12", area: "FISICHE", cat: "Sostanze Pure vs Soluzioni Solide",
+    scenario: "Fondendo oro puro (24 kt) osservi che la temperatura resta fissa a 1064°C finché tutto il metallo non è liquido. Usando invece una lega oro-palladio (soluzione solida), la temperatura continua a salire durante la fusione.",
+    question: "Perché si verifica questa differenza termica?",
+    options: [
+      "Le sostanze pure fondono a temperatura costante, mentre le soluzioni solide hanno un intervallo di fusione.",
+      "L'oro puro è un solido amorfo, mentre le leghe oro-palladio sono materiali ceramici.",
+      "Le soluzioni solide hanno una conducibilità termica (λ) pari a zero durante il passaggio di stato.",
+      "L'oro puro non risente dell'accelerazione di gravità durante il riscaldamento."
+    ],
+    correct: 0,
+    perizia: "Solo le sostanze pure e le leghe eutettiche fondono a temperatura costante. La maggior parte delle leghe dentali sono soluzioni solide e fondono all'interno di un intervallo di fusione."
+  },
+  {
+    id: "F-13", area: "FISICHE", cat: "Leghe Eutettiche",
+    scenario: "Un collega afferma che 'nessuna lega metallica può mai fondere a temperatura costante come un metallo puro'.",
+    question: "Quale eccezione prevista dalla fisica dei materiali smentisce il collega?",
+    options: [
+      "Le leghe eutettiche, che fondono a temperatura costante comportandosi come sostanze pure.",
+      "I solidi amorfi, che passano istantaneamente da solido a liquido senza rammollire.",
+      "I semiconduttori al Germanio, che fondono a 0°C.",
+      "Le resine acriliche polimerizzate a caldo."
+    ],
+    correct: 0,
+    perizia: "Le leghe eutettiche rappresentano un'eccezione tra le leghe: alla composizione eutettica fondono e solidificano a una temperatura costante ben definita."
+  },
+  {
+    id: "F-14", area: "FISICHE", cat: "Solidi Amorfi",
+    scenario: "Scaldando una pasta termoplastica da impronta (solido amorfo) noti che diventa progressivamente sempre più morbida senza avere un punto netto di fusione.",
+    question: "Come viene definito tecnicamente questo comportamento?",
+    options: [
+      "Intervallo di rammollimento, tipico dei solidi privi di reticolo cristallino ordinato.",
+      "Intervallo eutettico di solidificazione.",
+      "Tempo di presa e indurimento chimico.",
+      "Passivazione termica reversibile."
+    ],
+    correct: 0,
+    perizia: "Mentre i solidi cristallini puri hanno un punto di fusione e le soluzioni solide un intervallo di fusione, i solidi amorfi presentano un intervallo di rammollimento."
+  },
+  {
+    id: "F-15", area: "FISICHE", cat: "Surriscaldamento in Fusione",
+    scenario: "Un tecnico imposta il cannello/forno ben oltre il limite superiore dell'intervallo di fusione della lega per 'essere sicuro che scenda bene nel cilindro'. Il getto esce ruvido, poroso e fragile.",
+    question: "Quale regola della fusione a cera persa è stata violata?",
+    options: [
+      "Bisogna conoscere esattamente l'intervallo di fusione della lega per evitare surriscaldamenti (che ossidano e degradano la lega) o sottoriscaldamenti.",
+      "Superando l'intervallo di fusione, la lega diventa un isolante elettrico e respinge il rivestimento.",
+      "Il surriscaldamento riduce a zero la densità relativa della lega.",
+      "Bisogna fondere sempre al di sotto della temperatura di rammollimento."
+    ],
+    correct: 0,
+    perizia: "Conoscere la temperatura o l'intervallo di fusione è cruciale nella fusione a cera persa: il sottoriscaldamento impedisce il riempimento dello stampo, il surriscaldamento brucia i componenti della lega."
+  },
+  {
+    id: "F-16", area: "FISICHE", cat: "Sottoriscaldamento in Fusione",
+    scenario: "Apri il cilindro di rivestimento dopo la colata e trovi i margini sottili delle corone incompleti e arrotondati, come se il metallo si fosse fermato prima.",
+    question: "Qual è la causa termica più probabile di questo difetto?",
+    options: [
+      "Sottoriscaldamento della lega: non è stato superato completamente l'intervallo di fusione prima della colata.",
+      "Eccessiva durata inutilizzo del rivestimento gessoso.",
+      "Bassa solubilità della lega nella saliva sintetica.",
+      "Coefficiente di dilatazione termica (α) negativo della ceramica."
+    ],
+    correct: 0,
+    perizia: "Se la lega non raggiunge pienamente la temperatura superiore del suo intervallo di fusione (liquidus), resta parzialmente pastosa e solidifica prima di raggiungere i margini più sottili."
+  },
+
+  // --- AREA: CONDUCIBILITA' ELETTRICA ---
+  {
+    id: "F-17", area: "FISICHE", cat: "Classificazione Elettrica",
+    scenario: "Nel cavo orale di un paziente sono presenti un'otturazione in amalgama/lega metallica e un'altra in ceramica integrale.",
+    question: "Come si classificano questi due materiali dal punto di vista della conducibilità elettrica?",
+    options: [
+      "La lega metallica è un conduttore; la ceramica è un isolante.",
+      "La lega metallica è un semiconduttore; la ceramica è un conduttore.",
+      "Entrambi sono isolanti in presenza di saliva sintetica.",
+      "La ceramica è un conduttore a bassa temperatura e isolante ad alta temperatura."
+    ],
+    correct: 0,
+    perizia: "I metalli favoriscono la propagazione della corrente elettrica (conduttori), mentre i materiali ceramici, plastici ed elastomeri non conducono corrente (isolanti)."
+  },
+  {
+    id: "F-18", area: "FISICHE", cat: "Semiconduttori (Ge, Si)",
+    scenario: "In un test sulle proprietà fisiche viene chiesto come si comportano Germanio (Ge) e Silicio (Si) rispetto alla corrente elettrica.",
+    question: "Qual è la risposta tecnicamente esatta?",
+    options: [
+      "Sono semiconduttori: si comportano da isolanti a basse temperature e da conduttori ad alte temperature.",
+      "Sono isolanti assoluti a qualsiasi temperatura, come gli elastomeri da impronta.",
+      "Sono conduttori metallici che perdono conducibilità quando vengono riscaldati.",
+      "Sono leghe eutettiche usate per la fusione a cera persa."
+    ],
+    correct: 0,
+    perizia: "I semiconduttori (es. Ge, Si) hanno proprietà intermedie tra conduttori e isolanti: normalmente sono isolanti a basse temperature e diventano conduttori ad alte temperature."
+  },
+  {
+    id: "F-19", area: "FISICHE", cat: "Isolanti in Odontotecnica",
+    scenario: "Devi selezionare un materiale per realizzare un dispositivo che non trasmetta alcuna corrente elettrica nel cavo orale.",
+    question: "Quali categorie di materiali garantiscono comportamento isolante?",
+    options: [
+      "Materiali ceramici, materiali plastici ed elastomeri.",
+      "Leghe nobili, leghe vili e semiconduttori ad alta temperatura.",
+      "Solo le leghe eutettiche con densità relativa inferiore a 5.",
+      "Esclusivamente i metalli passivati superficialmente."
+    ],
+    correct: 0,
+    perizia: "Secondo la classificazione fisica, non conducono corrente elettrica (isolanti) i materiali ceramici, i materiali plastici e gli elastomeri."
+  },
+
+  // --- AREA: PROPRIETA' CHIMICHE ---
+  {
+    id: "C-01", area: "CHIM_BIO", cat: "Definizione Proprietà Chimiche",
+    scenario: "Un materiale dentale viene inserito nel cavo orale ed entra in contatto continuo con saliva, acidi alimentari e batteri.",
+    question: "Che cosa studiano esattamente le proprietà chimiche di quel materiale?",
+    options: [
+      "Il complesso di fenomeni chimici che avvengono tra il materiale e l'ambiente con cui viene posto a contatto.",
+      "La quantità di materia contenuta in un volume unitario di sostanza (m/V).",
+      "Il passaggio da una condizione fluida a una rigida durante la presa.",
+      "La variazione di lunghezza per ogni grado centigrado di aumento."
+    ],
+    correct: 0,
+    perizia: "Le proprietà chimiche riguardano tutte le reazioni e i fenomeni chimici che si instaurano tra il materiale e l'ambiente circostante (in questo caso l'ambiente orale)."
+  },
+  {
+    id: "C-02", area: "CHIM_BIO", cat: "Fenomeni Chimici Utili",
+    scenario: "Una lega al Titanio esposta all'ambiente reagisce formando istantaneamente un sottile strato di ossido aderente sulla superficie.",
+    question: "Perché in odontotecnica questo fenomeno chimico è considerato UTILE?",
+    options: [
+      "Perché la pellicola protettiva migliora la resistenza meccanica superficiale e protegge il materiale sottostante.",
+      "Perché abbassa il punto di fusione del Titanio facilitandone la colata.",
+      "Perché aumenta la solubilità superficiale eliminando i batteri.",
+      "Perché trasforma il metallo in un isolante termico perfetto."
+    ],
+    correct: 0,
+    perizia: "Tra i fenomeni chimici utili rientra la reazione che ricopre il materiale stesso con una pellicola protettiva capace di migliorarne la resistenza superficiale."
+  },
+  {
+    id: "C-03", area: "CHIM_BIO", cat: "Corrosione: Doppio Danno",
+    scenario: "Una protesi metallica economica mostra segni di corrosione dopo pochi mesi in bocca. Il clinico chiede di rifarla immediatamente.",
+    question: "Quali sono i DUE motivi principali per cui la corrosione è un fenomeno chimico gravemente negativo?",
+    options: [
+      "Riduce la funzionalità meccanica della protesi e può liberare metalli tossici nell'organismo.",
+      "Aumenta la densità relativa del metallo e ne abbassa la conducibilità termica.",
+      "Accelera il tempo di presa del cemento e provoca alterazione di colore della ceramica.",
+      "Trasforma la lega in un solido amorfo aumentando l'assorbimento d'acqua."
+    ],
+    correct: 0,
+    perizia: "La corrosione è un fenomeno negativo sia perché indebolisce e riduce la funzionalità della protesi, sia perché può rilasciare ioni metallici tossici per il paziente."
+  },
+  {
+    id: "C-04", area: "CHIM_BIO", cat: "Passivazione vs Corrosione",
+    scenario: "Un cliente teme che la sua protesi in lega Cromo-Cobalto si 'arrugginisca' in bocca.",
+    question: "Come spieghi tecnicamente la differenza tra la formazione di una pellicola protettiva e la corrosione distruttiva?",
+    options: [
+      "La pellicola protettiva è un fenomeno chimico utile che sigilla e rinforza la superficie; la corrosione invece disgrega il materiale liberando sostanze tossiche.",
+      "La pellicola protettiva avviene solo nei materiali plastici, la corrosione solo nei ceramici.",
+      "Non c'è alcuna differenza: entrambi i fenomeni riducono il peso specifico della protesi.",
+      "La corrosione avviene solo a temperature superiori al punto di fusione."
+    ],
+    correct: 0,
+    perizia: "Mentre la corrosione degrada il manufatto e rilascia metalli tossici, la formazione controllata di una pellicola protettiva superficiale è una reazione chimica utile che aumenta la resistenza superficiale."
+  },
+
+  // --- AREA: PROPRIETA' BIOLOGICHE ---
+  {
+    id: "B-01", area: "CHIM_BIO", cat: "Concetto di Biomateriale",
+    scenario: "Durante un esame orale viene chiesto se un semplice filo per ortodonzia o una resina per protesi mobile siano classificabili come 'biomateriali'.",
+    question: "Qual è la definizione corretta di biomateriale?",
+    options: [
+      "Qualsiasi materiale impiegato per costruire dispositivi artificiali da inserire nel corpo umano con funzione utile, duratura e non dannosa.",
+      "Solo un tessuto prelevato direttamente da un organismo vivente (osso autologo).",
+      "Un materiale completamente biodegradabile che si scioglie nella saliva entro 6 mesi.",
+      "Esclusivamente un metallo nobile con densità superiore a 15 g/cm³."
+    ],
+    correct: 0,
+    perizia: "Un biomateriale è un materiale usato per realizzare dispositivi artificiali destinati al corpo umano (quindi tutti i materiali dentali); deve svolgere una funzione utile e duratura senza essere dannoso."
+  },
+  {
+    id: "B-02", area: "CHIM_BIO", cat: "Evoluzione della Biocompatibilità",
+    scenario: "Un testo vecchio definisce biocompatibile un materiale 'semplicemente tollerato dall'organismo senza provocare rigetto'.",
+    question: "Come si è evoluta oggi questa definizione secondo le proprietà biologiche moderne?",
+    options: [
+      "Un materiale è biocompatibile se è accettato dall'organismo E contemporaneamente svolge funzioni specifiche all'interno dell'organismo stesso.",
+      "Un materiale è biocompatibile solo se ha conducibilità elettrica e termica pari a zero.",
+      "Un materiale è biocompatibile se non subisce alcuna variazione dimensionale fino a 1000°C.",
+      "La definizione moderna esclude tutti i materiali metallici a favore dei soli polimeri."
+    ],
+    correct: 0,
+    perizia: "L'evoluzione del concetto di biocompatibilità ha esteso la prima definizione: oggi non basta che il materiale sia accettato dall'organismo, deve anche svolgere funzioni specifiche al suo interno."
+  },
+  {
+    id: "B-03", area: "CHIM_BIO", cat: "Requisiti dei Biomateriali Dentali",
+    scenario: "Un nuovo materiale sperimentale risulta atossico in laboratorio, ma dopo 3 settimane nel cavo orale perde completamente la sua forma e funzione masticatoria.",
+    question: "Quale requisito fondamentale dei biomateriali non è stato soddisfatto?",
+    options: [
+      "La capacità di svolgere una funzione utile e duratura nel tempo.",
+      "La presenza di un intervallo di rammollimento amorfo.",
+      "Un basso peso specifico corretto per l'accelerazione di gravità.",
+      "La capacità di comportarsi come semiconduttore a 37°C."
+    ],
+    correct: 0,
+    perizia: "Per definizione, tutti i materiali usati in campo dentale sono biomateriali e devono svolgere una funzione utile e duratura nel tempo, oltre a non risultare dannosi."
+  },
+  {
+    id: "B-04", area: "CHIM_BIO", cat: "Interazione Organismo-Materiale",
+    scenario: "Un impianto dentale favorisce l'osteointegrazione guidando la risposta cellulare dell'osso circostante, oltre a non provocare infiammazione.",
+    question: "Quale proprietà biologica rappresenta al meglio questo comportamento?",
+    options: [
+      "La biocompatibilità nella sua accezione moderna (accettazione + svolgimento di funzioni specifiche nell'organismo).",
+      "La passivazione elettrochimica inversa.",
+      "La densità relativa unitaria rispetto all'acqua.",
+      "La bassa solubilità in saliva sintetica."
+    ],
+    correct: 0,
+    perizia: "Questo è l'esempio perfetto della definizione evoluta di biocompatibilità: il materiale non è un ospite passivo, ma viene accettato e svolge una funzione attiva e specifica nell'organismo."
+  },
+
+  // --- AREA: PROPRIETA' SPECIALI ---
+  {
+    id: "S-01", area: "SPECIALI", cat: "Durata Inutilizzo (Shelf-Life)",
+    scenario: "Un tubetto di pasta base per impronte di precisione non catalizza più correttamente, pur essendo stato aperto per la prima volta oggi.",
+    question: "Quale proprietà speciale è stata compromessa e da cosa dipende?",
+    options: [
+      "La durata inutilizzo (scadenza), che è strettamente legata alle modalità di conservazione del materiale.",
+      "Il coefficiente di dilatazione termica lineare (α) del tubetto.",
+      "La massa volumica assoluta dei componenti interni.",
+      "La conducibilità elettrica dell'elastomero."
+    ],
+    correct: 0,
+    perizia: "La durata inutilizzo corrisponde alla scadenza del materiale ed è direttamente influenzata dalle modalità di conservazione (temperatura, umidità, chiusura)."
+  },
+  {
+    id: "S-02", area: "SPECIALI", cat: "Assorbimento d'Acqua",
+    scenario: "Un restauro estetico polimerico si gonfia leggermente e perde precisione marginale dopo alcuni mesi di permanenza nel cavo orale.",
+    question: "Quale proprietà speciale spiega il fallimento del procedimento restaurativo?",
+    options: [
+      "Un eccessivo assorbimento d'acqua da parte del materiale.",
+      "Un'eccessiva conducibilità termica (λ) della resina.",
+      "La formazione di una pellicola protettiva superficiale.",
+      "Una temperatura di fusione troppo elevata."
+    ],
+    correct: 0,
+    perizia: "Tra le proprietà speciali, un eccessivo assorbimento d'acqua è un fenomeno critico perché può provocare il fallimento di un procedimento restaurativo."
+  },
+  {
+    id: "S-03", area: "SPECIALI", cat: "Solubilità e Saliva Sintetica",
+    scenario: "In laboratorio si deve testare quanto rapidamente un nuovo cemento dentale tende a sciogliersi nell'ambiente orale prima di commercializzarlo.",
+    question: "Come viene valutata sperimentalmente questa proprietà speciale?",
+    options: [
+      "Si misura la solubilità immergendo il materiale in saliva sintetica.",
+      "Si misura l'assorbimento d'acqua portando il cemento al punto di fusione.",
+      "Si calcola il peso specifico γ immerso in acqua distillata a 4°C.",
+      "Si testa la conducibilità elettrica tra due elettrodi di Germanio."
+    ],
+    correct: 0,
+    perizia: "La solubilità è la tendenza dei materiali dentali a sciogliersi nei liquidi orali e la sua valutazione standard in laboratorio viene effettuata utilizzando saliva sintetica."
+  },
+  {
+    id: "S-04", area: "SPECIALI", cat: "Tempo di Presa e Indurimento",
+    scenario: "Durante la colata di un'impronta, il gesso inizia a diventare rigido mentre lo stai ancora vibrando sul modello, intrappolando bolle d'aria.",
+    question: "Quale proprietà speciale dei materiali (gessi, impronte, rivestimenti) hai gestito male?",
+    options: [
+      "Il tempo di presa e indurimento (passaggio da una condizione fluida a una rigida).",
+      "L'intervallo di rammollimento amorfo.",
+      "La durata inutilizzo del modello in cera.",
+      "La dilatazione termica lineare (α)."
+    ],
+    correct: 0,
+    perizia: "Il tempo di presa e indurimento indica il passaggio da una condizione fluida lavorabile a una rigida ed è fondamentale per materiali da impronta, gessi e materiali da rivestimento."
+  },
+  {
+    id: "S-05", area: "SPECIALI", cat: "Alterazione di Colore",
+    scenario: "Una faccetta estetica o una corona in resina perfettamente adattata vira verso una tonalità giallastra dopo pochi mesi, costringendo al rifacimento.",
+    question: "Come viene classificato questo difetto nelle proprietà dei materiali dentali?",
+    options: [
+      "Alterazione di colore: una proprietà speciale sgradita perché compromette l'aspetto estetico.",
+      "Corrosione galvanica da bassa conducibilità elettrica.",
+      "Passivazione chimica utile della superficie.",
+      "Aumento della densità relativa del polimero."
+    ],
+    correct: 0,
+    perizia: "L'alterazione di colore rientra tra le proprietà speciali ed è un fenomeno fortemente sgradito in campo dentale perché va a influenzare direttamente l'aspetto estetico del restauro."
+  },
+
+  // --- AREA: CASI MISTI AVANZATI & CALCOLI ---
+  {
+    id: "M-01", area: "SPECIALI", cat: "Calcolo Lega Fusione #1",
+    scenario: "Devi fondere un ponte in lega aurea (peso specifico = 15,2). Il modellato in cera completo di perni pesa esattamente 3,0 grammi.",
+    question: "Quanti grammi esatti di lega ti servono per riempire lo stampo?",
+    options: [
+      "45,6 grammi",
+      "18,2 grammi",
+      "5,06 grammi",
+      "30,4 grammi"
+    ],
+    correct: 0,
+    perizia: "Moltiplicando il peso della cera (3,0 g) per il peso specifico della lega (15,2) si ottiene 45,6 grammi di lega necessaria."
+  },
+  {
+    id: "M-02", area: "SPECIALI", cat: "Calcolo Lega Fusione #2",
+    scenario: "Prepari una struttura scheletrata in lega Cromo-Cobalto (peso specifico = 8,3). La cera con i canali di colata pesa 4,0 grammi.",
+    question: "Qual è la massa di lega Cromo-Cobalto necessaria?",
+    options: [
+      "33,2 grammi",
+      "12,3 grammi",
+      "2,07 grammi",
+      "41,5 grammi"
+    ],
+    correct: 0,
+    perizia: "4,0 g (peso della cera) × 8,3 (peso specifico lega Co-Cr) = 33,2 grammi di lega da fondere."
+  },
+  {
+    id: "M-03", area: "SPECIALI", cat: "Confronto Economico Leghe",
+    scenario: "Per una stessa cera da 2 grammi puoi usare la Lega X (peso specifico 16, costo 50 €/g) oppure la Lega Y (peso specifico 4,5, costo 90 €/g).",
+    question: "Quale lega costa MENO per realizzare il manufatto e perché?",
+    options: [
+      "La Lega Y (810 € totali contro 1600 € della Lega X), perché la sua bassa densità richiede molti meno grammi.",
+      "La Lega X (100 € totali), perché il costo al grammo si divide per il peso specifico.",
+      "Costano esattamente uguale perché il volume della cera è identico in entrambi i casi.",
+      "La Lega X, perché ha una conducibilità termica (λ) che riduce gli sprechi."
+    ],
+    correct: 0,
+    perizia: "Lega X: 2 g × 16 = 32 g × 50 € = 1600 €. Lega Y: 2 g × 4,5 = 9 g × 90 € = 810 €. Anche se costa di più al grammo, una lega a bassa densità conviene perché ne serve una massa molto inferiore!"
+  },
+  {
+    id: "M-04", area: "FISICHE", cat: "Confronto Materiali: Metalli vs Ceramici",
+    scenario: "Stai compilando una tabella comparativa rapida tra Metalli e Materiali Ceramici per la presentazione di un caso.",
+    question: "Quale abbinamento di proprietà fisiche descrive correttamente i METALLI rispetto ai ceramici?",
+    options: [
+      "Alta conducibilità termica (λ), buona conducibilità elettrica, dilatazione termica (α) intermedia.",
+      "Bassa conducibilità termica (λ), isolanti elettrici, dilatazione termica (α) massima.",
+      "Intervallo di rammollimento amorfo, isolanti elettrici, densità sempre inferiore all'acqua.",
+      "Bassa conducibilità termica (λ), semiconduttori a freddo, dilatazione termica nulla."
+    ],
+    correct: 0,
+    perizia: "I metalli hanno alti valori di conducibilità termica (λ), sono ottimi conduttori elettrici e hanno un coefficiente di dilatazione α intermedio (maggiore dei ceramici, minore dei plastici)."
+  },
+  {
+    id: "M-05", area: "FISICHE", cat: "Confronto Materiali: Ceramici vs Plastici",
+    scenario: "Un paziente chiede perché una corona in ceramica integrale sia più stabile termicamente di una corona provvisoria in resina plastica.",
+    question: "Quale combinazione di proprietà spiega la superiorità termica della ceramica?",
+    options: [
+      "La ceramica ha sia bassa conducibilità termica (λ) sia la più bassa dilatazione termica lineare (α) grazie ai suoi legami molto forti.",
+      "La ceramica ha un'altissima conducibilità termica (λ) che dissipa subito il calore verso la polpa.",
+      "La ceramica è un solido amorfo con intervallo di rammollimento superiore ai 2000°C.",
+      "La ceramica ha un peso specifico corretto per gravità molto più alto della resina."
+    ],
+    correct: 0,
+    perizia: "I materiali ceramici uniscono bassa conducibilità termica (proteggono la polpa come lo smalto) e bassissima dilatazione termica α (legami fortissimi tra particelle)."
+  },
+  {
+    id: "M-06", area: "CHIM_BIO", cat: "Diagnosi Differenziale: Guasto in Bocca",
+    scenario: "Un ponte metallo-ceramica presenta contemporaneamente: 1) pigmentazione scura del margine gengivale; 2) sapore metallico; 3) sensibilità al freddo.",
+    question: "Quali due proprietà (una chimica e una fisica) sono coinvolte in questi sintomi?",
+    options: [
+      "Corrosione chimica del metallo (sapore/rilascio ioni) ed elevata conducibilità termica λ (sensibilità al freddo).",
+      "Assorbimento d'acqua della ceramica e basso peso specifico della lega.",
+      "Durata inutilizzo scaduta e comportamento da semiconduttore del silicio.",
+      "Passivazione utile del metallo e intervallo di rammollimento amorfo."
+    ],
+    correct: 0,
+    perizia: "Il sapore metallico e il rilascio di prodotti chimici indicano corrosione (proprietà chimica negativa), mentre la trasmissione del freddo alla polpa dipende dall'alta conducibilità termica λ del metallo (proprietà fisica)."
+  },
+  {
+    id: "M-07", area: "SPECIALI", cat: "Diagnosi Differenziale: Impronta Fallita",
+    scenario: "Un'impronta in alginato/elastomero viene colata dopo molte ore lasciata all'aria e poi immersa in acqua per 'reidratarla', risultando completamente deformata.",
+    question: "Quali proprietà speciali e fisiche sono entrate in gioco nel fallimento?",
+    options: [
+      "Tempo di presa già completato, assorbimento d'acqua con rigonfiamento e variazioni dimensionali termiche.",
+      "Superamento del punto di fusione eutettico e corrosione elettrochimica.",
+      "Elevata conducibilità elettrica dell'elastomero e bassa densità relativa.",
+      "Formazione di una pellicola protettiva superficiale e solubilità in saliva sintetica."
+    ],
+    correct: 0,
+    perizia: "I materiali da impronta (elastomeri/idrocolloidi) hanno un preciso tempo di presa/indurimento e soffrono l'assorbimento d'acqua e le variazioni termiche, che alterano la fedeltà dimensionale."
+  },
+  {
+    id: "M-08", area: "FISICHE", cat: "Ordine di Grandezza Coefficiente α",
+    scenario: "Leggendo una tabella di fisica dei materiali dentali trovi un coefficiente di dilatazione termica lineare α = 14 · 10⁻⁶ °C⁻¹.",
+    question: "Perché i valori di α in odontotecnica sono sempre espressi nell'ordine di 10⁻⁶?",
+    options: [
+      "Perché le variazioni di lunghezza per ogni grado centigrado sono piccolissime (milionesimi di unità di lunghezza per °C), ma critiche per la precisione micrometrica delle protesi.",
+      "Perché si riferiscono esclusivamente a materiali che pesano meno di un milionesimo di grammo.",
+      "Perché l'accelerazione di gravità g divide la lunghezza per un milione.",
+      "Perché la formula α = (L₂ - L₁) / L₁ · (T₂ - T₁) si applica solo sotto lo zero assoluto."
+    ],
+    correct: 0,
+    perizia: "I valori di α sono molto piccoli (ordine di 10⁻⁶), ma in odontotecnica dove la precisione marginale si misura in micron, anche piccole variazioni termiche hanno grande impatto."
+  },
+  {
+    id: "M-09", area: "CHIM_BIO", cat: "Saliva Sintetica vs Saliva Naturale",
+    scenario: "Perché nei protocolli di controllo qualità dei materiali dentali si utilizza la 'saliva sintetica' per testare la solubilità?",
+    question: "Qual è lo scopo di questo test previsto tra le proprietà speciali?",
+    options: [
+      "Simulare in modo standardizzato e riproducibile la tendenza dei materiali dentali a sciogliersi nei liquidi orali.",
+      "Misurare la densità relativa al posto dell'acqua distillata a 4°C.",
+      "Abbassare la temperatura di fusione delle leghe vili prima della colata.",
+      "Trasformare i materiali isolanti in semiconduttori."
+    ],
+    correct: 0,
+    perizia: "La solubilità è la tendenza a sciogliersi nei liquidi orali; la saliva sintetica permette di effettuare valutazioni di laboratorio standardizzate."
+  },
+  {
+    id: "M-10", area: "FISICHE", cat: "Riepilogo Proprietà Fisiche",
+    scenario: "Un quiz di sbarramento chiede di individuare l'UNICA proprietà che NON appartiene al gruppo delle Proprietà Fisiche del Modulo 3.",
+    question: "Qual è l'intruso da scartare?",
+    options: [
+      "Biocompatibilità (appartiene alle Proprietà Biologiche).",
+      "Conducibilità elettrica (appartiene alle Proprietà Fisiche).",
+      "Dilatazione termica (appartiene alle Proprietà Fisiche).",
+      "Peso specifico (appartiene alle Proprietà Fisiche)."
+    ],
+    correct: 0,
+    perizia: "Le proprietà fisiche elencate nel modulo sono: massa volumica, densità relativa, peso specifico, conducibilità termica, dilatazione termica, punto di fusione e conducibilità elettrica. La biocompatibilità è una proprietà biologica."
+  },
+  {
+    id: "M-11", area: "SPECIALI", cat: "Riepilogo Proprietà Speciali",
+    scenario: "Devi elencare le 5 'Proprietà Speciali' trattate nell'ultima parte del Modulo 3 per completare una scheda tecnica.",
+    question: "Quale gruppo contiene ESCLUSIVAMENTE Proprietà Speciali del programma?",
+    options: [
+      "Durata inutilizzo, assorbimento d'acqua, solubilità, tempo di presa e indurimento, alterazione di colore.",
+      "Massa volumica, peso specifico, corrosione, passivazione, biocompatibilità.",
+      "Conducibilità termica, semiconduttori, leghe eutettiche, solidi amorfi, densità relativa.",
+      "Dilatazione lineare, accelerazione di gravità, biomateriale, saliva sintetica, conducibilità elettrica."
+    ],
+    correct: 0,
+    perizia: "Esatto! Le 5 proprietà speciali del modulo sono: 1) Durata inutilizzo, 2) Assorbimento d'acqua, 3) Solubilità, 4) Tempo presa ed indurimento, 5) Alterazione di colore."
+  },
+  {
+    id: "M-12", area: "FISICHE", cat: "Stato Cristallino vs Amorfo",
+    scenario: "Osservando la curva di raffreddamento di due materiali dentali: il Materiale A mostra una sosta termica piatta durante la solidificazione; il Materiale B scende con una curva continua senza pianerottoli.",
+    question: "Cosa puoi dedurre sulla natura dei due materiali?",
+    options: [
+      "Il Materiale A è una sostanza pura cristallina (o lega eutettica) con temperatura di fusione costante; il Materiale B è un solido amorfo con intervallo di rammollimento.",
+      "Il Materiale A è una resina acrilica; il Materiale B è oro puro 24 carati.",
+      "Il Materiale A ha alta solubilità; il Materiale B ha alta densità relativa.",
+      "Entrambi sono semiconduttori al Silicio."
+    ],
+    correct: 0,
+    perizia: "Durante il passaggio di stato di una sostanza pura cristallina (o lega eutettica), la temperatura resta costante (sosta termica). I solidi amorfi invece rammolliscono gradualmente senza un punto fisso."
+  },
+  {
+    id: "M-13", area: "SPECIALI", cat: "Scelta Rivestimento Refrattario",
+    scenario: "Nella fusione a cera persa devi scegliere un materiale da rivestimento che impasti fluido ma diventi rigido entro un tempo preciso e controllato.",
+    question: "Quale proprietà speciale stai valutando nella scheda del rivestimento?",
+    options: [
+      "Tempo di presa e indurimento.",
+      "Alterazione di colore in saliva sintetica.",
+      "Conducibilità elettrica ad alta temperatura.",
+      "Biocompatibilità attiva nell'osso."
+    ],
+    correct: 0,
+    perizia: "Il tempo di presa e indurimento (passaggio da condizione fluida a rigida) è esplicitamente riferito nel programma a materiali da impronta, gessi e materiali da rivestimento."
+  },
+  {
+    id: "M-14", area: "CHIM_BIO", cat: "Tossicità da Rilascio Ionico",
+    scenario: "Un paziente manifesta una reazione allergica/tossica locale in corrispondenza di una corona fusa in lega non nobile.",
+    question: "Quale meccanismo chimico-biologico collega la lega al danno tissutale?",
+    options: [
+      "La corrosione della lega nell'ambiente orale libera metalli tossici, violando il principio che un biomateriale non deve essere dannoso.",
+      "L'elevata massa volumica della lega schiaccia i vasi sanguigni gengivali.",
+      "La bassa conducibilità termica (λ) impedisce il ricambio cellulare.",
+      "La lega ha superato la sua durata inutilizzo prima della fusione."
+    ],
+    correct: 0,
+    perizia: "La corrosione provoca la liberazione di metalli tossici nell'ambiente orale, compromettendo la sicurezza del biomateriale che per definizione non deve mai essere dannoso per l'organismo."
+  },
+  {
+    id: "M-15", area: "FISICHE", cat: "Applicazione della Densità nella Progettazione",
+    scenario: "Un odontotecnico deve realizzare una protesi molto estesa (es. circolare superiore completo). Perché il peso specifico è un parametro critico nella fase progettuale?",
+    question: "Qual è la risposta più completa secondo il programma?",
+    options: [
+      "Serve sia a valutare il peso finale di lavorazioni estese, sia a calcolare la massa esatta di lega da fondere moltiplicandolo per il peso della cera.",
+      "Serve esclusivamente a determinare la temperatura del forno di preriscaldo.",
+      "Serve a stabilire se il materiale è un conduttore o un semiconduttore.",
+      "Serve a misurare la solubilità del manufatto nella saliva sintetica."
+    ],
+    correct: 0,
+    perizia: "Il peso specifico / densità ha una doppia valenza pratica: permette di valutare il peso delle lavorazioni estese e consente di calcolare la quantità esatta di lega da fondere (peso cera × peso specifico lega)."
+  },
+  {
+    id: "M-16", area: "FISICHE", cat: "Calcolo Inverso Fusione",
+    scenario: "Hai a disposizione solo 24 grammi di una lega nobile con peso specifico pari a 12,0. Devi fondere un intarsio.",
+    question: "Qual è il peso MASSIMO che può avere il tuo modellato in cera (inclusi i perni) per non rischiare una fusione corta?",
+    options: [
+      "2,0 grammi",
+      "12,0 grammi",
+      "0,5 grammi",
+      "3,6 grammi"
+    ],
+    correct: 0,
+    perizia: "Applicando la formula inversa: Peso cera massimo = Massa lega disponibile / Peso specifico = 24 g / 12,0 = 2,0 grammi."
+  }
+];
+
+let selectedArea = "ALL";
+let selectedLength = 10;
+let activeDeck = [];
+let currentIdx = 0;
+let score = 0;
+let lives = 3;
+let streak = 0;
+let bestStreak = 0;
+
+function selectArea(btn) {
+  document.querySelectorAll('#area-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedArea = btn.getAttribute('data-area');
+}
+
+function selectLength(card) {
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedLength = parseInt(card.getAttribute('data-len'), 10);
+}
+
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  let pool = coldCases;
+  if (selectedArea !== "ALL") {
+    pool = coldCases.filter(c => c.area === selectedArea);
+  }
+  const shuffled = shuffle(pool);
+  activeDeck = shuffled.slice(0, Math.min(selectedLength, shuffled.length));
+
+  currentIdx = 0;
+  score = 0;
+  lives = 3;
+  streak = 0;
+  bestStreak = 0;
+
+  updateHUD();
+  document.getElementById('screen-start').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'none';
+  document.getElementById('screen-play').style.display = 'block';
+  renderCase();
+}
+
+function updateHUD() {
+  document.getElementById('hud-lives').textContent = 'Reputazione: ' + '🛡️'.repeat(lives) + '🖤'.repeat(3 - lives);
+  document.getElementById('hud-streak').textContent = 'Serie: 🔥 ' + streak;
+  document.getElementById('hud-score').textContent = 'Punti: ' + score;
+  const pct = (currentIdx / activeDeck.length) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function renderCase() {
+  const c = activeDeck[currentIdx];
+  document.getElementById('case-cat').textContent = c.cat;
+  document.getElementById('case-id').textContent = `FASCICOLO #${c.id} (${currentIdx + 1} di ${activeDeck.length})`;
+  document.getElementById('case-scenario').textContent = `"${c.scenario}"`;
+  document.getElementById('case-question').textContent = c.question;
+  document.getElementById('remaining-count').textContent = `Casi rimanenti nel turno: ${activeDeck.length - currentIdx - 1}`;
+
+  const fb = document.getElementById('perizia-feedback');
+  fb.className = 'perizia-box';
+  fb.style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const mappedOpts = c.options.map((txt, idx) => ({ text: txt, isCorrect: idx === c.correct }));
+  const shuffledOpts = shuffle(mappedOpts);
+
+  shuffledOpts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt.text}</span>`;
+    btn.onclick = () => evaluateAnswer(btn, opt.isCorrect, container, c.perizia);
+    container.appendChild(btn);
+  });
+}
+
+function evaluateAnswer(selectedBtn, isCorrect, container, periziaText) {
+  const btns = container.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('perizia-feedback');
+
+  if (isCorrect) {
+    selectedBtn.classList.add('correct');
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    const bonus = streak >= 3 ? 50 : 0;
+    score += (100 + bonus);
+    fb.className = 'perizia-box ok';
+    fb.innerHTML = `<strong>✅ PERIZIA CONFERMATA (+${100 + bonus} pt${bonus ? ' • Bonus Serie 🔥!' : ''})</strong><br>${periziaText}`;
+  } else {
+    selectedBtn.classList.add('wrong');
+    streak = 0;
+    lives--;
+    fb.className = 'perizia-box ko';
+    fb.innerHTML = `<strong>❌ DIAGNOSI ERRATA (-1 Scudo Reputazione)</strong><br>${periziaText}`;
+  }
+
+  updateHUD();
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.style.display = 'inline-block';
+  if (lives <= 0 || currentIdx >= activeDeck.length - 1) {
+    nextBtn.textContent = "Genera Rapporto Finale 📊";
+  } else {
+    nextBtn.textContent = "Fascicolo Successivo ➡️";
+  }
+}
+
+function nextCase() {
+  if (lives <= 0 || currentIdx >= activeDeck.length - 1) {
+    showEndScreen();
+    return;
+  }
+  currentIdx++;
+  updateHUD();
+  renderCase();
+}
+
+function showEndScreen() {
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('screen-play').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'block';
+
+  const title = document.getElementById('end-title');
+  const rank = document.getElementById('end-rank');
+  const summary = document.getElementById('end-summary');
+
+  if (lives <= 0) {
+    title.textContent = "🚨 REPUTAZIONE COMPROMESSA!";
+    title.style.color = "var(--danger)";
+    rank.textContent = "Grado: Praticante da Revisionare";
+    rank.style.borderColor = "var(--danger)";
+    rank.style.color = "var(--danger)";
+    summary.innerHTML = `Troppi errori tecnici hanno compromesso i manufatti.<br>Punteggio finale: <strong>${score} pt</strong> | Serie migliore: <strong>${bestStreak} 🔥</strong>.<br>Riprova: ogni turno pesca nuovi casi dall'archivio da 50 fascicoli!`;
+  } else {
+    title.textContent = "🏆 INDAGINE FORENSE COMPLETATA!";
+    title.style.color = "var(--success)";
+    let grado = "Odontotecnico Esperto";
+    if (score >= activeDeck.length * 110) grado = "Maestro Odontotecnico Forense 🌟";
+    else if (lives === 3) grado = "Perito Tecnico Capo 🛡️";
+
+    rank.textContent = `Grado: ${grado}`;
+    rank.style.borderColor = "var(--accent)";
+    rank.style.color = "var(--accent)";
+    summary.innerHTML = `Hai risolto tutte le anomalie del turno con <strong>${score} punti</strong>, <strong>${lives} scudi</strong> intatti e una serie massima di <strong>${bestStreak} risposte consecutive 🔥</strong>!`;
+  }
+}
+
+function resetToMenu() {
+  document.getElementById('screen-play').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'none';
+  document.getElementById('screen-start').style.display = 'block';
+  document.getElementById('progress').style.width = '0%';
+}
+
+function downloadOffline() {
+  const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'CSI_Odontotecnica_50_Cold_Cases_Mod3.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

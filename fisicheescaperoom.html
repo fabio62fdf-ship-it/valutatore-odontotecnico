@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Lab Crisis - Mega Gioco Modulo 3</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+
+  * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 850px;
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid #334155;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hud {
+    display: flex;
+    gap: 16px;
+    font-weight: bold;
+    font-size: 1.05rem;
+  }
+
+  .hud-box {
+    background: #0f172a;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .scenario-box {
+    background: #0f172a;
+    border-left: 4px solid var(--warning);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .question-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 600px) {
+    .options-grid.two-cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  button.option-btn {
+    background: #334155;
+    color: var(--text);
+    border: 2px solid #475569;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  button.option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #3b4b63;
+    transform: translateY(-2px);
+  }
+
+  button.option-btn.correct {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--success);
+    color: #a7f3d0;
+  }
+
+  button.option-btn.wrong {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--danger);
+    color: #fecaca;
+  }
+
+  .input-challenge {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .input-challenge input {
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 2px solid #475569;
+    background: #0f172a;
+    color: white;
+    width: 180px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--accent-hover); color: white; }
+
+  .feedback {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 10px;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.3s; }
+  .feedback.ok { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); }
+  .feedback.ko { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #0f172a;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .footer-tools {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    max-width: 850px;
+  }
+
+  .btn-download {
+    background: var(--success);
+    color: #064e3b;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .btn-download:hover { filter: brightness(1.1); }
+
+  .btn-restart {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid #475569;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-restart:hover { color: white; border-color: white; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="container" id="game-container">
+  <header>
+    <h1>🦷 DENTAL LAB CRISIS</h1>
+    <div class="hud">
+      <div class="hud-box" id="lives-display">Integrità: ❤️❤️❤️</div>
+      <div class="hud-box" id="score-display">Punti: 0</div>
+    </div>
+  </header>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <div id="screen-start" style="text-align:center; padding: 20px 0;">
+    <h2 style="font-size:1.8rem; margin-bottom:10px;">Emergenza in Laboratorio!</h2>
+    <p style="color:var(--muted); max-width:600px; margin:0 auto 24px; font-size:1.1rem;">
+      Sei il responsabile tecnico di turno. Ogni turno presenta <strong>6 emergenze casuali</strong> su Proprietà Fisiche, Chimiche, Biologiche e Speciali dei materiali dentali.<br><br>
+      Hai <strong>3 vite</strong> (Integrità Protesi). Risolvi i casi clinici e di laboratorio prima che il manufatto venga scartato!
+    </p>
+    <button class="btn-primary" style="font-size:1.2rem; padding: 14px 32px;" onclick="startGame()">🚀 INIZIA TURNO DI LABORATORIO</button>
+  </div>
+
+  <div id="screen-play" style="display:none;">
+    <div class="badge" id="q-category">Categoria</div>
+    <div class="scenario-box" id="q-scenario">Scenario...</div>
+    <div class="question-title" id="q-text">Domanda...</div>
+    <div id="q-interaction"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div style="margin-top:20px; text-align:right;">
+      <button class="btn-primary" id="btn-next" style="display:none;" onclick="nextQuestion()">Prossima Emergenza ➡️</button>
+    </div>
+  </div>
+
+  <div id="screen-end" style="display:none; text-align:center; padding:20px 0;">
+    <h2 id="end-title" style="font-size:2rem; margin-bottom:10px;">Fine Turno</h2>
+    <p id="end-msg" style="font-size:1.15rem; color:var(--muted); margin-bottom:24px;"></p>
+    <button class="btn-primary" onclick="startGame()">🔄 NUOVO TURNO (Nuove Sfide Casuali)</button>
+  </div>
+</div>
+
+<div class="footer-tools">
+  <button class="btn-restart" onclick="startGame()">↻ Riavvia con nuove domande</button>
+  <button class="btn-download" onclick="downloadHTML()">💾 Scarica Gioco (.html offline)</button>
+</div>
+
+<script>
+// DATABASE DI 18 SFIDE VARIABILI BASATE SUL MODULO 3
+const challengePool = [
+  {
+    cat: "Proprietà Fisiche • Densità & Costo",
+    type: "choice",
+    scenario: "Un cliente vuole una protesi scheletrata leggera ma di alta qualità. Ti propongono una lega in Titanio (bassa densità, costo al grammo più alto) contro una lega nobile ad altissima densità.",
+    question: "Perché conviene valutare la massa volumica (ρ) oltre al prezzo al grammo?",
+    options: [
+      "Perché a parità di volume, una densità bassa richiede meno massa (grammi) e rende la protesi più leggera",
+      "Perché una densità bassa aumenta la conducibilità elettrica della protesi",
+      "Perché il peso specifico si calcola dividendo la temperatura per il volume",
+      "Perché i materiali a bassa densità non subiscono mai dilatazione termica"
+    ],
+    correct: 0,
+    explanation: "Esatto! Massa volumica ρ = m/V. A parità di volume del modellato in cera, una lega con densità minore pesa meno: servono meno grammi per riempire lo stampo e la protesi è più leggera in bocca!"
+  },
+  {
+    cat: "Calcolo Rapido • Peso Specifico",
+    type: "choice",
+    scenario: "Devi preparare il cilindro per la fusione a cera persa. Hai pesato il modellato in cera con perni: pesa esattamente 2,5 grammi. Il peso specifico della lega scelta è 8,0.",
+    question: "Quanti grammi minimi di lega devi preparare per la fusione?",
+    options: [
+      "20 grammi",
+      "10,5 grammi",
+      "3,2 grammi",
+      "16 grammi"
+    ],
+    correct: 0,
+    explanation: "Perfetto! Moltiplicando il peso della cera (2,5 g) per il peso specifico della lega (8,0) otteniamo 20 grammi di lega necessaria."
+  },
+  {
+    cat: "Proprietà Fisiche • Conducibilità Termica (λ)",
+    type: "choice",
+    scenario: "Un paziente con un'ampia ricostruzione metallica lamenta una fitta dolorosa ogni volta che beve caffè bollente o mangia un gelato.",
+    question: "Quale parametro fisico del metallo causa questo shock termico alla polpa?",
+    options: [
+      "Un elevato coefficiente di conduttività termica (λ)",
+      "Un basso peso specifico (γ)",
+      "Un elevato assorbimento d'acqua",
+      "Una bassa solubilità nella saliva sintetica"
+    ],
+    correct: 0,
+    explanation: "Corretto! I metalli hanno alti valori di conduttività termica (λ), a differenza di smalto, dentina e ceramiche che hanno bassa λ e fungono da isolanti."
+  },
+  {
+    cat: "Proprietà Fisiche • Dilatazione Termica (α)",
+    type: "choice",
+    scenario: "Stai confrontando tre classi di materiali dentali sottoposti a uno sbalzo di temperatura: polimeri plastici, metalli e ceramiche.",
+    question: "Qual è l'ordine corretto dal coefficiente di dilatazione termica lineare (α) MAGGIORE al MINORE?",
+    options: [
+      "Materiali plastici > Metalli > Materiali ceramici",
+      "Materiali ceramici > Metalli > Materiali plastici",
+      "Metalli > Materiali ceramici > Materiali plastici",
+      "Hanno tutti lo stesso coefficiente α (10⁻⁶)"
+    ],
+    correct: 0,
+    explanation: "Esatto! La dilatazione dipende dalla forza dei legami: i materiali plastici dilatano di più, seguiti dai metalli e infine dai materiali ceramici (legami fortissimi)."
+  },
+  {
+    cat: "Proprietà Fisiche • Legami & Dilatazione",
+    type: "choice",
+    scenario: "Durante una lezione di laboratorio analizzi perché una ceramica dentale si dilata pochissimo rispetto a una cera da modellazione.",
+    question: "Qual è la relazione tra i legami interatomici e la dilatazione termica?",
+    options: [
+      "Più forti sono i legami tra le particelle, minore è la dilatazione termica",
+      "Più forti sono i legami tra le particelle, maggiore è la dilatazione termica",
+      "I legami influenzano solo il punto di fusione ma non la dilatazione",
+      "La dilatazione termica avviene solo nei materiali amorfi"
+    ],
+    correct: 0,
+    explanation: "Giusto! Legami atomici molto forti trattengono le particelle limitandone l'allontanamento quando aumenta l'energia termica."
+  },
+  {
+    cat: "Proprietà Fisiche • Temperatura di Fusione",
+    type: "choice",
+    scenario: "Nel forno di fusione stai lavorando con una lega metallica che non è pura ma costituita da una soluzione solida.",
+    question: "Come si comporta questa lega durante il passaggio dallo stato solido a quello liquido?",
+    options: [
+      "Fonde gradualmente all'interno di un intervallo di fusione (solidus-liquidus)",
+      "Fonde istantaneamente a una temperatura fissa e costante come l'oro puro",
+      "Presenta un intervallo di rammollimento tipico dei solidi amorfi",
+      "Sublima direttamente senza passare dallo stato liquido"
+    ],
+    correct: 0,
+    explanation: "Ottimo! Le sostanze pure (e solo le leghe eutettiche) fondono a temperatura costante; le soluzioni solide hanno invece un intervallo di fusione."
+  },
+  {
+    cat: "Proprietà Fisiche • Solidi Amorfi",
+    type: "choice",
+    scenario: "Stai scaldando una cera o una resina termoplastica (solidi amorfi) per adattarla sul modello.",
+    question: "Perché non possiamo parlare di un vero 'punto di fusione' per questi materiali?",
+    options: [
+      "Perché i solidi amorfi non hanno reticolo cristallino e presentano un intervallo di rammollimento",
+      "Perché sono ottimi conduttori elettrici",
+      "Perché hanno una massa volumica superiore all'acqua a 4°C",
+      "Perché sono leghe eutettiche"
+    ],
+    correct: 0,
+    explanation: "Esatto! Un solido amorfo non ha una struttura cristallina ordinata, quindi passa gradualmente allo stato fluido tramite un intervallo di rammollimento."
+  },
+  {
+    cat: "Proprietà Fisiche • Conducibilità Elettrica",
+    type: "choice",
+    scenario: "Devi classificare il Silicio (Si) e il Germanio (Ge) rispetto alla loro capacità di far passare corrente elettrica.",
+    question: "Come si comportano questi semiconduttori al variare della temperatura?",
+    options: [
+      "Sono isolanti a basse temperature e diventano conduttori ad alte temperature",
+      "Sono conduttori a basse temperature e isolanti ad alte temperature",
+      "Non conducono mai corrente in nessuna condizione",
+      "Conducono corrente esattamente come i metalli nobili a 0°C"
+    ],
+    correct: 0,
+    explanation: "Perfetto! I semiconduttori (Ge, Si) hanno caratteristiche intermedie: isolanti a freddo, conduttori quando aumenta la temperatura."
+  },
+  {
+    cat: "Proprietà Chimiche • Fenomeni Utili",
+    type: "choice",
+    scenario: "Una lega al Cromo-Cobalto o Titanio viene esposta all'ambiente ossidante e sviluppa una sottilissima pellicola superficiale.",
+    question: "Perché questo fenomeno chimico (passivazione) è considerato UTILE in odontotecnica?",
+    options: [
+      "Perché la pellicola protettiva migliora la resistenza superficiale e blocca ulteriori attacchi chimici",
+      "Perché abbassa il punto di fusione della lega",
+      "Perché rende il metallo trasparente come la ceramica",
+      "Perché aumenta la solubilità del metallo nella saliva"
+    ],
+    correct: 0,
+    explanation: "Esatto! Tra i fenomeni chimici utili rientra proprio la formazione di una pellicola protettiva superficiale che aumenta la resistenza del materiale."
+  },
+  {
+    cat: "Proprietà Chimiche • Corrosione",
+    type: "choice",
+    scenario: "A distanza di mesi, una protesi metallica in bocca mostra segni evidenti di corrosione elettrochimica.",
+    question: "Quali sono i DUE principali danni causati dalla corrosione?",
+    options: [
+      "Perdita di funzionalità meccanica della protesi e liberazione di ioni/metalli tossici nell'organismo",
+      "Aumento del peso specifico e cambio di temperatura di fusione",
+      "Riduzione del tempo di presa e aumento della dilatazione lineare",
+      "Trasformazione del metallo in un solido amorfo isolante"
+    ],
+    correct: 0,
+    explanation: "Corretto! La corrosione è un fenomeno chimico negativo perché compromette la struttura della protesi e può rilasciare metalli tossici nel paziente."
+  },
+  {
+    cat: "Proprietà Biologiche • Biomateriale",
+    type: "choice",
+    scenario: "Un tirocinante afferma che solo gli impianti in titanio sono 'biomateriali', mentre le resine per protesi mobili o i compositi non lo sono.",
+    question: "Perché questa affermazione è SBAGLIATA?",
+    options: [
+      "Perché qualunque materiale impiegato per dispositivi artificiali da inserire nel corpo umano con funzione utile e duratura è un biomateriale",
+      "Perché solo i materiali di origine naturale sono biomateriali",
+      "Perché i biomateriali sono solo quelli che si sciolgono nella saliva",
+      "Perché le resine hanno conducibilità elettrica pari a zero"
+    ],
+    correct: 0,
+    explanation: "Esatto! Tutti i materiali usati in campo dentale per realizzare dispositivi destinati al corpo umano sono biomateriali e non devono essere dannosi."
+  },
+  {
+    cat: "Proprietà Biologiche • Biocompatibilità",
+    type: "choice",
+    scenario: "La definizione moderna di 'Biocompatibilità' si è evoluta rispetto al passato.",
+    question: "Cosa distingue la definizione moderna da quella iniziale?",
+    options: [
+      "Non basta che il materiale sia tollerato senza danni: deve anche svolgere funzioni specifiche nell'organismo che lo ospita",
+      "Un materiale è biocompatibile solo se ha un costo inferiore ai 10 euro al grammo",
+      "Un materiale è biocompatibile solo se fonde sotto i 100°C",
+      "Un materiale è biocompatibile se viene completamente assorbito in 24 ore"
+    ],
+    correct: 0,
+    explanation: "Ottimo! Oggi un materiale è biocompatibile se è accettato dall'organismo E allo stesso tempo svolge funzioni specifiche integrate con esso."
+  },
+  {
+    cat: "Proprietà Speciali • Tempo di Presa",
+    type: "choice",
+    scenario: "Stai spatolando un gesso extraduro o un materiale da impronta (alginato/silicone).",
+    question: "Come si definisce il passaggio del materiale da una condizione fluida a una rigida?",
+    options: [
+      "Tempo di presa e indurimento",
+      "Intervallo di rammollimento",
+      "Densità relativa rispetto all'acqua a 4°C",
+      "Conducibilità termica unitaria"
+    ],
+    correct: 0,
+    explanation: "Esatto! Il tempo di presa e indurimento è una proprietà speciale fondamentale per gessi, materiali da impronta e rivestimenti."
+  },
+  {
+    cat: "Proprietà Speciali • Solubilità",
+    type: "choice",
+    scenario: "Un cementante provvisorio inizia a sgretolarsi e sciogliersi troppo velocemente nel cavo orale del paziente.",
+    question: "Quale proprietà speciale non è stata adeguatamente valutata e come si testa in laboratorio?",
+    options: [
+      "La solubilità, che viene valutata immergendo il materiale in saliva sintetica",
+      "L'assorbimento d'acqua, testato nel forno di preriscaldo",
+      "La densità relativa, misurata con un tester elettrico",
+      "La durata inutilizzo, valutata tramite dilatazione lineare"
+    ],
+    correct: 0,
+    explanation: "Perfetto! La solubilità è la tendenza a sciogliersi nei liquidi orali e si misura standardizzando il test con saliva sintetica."
+  },
+  {
+    cat: "Proprietà Speciali • Assorbimento d'Acqua",
+    type: "choice",
+    scenario: "Una protesi in resina acrilica o un restauro estetico fallisce provocando gonfiore, tensioni interne e perdita di precisione.",
+    question: "Quale proprietà speciale è responsabile di questo fallimento?",
+    options: [
+      "Un eccessivo assorbimento d'acqua",
+      "Un'alta conducibilità termica (λ)",
+      "La presenza di leghe eutettiche",
+      "Un basso peso specifico"
+    ],
+    correct: 0,
+    explanation: "Esatto! Un eccessivo assorbimento d'acqua da parte dei materiali dentali può compromettere la stabilità dimensionale e portare al fallimento del restauro."
+  },
+  {
+    cat: "Proprietà Speciali • Durata inutilizzo",
+    type: "choice",
+    scenario: "Trovi nell'armadio del laboratorio una confezione aperta di materiale da impronta lasciata vicino a una fonte di calore.",
+    question: "A quale proprietà speciale fa riferimento la scadenza legata alle modalità di conservazione?",
+    options: [
+      "Durata inutilizzo (Shelf-life)",
+      "Peso specifico apparente",
+      "Passivazione chimica",
+      "Intervallo di fusione"
+    ],
+    correct: 0,
+    explanation: "Corretto! La durata inutilizzo corrisponde alla scadenza del prodotto ed è strettamente legata a come il materiale viene conservato."
+  },
+  {
+    cat: "Proprietà Fisiche • Densità Relativa",
+    type: "choice",
+    scenario: "Sul bugiardino tecnico di un materiale leggi: 'Densità relativa = 1,0' (adimensionale).",
+    question: "Qual è il materiale di riferimento standard usato per ottenere questo rapporto?",
+    options: [
+      "L'acqua distillata a 4°C",
+      "L'oro puro a 1064°C",
+      "La saliva sintetica a 37°C",
+      "L'aria secca a 0°C"
+    ],
+    correct: 0,
+    explanation: "Esatto! La densità relativa è il rapporto tra densità assoluta del materiale e densità dell'acqua a 4°C (che vale 1 g/cm³), risultando quindi un numero puro (adimensionale)."
+  },
+  {
+    cat: "Proprietà Fisiche • Formula di Fisica",
+    type: "choice",
+    scenario: "Devi convertire la massa volumica (ρ) di un materiale nel suo Peso Specifico (γ) espresso in N/m³.",
+    question: "Quale formula fisica devi applicare?",
+    options: [
+      "γ = ρ · g (densità moltiplicata per l'accelerazione di gravità)",
+      "γ = m / V (massa diviso volume)",
+      "γ = (L₂ - L₁) / L₁ · ΔT",
+      "γ = ρ / g"
+    ],
+    correct: 0,
+    explanation: "Perfetto! Il peso specifico γ si ottiene moltiplicando la massa volumica ρ per l'accelerazione di gravità g (9,81 m/s²)."
+  }
+];
+
+let currentDeck = [];
+let currentIndex = 0;
+let score = 0;
+let lives = 3;
+const TOTAL_ROUNDS = 6;
+
+function shuffle(array) {
+  let arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  currentDeck = shuffle(challengePool).slice(0, TOTAL_ROUNDS);
+  currentIndex = 0;
+  score = 0;
+  lives = 3;
+  updateHUD();
+  document.getElementById('screen-start').style.display = 'none';
+  document.getElementById('screen-end').style.display = 'none';
+  document.getElementById('screen-play').style.display = 'block';
+  renderQuestion();
+}
+
+function updateHUD() {
+  document.getElementById('lives-display').textContent = 'Integrità: ' + '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+  document.getElementById('score-display').textContent = 'Punti: ' + score;
+  const pct = (currentIndex / TOTAL_ROUNDS) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function renderQuestion() {
+  const q = currentDeck[currentIndex];
+  document.getElementById('q-category').textContent = `Sfida ${currentIndex + 1}/${TOTAL_ROUNDS} • ${q.cat}`;
+  document.getElementById('q-scenario').textContent = q.scenario;
+  document.getElementById('q-text').textContent = q.question;
+  
+  const fb = document.getElementById('q-feedback');
+  fb.className = 'feedback';
+  fb.style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const container = document.getElementById('q-interaction');
+  container.innerHTML = '';
+
+  // Mescola le opzioni mantenendo traccia di quella corretta
+  const indexedOptions = q.options.map((opt, idx) => ({ text: opt, isCorrect: idx === q.correct }));
+  const shuffledOpts = shuffle(indexedOptions);
+
+  const grid = document.createElement('div');
+  grid.className = 'options-grid';
+
+  shuffledOpts.forEach((optObj) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = optObj.text;
+    btn.onclick = () => handleAnswer(btn, optObj.isCorrect, grid, q.explanation);
+    grid.appendChild(btn);
+  });
+
+  container.appendChild(grid);
+}
+
+function handleAnswer(selectedBtn, isCorrect, grid, explanation) {
+  const allBtns = grid.querySelectorAll('button');
+  allBtns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('q-feedback');
+  fb.style.display = 'block';
+
+  if (isCorrect) {
+    selectedBtn.classList.add('correct');
+    score += 100;
+    fb.className = 'feedback show ok';
+    fb.innerHTML = `<strong>✅ INTERVENTO RIUSCITO! (+100 pt)</strong><br>${explanation}`;
+  } else {
+    selectedBtn.classList.add('wrong');
+    lives--;
+    fb.className = 'feedback show ko';
+    fb.innerHTML = `<strong>❌ ERRORE TECNICO! (-1 Integrità)</strong><br>${explanation}`;
+  }
+
+  updateHUD();
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.style.display = 'inline-block';
+  if (lives <= 0) {
+    nextBtn.textContent = "Vedi Risultato Finale 📊";
+  } else if (currentIndex === TOTAL_ROUNDS - 1) {
+    nextBtn.textContent = "Completa Turno 🏆";
+  } else {
+    nextBtn.textContent = "Prossima Emergenza ➡️";
+  }
+}
+
+function nextQuestion() {
+  if (lives <= 0 || currentIndex >= TOTAL_ROUNDS - 1) {
+    endGame();
+    return;
+  }
+  currentIndex++;
+  updateHUD();
+  renderQuestion();
+}
+
+function endGame() {
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('screen-play').style.display = 'none';
+  const endScreen = document.getElementById('screen-end');
+  endScreen.style.display = 'block';
+
+  const title = document.getElementById('end-title');
+  const msg = document.getElementById('end-msg');
+
+  if (lives <= 0) {
+    title.textContent = "💥 PROTESI COMPROMESSA!";
+    title.style.color = "var(--danger)";
+    msg.innerHTML = `Hai esaurito l'integrità del manufatto totalizzando <strong>${score} punti</strong>.<br>Ripassa le proprietà dei materiali e avvia un nuovo turno con domande diverse!`;
+  } else {
+    title.textContent = "🏆 TURNO SUPERATO CON SUCCESSO!";
+    title.style.color = "var(--success)";
+    msg.innerHTML = `Ottimo lavoro da Odontotecnico Senior! Hai totalizzato <strong>${score} punti</strong> su ${TOTAL_ROUNDS * 100} con ${lives} ❤️ rimanenti.<br>Clicca qui sotto per affrontare un altro set casuale di 6 sfide!`;
+  }
+}
+
+function downloadHTML() {
+  const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Dental_Lab_Crisis_Modulo3.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

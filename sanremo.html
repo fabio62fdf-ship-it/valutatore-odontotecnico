@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esplorazione Botanica a Sanremo: Dal Parco Marsaglia a Villa Zirio</title>
+  <style>
+    :root {
+      --bg-main: #f4f7f2;
+      --bg-card: #ffffff;
+      --primary: #1b5e20;
+      --primary-light: #e8f5e9;
+      --primary-mid: #2e7d32;
+      --accent: #0277bd;
+      --accent-light: #e1f5fe;
+      --warm: #ef6c00;
+      --warm-light: #fff3e0;
+      --gold: #f9a825;
+      --text-dark: #1a241b;
+      --text-muted: #4a5d4e;
+      --border: #c8d6ca;
+      --shadow: 0 6px 20px rgba(27, 94, 32, 0.09);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* Header & Banner */
+    header {
+      background: linear-gradient(135deg, #144d19 0%, #1b5e20 55%, #01579b 100%);
+      color: #ffffff;
+      padding: 1.4rem 1.2rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .title-group h1 {
+      font-size: clamp(1.35rem, 2.8vw, 1.95rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .title-group p {
+      font-size: 0.95rem;
+      opacity: 0.92;
+      margin-top: 0.3rem;
+    }
+
+    .hud-panel {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(6px);
+      padding: 0.65rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .hud-stat {
+      text-align: center;
+      padding: 0 0.4rem;
+    }
+
+    .hud-stat span.val {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffe082;
+    }
+
+    .hud-stat span.lbl {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.9;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1120px;
+      margin: 1.4rem auto 2.5rem;
+      padding: 0 1rem;
+    }
+
+    /* Progress & Route Map Bar */
+    .route-tracker {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: #dfe8e0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 1.1rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, var(--primary-mid), var(--accent));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .stops-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .stop-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #f9fbf9;
+      color: var(--text-dark);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .stop-btn:hover {
+      border-color: var(--primary-mid);
+      background: var(--primary-light);
+    }
+
+    .stop-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+    }
+
+    .stop-btn.completed:not(.active) {
+      border-color: #66bb6a;
+      background: #f1f8e9;
+    }
+
+    .stop-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .stop-btn.active .stop-num {
+      background: #ffffff;
+      color: var(--primary);
+    }
+
+    /* Stop Intro Card */
+    .stage-header-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      border-left: 8px solid var(--primary);
+    }
+
+    .stage-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .stage-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stage-header-card h2 {
+      font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stage-desc {
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    .tts-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1.5px solid #81d4fa;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tts-btn:hover {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    /* Plants Grid */
+    .plants-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .plant-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+
+    .plant-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .plant-media {
+      position: relative;
+      height: 210px;
+      background: #e3ede5;
+      overflow: hidden;
+    }
+
+    .plant-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .plant-svg-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+      color: var(--primary);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .plant-family-tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(20, 45, 24, 0.85);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .plant-body {
+      padding: 1.15rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plant-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .plant-body h3 {
+      font-size: 1.15rem;
+      color: var(--text-dark);
+      line-height: 1.25;
+    }
+
+    .scientific-name {
+      font-style: italic;
+      color: var(--primary-mid);
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .plant-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tag-pill {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background: #f1f5f2;
+      color: #36493a;
+      border: 1px solid #d5e0d7;
+    }
+
+    .plant-desc {
+      font-size: 0.93rem;
+      color: var(--text-dark);
+      margin-bottom: 0.75rem;
+    }
+
+    .climate-box {
+      margin-top: auto;
+      background: var(--warm-light);
+      border-left: 4px solid var(--warm);
+      padding: 0.65rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      color: #4e2600;
+    }
+
+    /* Mini-Game Challenge Box */
+    .challenge-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f3f9f4 100%);
+      border: 2px solid var(--primary-mid);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.8rem;
+    }
+
+    .challenge-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .challenge-icon {
+      font-size: 1.7rem;
+    }
+
+    .challenge-header h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+
+    .quiz-question {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-dark);
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .quiz-opt-btn {
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      text-align: left;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-dark);
+    }
+
+    .quiz-opt-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .quiz-opt-btn.correct {
+      background: #c8e6c9;
+      border-color: #2e7d32;
+      color: #1b5e20;
+    }
+
+    .quiz-opt-btn.wrong {
+      background: #ffcdd2;
+      border-color: #c62828;
+      color: #b71c1c;
+    }
+
+    .feedback-box {
+      display: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      margin-top: 0.75rem;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box.success {
+      background: #e8f5e9;
+      border: 1.5px solid #4caf50;
+      color: #1b5e20;
+    }
+
+    .feedback-box.error {
+      background: #ffebee;
+      border: 1.5px solid #ef5350;
+      color: #b71c1c;
+    }
+
+    /* Navigation Footer Controls */
+    .stage-nav-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-nav {
+      padding: 0.85rem 1.4rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .btn-prev {
+      background: #e0e7e1;
+      color: var(--text-dark);
+    }
+
+    .btn-prev:hover:not(:disabled) {
+      background: #cfd9d0;
+    }
+
+    .btn-prev:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-next {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+    }
+
+    .btn-next:hover {
+      background: #144818;
+    }
+
+    /* Badges & Final Diploma */
+    .badges-shelf {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.3rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .badges-shelf h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 0.9rem;
+    }
+
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .badge-item {
+      border: 2px dashed #c5d1c7;
+      border-radius: 12px;
+      padding: 0.8rem;
+      text-align: center;
+      opacity: 0.55;
+      transition: all 0.3s;
+    }
+
+    .badge-item.unlocked {
+      border: 2px solid var(--gold);
+      background: #fffde7;
+      opacity: 1;
+      transform: scale(1.02);
+    }
+
+    .badge-emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .badge-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    /* Diploma Modal/Section */
+    .diploma-section {
+      display: none;
+      background: #fffdf5;
+      border: 6px double var(--gold);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: 2rem;
+    }
+
+    .diploma-section.visible {
+      display: block;
+    }
+
+    .diploma-section h2 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .student-input-row {
+      margin: 1rem auto;
+      max-width: 420px;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .student-input-row input {
+      flex: 1;
+      padding: 0.65rem 0.9rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .diploma-name-display {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0.8rem 0;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+      padding: 0 1.5rem 0.2rem;
+    }
+
+    /* Global Footer with Offline Download */
+    footer {
+      background: #1a281c;
+      color: #e8f5e9;
+      padding: 1.8rem 1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .download-btn {
+      background: #f9a825;
+      color: #1a241b;
+      border: none;
+      padding: 0.95rem 1.6rem;
+      border-radius: 12px;
+      font-size: 1.02rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 14px rgba(249, 168, 37, 0.35);
+      transition: transform 0.2s, background 0.2s;
+      margin-bottom: 0.9rem;
+    }
+
+    .download-btn:hover {
+      background: #fbc02d;
+      transform: translateY(-2px);
+    }
+
+    .footer-note {
+      font-size: 0.84rem;
+      opacity: 0.82;
+    }
+
+    @media print {
+      header, .route-tracker, .stage-header-card, .plants-grid, .challenge-card, .stage-nav-controls, .badges-shelf, footer, .student-input-row, .no-print {
+        display: none !important;
+      }
+      .diploma-section {
+        display: block !important;
+        box-shadow: none;
+        border: 6px double #b8860b;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="title-group">
+        <h1>🌿 Esplorazione Botanica a Sanremo</h1>
+        <p>Itinerario didattico dal Parco Marsaglia ai Giardini di Villa Zirio</p>
+      </div>
+      <div class="hud-panel" aria-label="Punteggio e progressi">
+        <div class="hud-stat">
+          <span class="val" id="scoreVal">0</span>
+          <span class="lbl">Punti</span>
+        </div>
+        <div class="hud-stat">
+          <span class="val" id="badgesVal">0/5</span>
+          <span class="lbl">Timbri</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Mappa / Barra di Avanzamento Tappe -->
+    <section class="route-tracker" aria-label="Tappe del percorso">
+      <div class="progress-header">
+        <span id="progressLabel">Tappa 1 di 5: Parco Marsaglia</span>
+        <span id="progressPercent">20% completato</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+      </div>
+      <div class="stops-nav" id="stopsNav"></div>
+    </section>
+
+    <!-- Scheda Introduttiva della Tappa -->
+    <section class="stage-header-card" id="stageHeaderCard"></section>
+
+    <!-- Griglia delle Specie Botaniche della Tappa -->
+    <section class="plants-grid" id="plantsGrid" aria-label="Specie botaniche della tappa"></section>
+
+    <!-- Sfida Didattica / Mini-Gioco della Tappa -->
+    <section class="challenge-card" id="challengeCard" aria-label="Sfida botanica"></section>
+
+    <!-- Controlli Avanti / Indietro -->
+    <div class="stage-nav-controls">
+      <button class="btn-nav btn-prev" id="prevBtn" onclick="changeStage(-1)">⬅️ Tappa Precedente</button>
+      <button class="btn-nav btn-next" id="nextBtn" onclick="changeStage(1)">Tappa Successiva ➡️</button>
+    </div>
+
+    <!-- Passaporto dei Timbri Botanici -->
+    <section class="badges-shelf">
+      <h3>🏅 Passaporto dell'Esploratore Botanico</h3>
+      <div class="badges-grid" id="badgesGrid"></div>
+    </section>
+
+    <!-- Attestato Finale -->
+    <section class="diploma-section" id="diplomaSection">
+      <p style="font-size: 2.5rem; margin-bottom: 0.4rem;">🎓🌿🏆</p>
+      <h2>Attestato di Esploratore Botanico di Sanremo</h2>
+      <p>Si certifica che</p>
+      <div class="student-input-row no-print">
+        <input type="text" id="studentNameInput" placeholder="Inserisci il tuo nome e cognome..." oninput="updateDiplomaName()" />
+      </div>
+      <div class="diploma-name-display" id="diplomaNameDisplay">Studente Esploratore</div>
+      <p style="max-width: 650px; margin: 0.8rem auto; font-size: 1.02rem;">
+        ha completato con successo l'itinerario botanico-storico attraverso <strong>Parco Marsaglia</strong>, la <strong>Pista Ciclabile della Riviera dei Fiori</strong>, <strong>Villa Nobel</strong>, il <strong>Parco di Villa Ormond</strong> e i <strong>Giardini di Villa Zirio</strong>, totalizzando <strong id="finalScoreText">0</strong> punti.
+      </p>
+      <button class="btn-nav btn-next no-print" style="margin-top: 1rem;" onclick="window.print()">🖨️ Stampa o Salva PDF Attestato</button>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <button class="download-btn" onclick="downloadOfflineHTML()">
+        ⬇️ Scarica App Offline (.html)
+      </button>
+      <p class="footer-note">
+        Risorsa didattica interattiva compatibile con LIM, tablet e smartphone. Funziona anche senza connessione internet grazie alle illustrazioni botaniche integrate.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const stagesData = [
+      {
+        id: 0,
+        shortTitle: "Parco Marsaglia",
+        title: "Tappa 1: Parco Marsaglia (Giardini di Villa Marsaglia)",
+        badgeName: "Custode di Parco Marsaglia",
+        badgeIcon: "🌲",
+        description: "Situato in pieno centro lungo Corso Imperatrice e adiacente all'Auditorium Franco Alfano, questo parco ottocentesco mostra la perfetta convivenza tra la macchia mediterranea costiera e le grandi specie ornamentali esotiche introdotte durante la Belle Époque.",
+        plants: [
+          {
+            name: "Pino d'Aleppo",
+            scientific: "Pinus halepensis",
+            family: "Pinaceae",
+            origin: "Bacino del Mediterraneo",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Pinus_halepensis_01.jpg/640px-Pinus_halepensis_01.jpg",
+            svgType: "pine",
+            desc: "Conifera sempreverde dal tronco spesso contorto dal vento marino, chioma leggera e aghi sottili riuniti a mazzetti di due di colore verde brillante.",
+            climate: "Resistente alla siccità estiva, alla salsedine e ai terreni calcarei tipici della costa ligure."
+          },
+          {
+            name: "Leccio",
+            scientific: "Quercus ilex",
+            family: "Fagaceae",
+            origin: "Regione Mediterranea",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Quercus_ilex_1.jpg/640px-Quercus_ilex_1.jpg",
+            svgType: "oak",
+            desc: "Quercia sempreverde con chioma densa e scura. Le foglie sono coriacee, verde lucido sopra e ricoperte da una peluria biancastra nella pagina inferiore.",
+            climate: "La peluria fogliare riduce la traspirazione idrica nelle giornate calde e ventose della Riviera."
+          },
+          {
+            name: "Palma delle Canarie",
+            scientific: "Phoenix canariensis",
+            family: "Arecaceae",
+            origin: "Isole Canarie",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phoenix_canariensis_-_Valencia.jpg/640px-Phoenix_canariensis_-_Valencia.jpg",
+            svgType: "palm",
+            desc: "Imponente palma simbolo storico delle passeggiate sanremesi, con stipite robusto segnato dalle cicatrici delle vecchie foglie e ampia chioma piumosa.",
+            climate: "Il microclima mite di Sanremo, protetto dalle Alpi Marittime, ne permette una crescita rigogliosa."
+          },
+          {
+            name: "Jacaranda",
+            scientific: "Jacaranda mimosifolia",
+            family: "Bignoniaceae",
+            origin: "Sud America (Argentina, Bolivia)",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Jacaranda_mimosifolia_-_flowers.jpg/640px-Jacaranda_mimosifolia_-_flowers.jpg",
+            svgType: "flower",
+            desc: "Albero ornamentale celebre per la spettacolare fioritura primaverile-estiva a grappoli di fiori tubulosi color blu-violetto intenso.",
+            climate: "Teme le gelate forti; prospera a Sanremo grazie agli inverni temperati lungo la fascia costiera."
+          }
+        ],
+        challenge: {
+          type: "Quiz di Osservazione",
+          question: "Osservando le foglie del Leccio (Quercus ilex) a Parco Marsaglia, qual è la funzione della peluria biancastra presente sulla pagina inferiore?",
+          options: [
+            "Attirare gli insetti impollinatori durante la notte",
+            "Ridurre la perdita d'acqua per traspirazione e riflettere il calore",
+            "Assorbire l'azoto direttamente dall'aria marina",
+            "Difendere l'albero dal peso della neve invernale"
+          ],
+          correctIndex: 1,
+          explanation: "Esatto! La pagina inferiore tomentosa (pelosa e biancastra) è un tipico adattamento xerofilo della flora mediterranea per limitare l'evaporazione dell'acqua."
+        }
+      },
+      {
+        id: 1,
+        shortTitle: "Pista Ciclabile",
+        title: "Tappa 2: Pista Ciclabile della Riviera dei Fiori",
+        badgeName: "Esploratore della Costa",
+        badgeIcon: "🚲",
+        description: "Realizzata sul vecchio tracciato ferroviario a picco sul mare, la pista ciclabile attraversa un corridoio verde esposto direttamente allo spray marino, dove prosperano piante succulente e arbusti mediterranei resistenti al sale.",
+        plants: [
+          {
+            name: "Tamerice",
+            scientific: "Tamarix gallica",
+            family: "Tamaricaceae",
+            origin: "Mediterraneo occidentale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Tamarix_gallica_001.jpg/640px-Tamarix_gallica_001.jpg",
+            svgType: "shrub",
+            desc: "Arbusto o piccolo albero dai rami flessibili, foglioline squamiformi verde-azzurre e delicati pennacchi di fiorellini rosa in primavera.",
+            climate: "Dotata di ghiandole specializzate per espellere l'eccesso di sale assorbito dall'aria marina."
+          },
+          {
+            name: "Agave americana",
+            scientific: "Agave americana",
+            family: "Asparagaceae",
+            origin: "Messico",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Agave_americana_R01.jpg/640px-Agave_americana_R01.jpg",
+            svgType: "succulent",
+            desc: "Grande pianta succulenta con rosetta basale di foglie carnose grigio-azzurre munite di spine marginali. Fiorisce una sola volta nella vita (monocarpica).",
+            climate: "Immagazzina acqua nei tessuti fogliari e resiste perfettamente al sole intenso e alla salsedine."
+          },
+          {
+            name: "Pittosporo",
+            scientific: "Pittosporum tobira",
+            family: "Pittosporaceae",
+            origin: "Giappone e Cina",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pittosporum_tobira_kz02.jpg/640px-Pittosporum_tobira_kz02.jpg",
+            svgType: "shrub",
+            desc: "Arbusto sempreverde molto usato nelle siepi costiere, con foglie lucide obovate e fiori bianco-crema dal profumo simile ai fiori d'arancio.",
+            climate: "Tollera i venti salmastri senza subire bruciature fogliari, fungendo da barriera frangivento."
+          },
+          {
+            name: "Bouganville",
+            scientific: "Bougainvillea spectabilis",
+            family: "Nyctaginaceae",
+            origin: "Brasile",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Bougainvillea_spectabilis_1.jpg/640px-Bougainvillea_spectabilis_1.jpg",
+            svgType: "flower",
+            desc: "Rampicante legnoso celebre per le sue brattee cartacee dai colori vivaci (magenta, viola, arancio) che avvolgono i piccoli fiori tubolari bianchi.",
+            climate: "Richiede pieno sole e riparo dai venti freddi: i muri esposti a sud lungo la ciclabile sono ideali."
+          }
+        ],
+        challenge: {
+          type: "Indovinello Botanico",
+          question: "Lungo la ciclabile ammiri i colori accesi della Bouganville. Da un punto di vista botanico, cosa sono quelle strutture color magenta che sembrano petali?",
+          options: [
+            "Foglie modificate chiamate brattee",
+            "Sepali trasformati in spine",
+            "Radici aeree fotosintetiche",
+            "Frutti maturi pronti a disperdere i semi"
+          ],
+          correctIndex: 0,
+          explanation: "Bravissimo! I veri fiori della Bouganville sono minuscoli, tubolari e bianco-giallastri; le strutture colorate sono brattee che servono ad attirare gli impollinatori."
+        }
+      },
+      {
+        id: 2,
+        shortTitle: "Villa Nobel",
+        title: "Tappa 3: Giardino di Villa Nobel",
+        badgeName: "Scienziato Botanico",
+        badgeIcon: "🧪",
+        description: "Ultima dimora dello scienziato svedese Alfred Nobel, che qui condusse esperimenti chimici e botanici. Il giardino digradante verso il mare ospita specie mediterranee, agrumi profumati ed esemplari esotici amati dallo stesso Nobel.",
+        plants: [
+          {
+            name: "Falso Pepe",
+            scientific: "Schinus molle",
+            family: "Anacardiaceae",
+            origin: "Perù e Ande",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Schinus_molle_001.jpg/640px-Schinus_molle_001.jpg",
+            svgType: "tree",
+            desc: "Albero dal portamento piangente con foglie pennate aromatiche e grappoli penduli di piccole bacche rosa-rossastre dall'odore pepato.",
+            climate: "Molto resistente alla siccità; nei giardini storici liguri è apprezzato per l'ombra leggera e il profumo."
+          },
+          {
+            name: "Limone di Sanremo",
+            scientific: "Citrus limon",
+            family: "Rutaceae",
+            origin: "Asia meridionale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Citrus_limon_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-041.jpg/640px-Citrus_limon_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-041.jpg",
+            svgType: "citrus",
+            desc: "Agrume rifiorente con foglie ricche di ghiandole oleifere profumate, fiori bianchi (zagare) e frutti gialli ricchi di acido citrico e vitamina C.",
+            climate: "La fascia costiera sanremese consente la coltivazione in piena terra degli agrumi senza danni da gelo."
+          },
+          {
+            name: "Palma nana",
+            scientific: "Chamaerops humilis",
+            family: "Arecaceae",
+            origin: "Mediterraneo occidentale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Chamaerops_humilis_kz01.jpg/640px-Chamaerops_humilis_kz01.jpg",
+            svgType: "palm",
+            desc: "L'unica palma originaria dell'Europa continentale. Cresce a cespuglio policormico (con più fusti) e presenta foglie a ventaglio con piccioli spinosi.",
+            climate: "Specie autoctona rustica e frugale, simbolo della macchia termofila mediterranea."
+          },
+          {
+            name: "Cipresso mediterraneo",
+            scientific: "Cupressus sempervirens",
+            family: "Cupressaceae",
+            origin: "Mediterraneo orientale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Cupressus_sempervirens_1.jpg/640px-Cupressus_sempervirens_1.jpg",
+            svgType: "pine",
+            desc: "Conifera slanciata e colonnare, longeva, con piccole foglie squamiformi embricate e galbuli (coni) legnosi globosi.",
+            climate: "Sopporta venti forti, suoli poveri e lunghi periodi senza pioggia, caratterizzando il paesaggio delle ville."
+          }
+        ],
+        challenge: {
+          type: "Sfida di Classificazione",
+          question: "Tra le palme presenti a Sanremo, una sola è originaria dell'Europa continentale e cresce spontanea nel Mediterraneo occidentale. Qual è?",
+          options: [
+            "Phoenix canariensis (Palma delle Canarie)",
+            "Chamaerops humilis (Palma nana)",
+            "Washingtonia filifera (Palma della California)",
+            "Cocos nucifera (Palma da cocco)"
+          ],
+          correctIndex: 1,
+          explanation: "Esatto! La Chamaerops humilis (Palma nana o Palma di San Pietro) è l'unica palma autoctona della flora italiana ed europea continentale."
+        }
+      },
+      {
+        id: 3,
+        shortTitle: "Villa Ormond",
+        title: "Tappa 4: Parco di Villa Ormond",
+        badgeName: "Maestro del Giardino Esotico",
+        badgeIcon: "🌴",
+        description: "Il più celebre parco botanico di Sanremo, suddiviso in settori tematici (il palmeto, il giardino giapponese, l'agrumeto e la zona delle conifere monumentali) grazie al microclima eccezionale studiato dai botanici fin dall'Ottocento.",
+        plants: [
+          {
+            name: "Ficus macrophylla (Fico della baia di Moreton)",
+            scientific: "Ficus macrophylla",
+            family: "Moraceae",
+            origin: "Australia orientale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Ficus_macrophylla_Sanremo.jpg/640px-Ficus_macrophylla_Sanremo.jpg",
+            svgType: "tree",
+            desc: "Albero monumentale spettacolare dotato di grandi radici tabulari (contrafforti) e radici aeree che scendono dai rami fino al terreno.",
+            climate: "A Sanremo raggiunge dimensioni colossali grazie all'umidità marina e all'assenza di gelate."
+          },
+          {
+            name: "Canforo",
+            scientific: "Cinnamomum camphora",
+            family: "Lauraceae",
+            origin: "Asia orientale (Cina, Giappone, Taiwan)",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cinnamomum_camphora_002.jpg/640px-Cinnamomum_camphora_002.jpg",
+            svgType: "tree",
+            desc: "Grande albero sempreverde dalla chioma espansa. Sfregando le sue foglie lucide si sprigiona immediatamente l'inconfondibile aroma balsamico della canfora.",
+            climate: "Predilige i climi subtropicali umidi e miti come quello della fascia costiera sanremese."
+          },
+          {
+            name: "Palma della California",
+            scientific: "Washingtonia filifera",
+            family: "Arecaceae",
+            origin: "Sud-ovest degli Stati Uniti e Messico",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Washingtonia_filifera_1.jpg/640px-Washingtonia_filifera_1.jpg",
+            svgType: "palm",
+            desc: "Palma dal fusto colonnare spesso rivestito dalle foglie secche pendenti ('gonna') e foglie a ventaglio con caratteristici filamenti bianchi.",
+            climate: "Originaria delle oasi desertiche, sopporta benissimo il caldo estivo e la luce intensa della Riviera."
+          },
+          {
+            name: "Cycas",
+            scientific: "Cycas revoluta",
+            family: "Cycadaceae",
+            origin: "Giappone meridionale",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Cycas_revoluta_001.jpg/640px-Cycas_revoluta_001.jpg",
+            svgType: "palm",
+            desc: "Considerata un 'fossile vivente' (gimnosperma antichissima simile alle palme ma non imparentata con esse), con corona di foglie pennate rigide e lucide.",
+            climate: "Cresce lentamente e prospera nei giardini storici riparati della costa ligure."
+          }
+        ],
+        challenge: {
+          type: "Curiosità Evolutiva",
+          question: "Nel Parco di Villa Ormond si ammira la Cycas revoluta. Pur assomigliando a una palma, a quale gruppo botanico appartiene in realtà questo 'fossile vivente'?",
+          options: [
+            "Alle Gimnosperme (piante a seme nudo, antichissime come le conifere)",
+            "Alle Felci acquatiche",
+            "Alle Graminacee giganti come il bambù",
+            "Alle Cactacee prive di spine"
+          ],
+          correctIndex: 0,
+          explanation: "Perfetto! La Cycas è una Gimnosperma che risale all'era dei dinosauri (Mesozoico): non produce fiori né veri frutti, ma coni maschili e macrosporofilli con semi."
+        }
+      },
+      {
+        id: 4,
+        shortTitle: "Giardini di Villa Zirio",
+        title: "Tappa 5: Giardini di Villa Zirio",
+        badgeName: "Ambasciatore della Flora di Sanremo",
+        badgeIcon: "🌺",
+        description: "Tappa conclusiva dell'itinerario: un elegante parco storico ottocentesco oggi sede dell'Orchestra Sinfonica di Sanremo, dove esemplari secolari di conifere esotiche, palme e piante fiorite creano un'oasi di biodiversità in Corso Cavallotti.",
+        plants: [
+          {
+            name: "Araucaria di Norfolk",
+            scientific: "Araucaria heterophylla",
+            family: "Araucariaceae",
+            origin: "Isola di Norfolk (Oceano Pacifico)",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Araucaria_heterophylla_01.jpg/640px-Araucaria_heterophylla_01.jpg",
+            svgType: "pine",
+            desc: "Conifera maestosa dalla chioma perfettamente piramidale e simmetrica, con rami disposti in palchi regolari e foglie squamiformi verde intenso.",
+            climate: "Tollera bene la brezza marina e raggiunge oltre 30 metri d'altezza nei parchi sanremesi."
+          },
+          {
+            name: "Cedro dell'Atlante",
+            scientific: "Cedrus atlantica",
+            family: "Pinaceae",
+            origin: "Monti dell'Atlante (Marocco, Algeria)",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Cedrus_atlantica_Glauca_01.jpg/640px-Cedrus_atlantica_Glauca_01.jpg",
+            svgType: "pine",
+            desc: "Grande conifera dai rami ascendenti, aghi riuniti in ciuffetti spesso di colore verde-glauco (azzurrognolo) e pigne erette a forma di barilotto.",
+            climate: "Molto adattabile ai terreni calcarei e ben drenati dei giardini storici liguri."
+          },
+          {
+            name: "Magnolia grandiflora",
+            scientific: "Magnolia grandiflora",
+            family: "Magnoliaceae",
+            origin: "Stati Uniti sud-orientali",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Magnolia_grandiflora_-_flower_1.jpg/640px-Magnolia_grandiflora_-_flower_1.jpg",
+            svgType: "flower",
+            desc: "Albero sempreverde dalle grandi foglie coriacee lucide sopra e color ruggine sotto, con enormi fiori bianchi profumatissimi in estate.",
+            climate: "Apprezza i suoli profondi e freschi dei parchi storici irrigati della Riviera."
+          },
+          {
+            name: "Sterlizia (Uccello del Paradiso)",
+            scientific: "Strelitzia reginae",
+            family: "Strelitziaceae",
+            origin: "Sudafrica",
+            img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Strelitzia_reginae_02.jpg/640px-Strelitzia_reginae_02.jpg",
+            svgType: "flower",
+            desc: "Pianta erbacea perenne simbolo della floricoltura sanremese, con infiorescenze spettacolari arancioni e blu che ricordano la testa di un uccello esotico.",
+            climate: "Coltivata all'aperto tutto l'anno a Sanremo grazie alla temperatura minima invernale sempre sopra lo zero."
+          }
+        ],
+        challenge: {
+          type: "Sfida Finale di Sintesi",
+          question: "Perché Sanremo riesce a ospitare nello stesso percorso piante del Mediterraneo (Leccio, Pino d'Aleppo) insieme a specie tropicali/subtropicali (Ficus macrophylla, Strelitzia, Jacaranda)?",
+          options: [
+            "Perché in estate piove quasi tutti i giorni",
+            "Grazie alla protezione delle Alpi Marittime a nord e all'effetto termoregolatore del Mar Ligure a sud",
+            "Perché il terreno è interamente vulcanico",
+            "Perché le piante vengono spostate in serra ogni notte"
+          ],
+          correctIndex: 1,
+          explanation: "Eccezionale! La catena montuosa alle spalle blocca i venti freddi settentrionali, mentre il Mar Ligure cede calore in inverno, creando il celebre microclima mite di Sanremo."
+        }
+      }
+    ];
+
+    let currentStage = 0;
+    let score = 0;
+    let completedStages = [false, false, false, false, false];
+    let answeredCorrectly = [false, false, false, false, false];
+
+    function getBotanicalSVG(type, title) {
+      const svgs = {
+        pine: `<svg viewBox="0 0 200 130" width="130" height="85"><rect x="92" y="85" width="16" height="35" fill="#5d4037"/><polygon points="100,15 55,60 145,60" fill="#2e7d32"/><polygon points="100,38 45,88 155,88" fill="#1b5e20"/></svg>`,
+        oak: `<svg viewBox="0 0 200 130" width="130" height="85"><rect x="90" y="80" width="20" height="40" fill="#4e342e"/><circle cx="100" cy="55" r="42" fill="#2e7d32"/><circle cx="72" cy="65" r="28" fill="#388e3c"/><circle cx="128" cy="65" r="28" fill="#1b5e20"/></svg>`,
+        palm: `<svg viewBox="0 0 200 130" width="130" height="85"><rect x="93" y="50" width="14" height="70" rx="4" fill="#6d4c41"/><path d="M100 52 Q55 25 35 55" stroke="#2e7d32" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M100 52 Q145 25 165 55" stroke="#2e7d32" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M100 50 Q65 10 45 25" stroke="#43a047" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M100 50 Q135 10 155 25" stroke="#43a047" stroke-width="7" fill="none" stroke-linecap="round"/></svg>`,
+        flower: `<svg viewBox="0 0 200 130" width="130" height="85"><rect x="97" y="65" width="6" height="55" fill="#2e7d32"/><circle cx="100" cy="48" r="16" fill="#ec407a"/><circle cx="82" cy="55" r="14" fill="#ab47bc"/><circle cx="118" cy="55" r="14" fill="#ab47bc"/><circle cx="100" cy="52" r="9" fill="#fdd835"/></svg>`,
+        shrub: `<svg viewBox="0 0 200 130" width="130" height="85"><ellipse cx="100" cy="82" rx="58" ry="34" fill="#388e3c"/><ellipse cx="75" cy="88" rx="35" ry="24" fill="#4caf50"/><ellipse cx="125" cy="88" rx="35" ry="24" fill="#2e7d32"/></svg>`,
+        succulent: `<svg viewBox="0 0 200 130" width="130" height="85"><path d="M100 110 L65 40 L90 105 Z" fill="#00897b"/><path d="M100 110 L135 40 L110 105 Z" fill="#00897b"/><path d="M100 110 L100 25 L112 108 Z" fill="#26a69a"/><path d="M100 110 L40 70 L85 110 Z" fill="#4db6ac"/><path d="M100 110 L160 70 L115 110 Z" fill="#4db6ac"/></svg>`,
+        tree: `<svg viewBox="0 0 200 130" width="130" height="85"><path d="M90 120 L95 70 L105 70 L110 120 Z" fill="#5d4037"/><ellipse cx="100" cy="52" rx="55" ry="35" fill="#2e7d32"/></svg>`,
+        citrus: `<svg viewBox="0 0 200 130" width="130" height="85"><rect x="93" y="80" width="14" height="40" fill="#5d4037"/><circle cx="100" cy="55" r="38" fill="#2e7d32"/><circle cx="85" cy="50" r="8" fill="#fdd835"/><circle cx="115" cy="60" r="8" fill="#fdd835"/><circle cx="102" cy="38" r="7" fill="#fdd835"/></svg>`
+      };
+      return `<div class="plant-svg-fallback">${svgs[type] || svgs.tree}<span style="font-size:0.78rem;font-weight:700;margin-top:4px;">Illustrazione Botanica: ${title}</span></div>`;
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert("La sintesi vocale non è supportata su questo browser.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'it-IT';
+      utterance.rate = 0.98;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderStopsNav() {
+      const nav = document.getElementById('stopsNav');
+      nav.innerHTML = stagesData.map((s, idx) => `
+        <button class="stop-btn ${idx === currentStage ? 'active' : ''} ${completedStages[idx] ? 'completed' : ''}" onclick="goToStage(${idx})">
+          <span class="stop-num">${completedStages[idx] ? '✓' : idx + 1}</span>
+          <span>${s.shortTitle}</span>
+        </button>
+      `).join('');
+
+      const completedCount = completedStages.filter(Boolean).length;
+      const pct = Math.max(20, Math.round(((currentStage + 1) / stagesData.length) * 100));
+      document.getElementById('progressLabel').textContent = `Tappa ${currentStage + 1} di ${stagesData.length}: ${stagesData[currentStage].shortTitle}`;
+      document.getElementById('progressPercent').textContent = `${completedCount}/5 sfide completate`;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+    }
+
+    function renderStage() {
+      const stage = stagesData[currentStage];
+      renderStopsNav();
+
+      // Stage Header
+      const safeIntroSpeech = `${stage.title}. ${stage.description}`.replace(/'/g, "\\'");
+      document.getElementById('stageHeaderCard').innerHTML = `
+        <div class="stage-meta">
+          <span class="stage-badge">📍 Tappa ${currentStage + 1} di 5</span>
+          <button class="tts-btn" onclick="speakText('${safeIntroSpeech}')">🔊 Ascolta introduzione</button>
+        </div>
+        <h2>${stage.title}</h2>
+        <p class="stage-desc">${stage.description}</p>
+      `;
+
+      // Plants Grid
+      document.getElementById('plantsGrid').innerHTML = stage.plants.map((p) => {
+        const plantSpeech = `${p.name}, nome scientifico ${p.scientific}, famiglia ${p.family}, origine ${p.origin}. ${p.desc} Adattamento al clima di Sanremo: ${p.climate}`.replace(/'/g, "\\'");
+        return `
+          <article class="plant-card">
+            <div class="plant-media" id="media-${p.scientific.replace(/\s+/g, '-')}">
+              <img src="${p.img}" alt="${p.name} (${p.scientific})" loading="lazy"
+                onerror="this.parentElement.innerHTML = getBotanicalSVG('${p.svgType}', '${p.name.replace(/'/g, "\\'")}')" />
+              <span class="plant-family-tag">${p.family}</span>
+            </div>
+            <div class="plant-body">
+              <div class="plant-title-row">
+                <h3>${p.name}</h3>
+                <button class="tts-btn" style="padding:0.3rem 0.65rem;font-size:0.78rem;" onclick="speakText('${plantSpeech}')" title="Ascolta scheda pianta">🔊 Ascolta</button>
+              </div>
+              <div class="scientific-name">${p.scientific}</div>
+              <div class="plant-tags">
+                <span class="tag-pill">🌍 Origine: ${p.origin}</span>
+              </div>
+              <p class="plant-desc">${p.desc}</p>
+              <div class="climate-box">
+                <strong>☀️ Clima di Sanremo:</strong> ${p.climate}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Challenge Card
+      const ch = stage.challenge;
+      const alreadyDone = answeredCorrectly[currentStage];
+      document.getElementById('challengeCard').innerHTML = `
+        <div class="challenge-header">
+          <span class="challenge-icon">🧩</span>
+          <div>
+            <span style="font-size:0.78rem;font-weight:800;text-transform:uppercase;color:var(--warm);">${ch.type}</span>
+            <h3>Sfida di Tappa (+20 Punti e Timbro)</h3>
+          </div>
+        </div>
+        <p class="quiz-question">${ch.question}</p>
+        <div class="quiz-options">
+          ${ch.options.map((opt, i) => `
+            <button class="quiz-opt-btn ${alreadyDone && i === ch.correctIndex ? 'correct' : ''}"
+              ${alreadyDone ? 'disabled' : ''}
+              onclick="checkAnswer(${i}, this)">
+              ${String.fromCharCode(65 + i)}. ${opt}
+            </button>
+          `).join('')}
+        </div>
+        <div class="feedback-box ${alreadyDone ? 'show success' : ''}" id="quizFeedback">
+          ${alreadyDone ? `✅ <strong>Timbro già conquistato!</strong> ${ch.explanation}` : ''}
+        </div>
+      `;
+
+      // Nav Buttons
+      document.getElementById('prevBtn').disabled = currentStage === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      if (currentStage === stagesData.length - 1) {
+        nextBtn.textContent = "🎓 Visualizza Attestato Finale";
+      } else {
+        nextBtn.textContent = "Tappa Successiva ➡️";
+      }
+
+      renderBadges();
+    }
+
+    function checkAnswer(selectedIdx, btnElement) {
+      const stage = stagesData[currentStage];
+      const ch = stage.challenge;
+      const feedback = document.getElementById('quizFeedback');
+      const allBtns = document.querySelectorAll('.quiz-opt-btn');
+
+      if (selectedIdx === ch.correctIndex) {
+        btnElement.classList.add('correct');
+        allBtns.forEach(b => b.disabled = true);
+        feedback.className = 'feedback-box show success';
+        feedback.innerHTML = `✅ <strong>Risposta esatta!</strong> ${ch.explanation}`;
+
+        if (!answeredCorrectly[currentStage]) {
+          answeredCorrectly[currentStage] = true;
+          completedStages[currentStage] = true;
+          score += 20;
+          updateHUD();
+          renderStopsNav();
+          renderBadges();
+        }
+      } else {
+        btnElement.classList.add('wrong');
+        btnElement.disabled = true;
+        feedback.className = 'feedback-box show error';
+        feedback.innerHTML = `❌ <strong>Non proprio!</strong> Rileggi con attenzione le schede delle piante di questa tappa e riprova.`;
+      }
+    }
+
+    function updateHUD() {
+      document.getElementById('scoreVal').textContent = score;
+      const unlockedCount = completedStages.filter(Boolean).length;
+      document.getElementById('badgesVal').textContent = `${unlockedCount}/5`;
+      document.getElementById('finalScoreText').textContent = score;
+    }
+
+    function renderBadges() {
+      const grid = document.getElementById('badgesGrid');
+      grid.innerHTML = stagesData.map((s, idx) => {
+        const unlocked = completedStages[idx];
+        return `
+          <div class="badge-item ${unlocked ? 'unlocked' : ''}">
+            <span class="badge-emoji">${unlocked ? s.badgeIcon : '🔒'}</span>
+            <div class="badge-title">${s.badgeName}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${unlocked ? 'Sbloccato!' : s.shortTitle}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function goToStage(idx) {
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      currentStage = idx;
+      renderStage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeStage(delta) {
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      if (currentStage + delta >= stagesData.length) {
+        const diploma = document.getElementById('diplomaSection');
+        diploma.classList.add('visible');
+        diploma.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      if (currentStage + delta >= 0) {
+        currentStage += delta;
+        renderStage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function updateDiplomaName() {
+      const val = document.getElementById('studentNameInput').value.trim();
+      document.getElementById('diplomaNameDisplay').textContent = val || "Studente Esploratore";
+    }
+
+    function downloadOfflineHTML() {
+      const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "percorso-botanico-sanremo.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Inizializzazione
+    renderStage();
+  </script>
+</body>
+</html>

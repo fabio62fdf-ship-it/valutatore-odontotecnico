@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diritto Commerciale: L'Imprenditore e L'Impresa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animazione 3D per le Flashcard */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        
+        /* Scrollbar pulita */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans min-h-screen pb-24 selection:bg-indigo-200">
+
+    <!-- HEADER PRINCIPALE -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b-4 border-amber-400">
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-400 text-slate-900 p-2.5 rounded-xl font-black text-xl shadow">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight">L'Imprenditore e L'Impresa</h1>
+                        <p class="text-xs text-slate-300">Lezione n.2 • Diritto ed Economia • Laboratorio Interattivo</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 self-start sm:self-auto">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span>Punti Esperienza: <strong id="xpCounter" class="text-amber-300 text-sm">0</strong> XP</span>
+                </div>
+            </div>
+
+            <!-- BARRA DI NAVIGAZIONE A 4 PAGINE -->
+            <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+                <button onclick="switchTab('glossario')" id="tab-glossario" class="nav-btn bg-amber-400 text-slate-900 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow transition-all">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>1. Glossario</span>
+                </button>
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="nav-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-clone"></i>
+                    <span>2. Flashcard</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>3. Quiz</span>
+                </button>
+                <button onclick="switchTab('giudice')" id="tab-giudice" class="nav-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all relative">
+                    <i class="fa-solid fa-gavel text-amber-400"></i>
+                    <span>4. Il Giudice!</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="max-w-5xl mx-auto px-4 py-6">
+
+        <!-- ========================================== -->
+        <!-- PAGINA 1: GLOSSARIO GIURIDICO              -->
+        <!-- ========================================== -->
+        <section id="page-glossario" class="space-y-5">
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-800">Glossario Essenziale del Codice Civile</h2>
+                        <p class="text-xs text-slate-500">Filtra per categoria o cerca un articolo/concetto chiave.</p>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="glossarySearch" oninput="renderGlossary()" placeholder="Cerca (es. 2082, libro giornale, affini)..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Filtri Categoria -->
+                <div class="flex flex-wrap gap-2" id="categoryFilters">
+                    <button onclick="setGlossaryFilter('Tutti')" class="filter-pill bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">Tutti</button>
+                    <button onclick="setGlossaryFilter('Nozione Generale')" class="filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">Nozione Generale</button>
+                    <button onclick="setGlossaryFilter('Impresa Agricola')" class="filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">Impresa Agricola</button>
+                    <button onclick="setGlossaryFilter('Impresa Commerciale')" class="filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">Impresa Commerciale</button>
+                    <button onclick="setGlossaryFilter('Piccola e Familiare')" class="filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">Piccola e Familiare</button>
+                    <button onclick="setGlossaryFilter('Impresa Sociale')" class="filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">Impresa Sociale</button>
+                </div>
+            </div>
+
+            <!-- Griglia Termini -->
+            <div id="glossaryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PAGINA 2: FLASHCARD INTERATTIVE            -->
+        <!-- ========================================== -->
+        <section id="page-flashcards" class="hidden space-y-6">
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-800">Flashcard di Ripasso Rapido</h2>
+                    <p class="text-xs text-slate-500">Tocca la carta per girarla e verificare la definizione giuridica.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="shuffleFlashcards()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 border border-slate-300">
+                        <i class="fa-solid fa-shuffle text-indigo-600"></i> Mescola
+                    </button>
+                    <span class="bg-indigo-100 text-indigo-900 font-extrabold text-xs px-3 py-2 rounded-xl">
+                        Carta <span id="fcCurrent">1</span> / <span id="fcTotal">15</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Contenitore Carta 3D -->
+            <div class="max-w-2xl mx-auto">
+                <div onclick="flipCard()" class="perspective-1000 w-full h-72 sm:h-80 cursor-pointer select-none">
+                    <div id="flashcardInner" class="card-inner relative w-full h-full transform-style-3d">
+                        
+                        <!-- FRONTE -->
+                        <div class="backface-hidden absolute inset-0 bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-indigo-500 flex flex-col justify-between">
+                            <div class="flex justify-between items-center">
+                                <span id="fcCategoryFront" class="text-xs font-bold uppercase tracking-wider bg-amber-400 text-slate-900 px-3 py-1 rounded-full">Categoria</span>
+                                <span class="text-xs text-indigo-300"><i class="fa-solid fa-rotate"></i> Tocca per girare</span>
+                            </div>
+                            <div class="text-center my-auto px-2">
+                                <h3 id="fcQuestion" class="text-xl sm:text-2xl font-extrabold leading-snug">Domanda</h3>
+                            </div>
+                            <div class="text-center text-xs text-indigo-300 font-medium">
+                                Prova a formulare la risposta a voce prima di girare!
+                            </div>
+                        </div>
+
+                        <!-- RETRO -->
+                        <div class="backface-hidden rotate-y-180 absolute inset-0 bg-white text-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-400 flex flex-col justify-between">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <span class="text-xs font-black uppercase tracking-wider text-indigo-600"><i class="fa-solid fa-check-circle"></i> Risposta & Riferimento</span>
+                                <span id="fcArticle" class="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">Art. C.C.</span>
+                            </div>
+                            <div class="my-auto overflow-y-auto py-2">
+                                <p id="fcAnswer" class="text-sm sm:text-base font-medium text-slate-800 leading-relaxed text-center">Risposta</p>
+                            </div>
+                            <div class="flex justify-center">
+                                <button onclick="event.stopPropagation(); markKnown()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow flex items-center gap-1.5">
+                                    <i class="fa-solid fa-star text-amber-300"></i> Lo so! (+10 XP)
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Controlli Navigazione Flashcard -->
+                <div class="flex items-center justify-between gap-4 mt-6">
+                    <button onclick="prevCard()" class="flex-1 bg-white hover:bg-slate-50 text-slate-800 font-bold py-3 px-4 rounded-xl shadow-sm border border-slate-300 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Precedente
+                    </button>
+                    <button onclick="nextCard()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2">
+                        Successiva <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PAGINA 3: QUIZ A RISPOSTA MULTIPLA         -->
+        <!-- ========================================== -->
+        <section id="page-quiz" class="hidden space-y-6">
+            <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-800">Quiz di Verifica (12 Domande)</h2>
+                    <p class="text-xs text-slate-500">Metti alla prova la tua preparazione con spiegazione immediata.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-xl">
+                        Corrette: <span id="quizScore">0</span> / <span id="quizTotal">12</span>
+                    </span>
+                    <button onclick="resetQuiz()" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-300">
+                        <i class="fa-solid fa-rotate-right"></i> Ricomincia
+                    </button>
+                </div>
+            </div>
+
+            <div id="quizContainer" class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-7 space-y-5">
+                <!-- Popolato via JS -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PAGINA 4: IL GIUDICE DELLE IMPRESE         -->
+        <!-- ========================================== -->
+        <section id="page-giudice" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 p-5 rounded-2xl shadow-md border-2 border-amber-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <span class="text-[11px] font-black uppercase tracking-widest bg-slate-900 text-amber-400 px-2.5 py-0.5 rounded-md">Sfida Pratica in Tribunale</span>
+                    <h2 class="text-xl font-black">⚖️ Il Giudice delle Imprese</h2>
+                    <p class="text-xs sm:text-sm font-medium text-slate-900">Leggi i 6 casi reali arrivati sulla tua scrivania ed emetti la sentenza corretta applicando il Codice Civile!</p>
+                </div>
+                <div class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-center shrink-0">
+                    <div class="text-[10px] uppercase text-slate-400 font-bold">Sentenze Esatte</div>
+                    <div class="text-xl font-black text-amber-400"><span id="judgeScore">0</span> / 6</div>
+                </div>
+            </div>
+
+            <div id="judgeCasesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Popolato via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PULSANTE OBBLIGATORIO SALVA RISORSA OFFLINE -->
+    <button onclick="scaricaAppHTML()" class="fixed bottom-4 right-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold py-3 px-5 rounded-full shadow-2xl flex items-center gap-2 z-50 border-2 border-amber-400 transition-transform hover:scale-105 cursor-pointer">
+        <i class="fa-solid fa-download text-amber-400 text-sm"></i>
+        <span>SCARICA APP (.HTML)</span>
+    </button>
+
+    <script>
+        // ==========================================
+        // DATI ESTRATTI DALLA LEZIONE N.2
+        // ==========================================
+        const glossaryData = [
+            {
+                term: "Imprenditore (Art. 2082 c.c.)",
+                category: "Nozione Generale",
+                badge: "Art. 2082 c.c.",
+                def: "Chi esercita professionalmente un'attività economica organizzata al fine della produzione o dello scambio di beni o servizi. Sopporta il rischio economico e mira al profitto (Ricavi - Costi)."
+            },
+            {
+                term: "Caratteri dell'Attività d'Impresa",
+                category: "Nozione Generale",
+                badge: "4 Requisiti",
+                def: "1) Professionalità (abituale, non occasionale, anche stagionale); 2) Economicità (creazione di ricchezza: scopo di lucro o pareggio di bilancio); 3) Organizzazione (coordinamento di capitale, locali, attrezzature e lavoro); 4) Produzione o scambio destinati al mercato (non autoconsumo)."
+            },
+            {
+                term: "Criteri di Classificazione delle Imprese",
+                category: "Nozione Generale",
+                badge: "3 Criteri",
+                def: "Qualitativo (tipo di attività: agricola vs commerciale); Quantitativo (dimensioni: piccola impresa / artigiana); Personale (soggetto titolare: impresa pubblica vs impresa privata individuale o collettiva)."
+            },
+            {
+                term: "Imprenditore Agricolo (Art. 2135 c.c.)",
+                category: "Impresa Agricola",
+                badge: "Art. 2135 c.c.",
+                def: "Chi esercita coltivazione del fondo, selvicoltura, allevamento di animali e attività connesse. È soggetto al rischio ambientale/biologico: perciò è esonerato dalle scritture contabili e non è soggetto al fallimento."
+            },
+            {
+                term: "Attività Agricole Essenziali e Connesse",
+                category: "Impresa Agricola",
+                badge: "Ciclo Biologico",
+                def: "Essenziali: cura/sviluppo di un ciclo biologico vegetale o animale (anche senza terra, es. idroponica, o acquacoltura). Connesse: manipolazione, trasformazione, vendita di prodotti prevalenti del proprio fondo (es. uva → vino, frutta → marmellata) o agriturismo."
+            },
+            {
+                term: "Imprenditore Commerciale (Art. 2195 c.c.)",
+                category: "Impresa Commerciale",
+                badge: "Art. 2195 c.c.",
+                def: "Chi esercita: 1) attività industriale di produzione beni/servizi; 2) attività intermediaria nella circolazione dei beni; 3) trasporto (terra, acqua, aria); 4) attività bancaria o assicurativa; 5) attività ausiliarie alle precedenti (es. pubblicità, mediazione)."
+            },
+            {
+                term: "Statuto dell'Imprenditore Commerciale",
+                category: "Impresa Commerciale",
+                badge: "4 Obblighi/Regole",
+                def: "1) Piena capacità di agire (18 anni o minore emancipato autorizzato); 2) Iscrizione al Registro delle Imprese entro 30 giorni; 3) Obbligo di tenuta delle scritture contabili; 4) Soggezione al fallimento e alle procedure concorsuali in caso di insolvenza."
+            },
+            {
+                term: "Scritture Contabili Obbligatorie",
+                category: "Impresa Commerciale",
+                badge: "Contabilità",
+                def: "Obbligatorie per l'imprenditore commerciale: Libro Giornale (operazioni annotate giorno per giorno) e Libro degli Inventari (registrazione annuale di attività e passività). Facoltative: Libro Mastro, Libro Magazzino, Libro Cassa."
+            },
+            {
+                term: "Par Condicio Creditorum & Insolvenza",
+                category: "Impresa Commerciale",
+                badge: "Fallimento",
+                def: "Stato di insolvenza: incapacità di far fronte regolarmente alle proprie obbligazioni. Il fallimento garantisce la 'Par Condicio Creditorum', ossia la parità di trattamento di tutti i creditori sui beni del debitore, salve le cause legittime di prelazione (privilegi, pegno, ipoteca)."
+            },
+            {
+                term: "Piccolo Imprenditore (Art. 2083 c.c.)",
+                category: "Piccola e Familiare",
+                badge: "Art. 2083 c.c.",
+                def: "Coltivatori diretti del fondo, artigiani, piccoli commercianti e chi esercita un'attività organizzata prevalentemente con il lavoro proprio e dei componenti della famiglia. È esonerato dalle scritture contabili e dal fallimento."
+            },
+            {
+                term: "Impresa Familiare (Art. 230-bis c.c.)",
+                category: "Piccola e Familiare",
+                badge: "Art. 230-bis c.c.",
+                def: "Impresa individuale in cui collaborano in modo continuativo senza altro contratto: il coniuge, i parenti entro il 3° grado (figli, genitori, fratelli, nonni, nipoti) e gli affini entro il 2° grado (suoceri, generi, nuore, cognati). Solo il titolare risponde dei debiti e può fallire."
+            },
+            {
+                term: "Diritti dei Familiari nell'Impresa Familiare",
+                category: "Piccola e Familiare",
+                badge: "Tutela L. 151/1975",
+                def: "1) Mantenimento; 2) Partecipazione agli utili e agli incrementi in proporzione a quantità e qualità del lavoro; 3) Voto a maggioranza sulle decisioni straordinarie; 4) Liquidazione della quota alla cessazione; 5) Diritto di prelazione in caso di vendita/eredità; 6) Parità uomo-donna."
+            },
+            {
+                term: "Impresa Sociale e Terzo Settore",
+                category: "Impresa Sociale",
+                badge: "D.Lgs. 112/2017",
+                def: "Organizzazione non profit (senza scopo di lucro) che esercita stabilmente attività d'impresa di interesse generale per finalità civiche, solidaristiche e di utilità sociale. Deve impiegare almeno il 30% di lavoratori svantaggiati o con disabilità e redigere annualmente il Bilancio Sociale."
+            }
+        ];
+
+        const flashcardsData = [
+            { cat: "Nozione Generale", art: "Art. 2082 c.c.", q: "Qual è la definizione giuridica di Imprenditore secondo l'art. 2082 c.c.?", a: "È imprenditore chi esercita professionalmente un'attività economica organizzata al fine della produzione o dello scambio di beni o servizi." },
+            { cat: "Nozione Generale", art: "Profilo Economico", q: "Come si calcola il profitto dell'imprenditore e chi sopporta il rischio?", a: "PROFITTO = RICAVI - COSTI SOSTENUTI. L'imprenditore si assume il rischio economico dell'attività e sopporta le eventuali perdite." },
+            { cat: "Nozione Generale", art: "Art. 2082 c.c.", q: "Un'attività stagionale (es. uno stabilimento balneare) può essere considerata 'professionale'?", a: "Sì! Professionalità significa attività abituale e non occasionale: può avere interruzioni stagionali e può anche non essere l'unica attività del titolare." },
+            { cat: "Nozione Generale", art: "Economicità", q: "Che differenza c'è tra scopo di lucro e pareggio di bilancio nel criterio di economicità?", a: "Lo scopo di lucro punta a ottenere ricavi maggiori dei costi (profitto); il pareggio di bilancio punta ad avere ricavi sufficienti a coprire le spese sostenute (tipico delle imprese pubbliche)." },
+            { cat: "Impresa Agricola", art: "Art. 2135 c.c.", q: "Quali sono le 3 attività agricole essenziali ('in senso stretto')?", a: "1) Coltivazione del fondo; 2) Selvicoltura (coltivazione dei boschi per legname); 3) Allevamento di animali (compresi animali da cortile e acquacoltura)." },
+            { cat: "Impresa Agricola", art: "Art. 2135 c.c.", q: "Cosa sono le attività agricole 'per connessione'?", a: "Attività dirette alla manipolazione, conservazione, trasformazione e vendita di prodotti ottenuti prevalentemente dalla propria attività agricola principale (es. produrre marmellata dalla propria frutta), più l'agriturismo." },
+            { cat: "Impresa Agricola", art: "Disciplina di Favore", q: "Perché l'imprenditore agricolo NON fallisce e non ha l'obbligo delle scritture contabili?", a: "Perché oltre al normale rischio economico d'impresa è esposto al rischio ambientale/biologico (clima, siccità, epidemie, resa del fondo) non controllabile." },
+            { cat: "Impresa Commerciale", art: "Art. 2195 c.c.", q: "Elenca le 5 categorie di attività dell'imprenditore commerciale.", a: "1) Industriale (produzione beni/servizi); 2) Intermediaria nella circolazione dei beni; 3) Trasporto (terra, acqua, aria); 4) Bancaria o assicurativa; 5) Ausiliarie delle precedenti." },
+            { cat: "Impresa Commerciale", art: "Registro Imprese", q: "Entro quanti giorni l'imprenditore commerciale deve iscriversi al Registro delle Imprese?", a: "Entro 30 giorni dall'inizio dell'attività presso la Camera di Commercio locale, per rendere pubblici i dati dell'impresa ai terzi." },
+            { cat: "Impresa Commerciale", art: "Contabilità", q: "Quali sono le due scritture contabili obbligatorie per legge per l'imprenditore commerciale?", a: "1) Il Libro Giornale (registrazione cronologica giorno per giorno); 2) Il Libro degli Inventari (registrazione annuale di attività e passività)." },
+            { cat: "Impresa Commerciale", art: "Capacità d'agire", q: "Un minore emancipato (16 anni) può iniziare da solo un'impresa commerciale?", a: "Sì, ma solo previa specifica autorizzazione del Tribunale; in tal caso può compiere da solo sia atti di ordinaria che di straordinaria amministrazione." },
+            { cat: "Piccola e Familiare", art: "Art. 2083 c.c.", q: "Chi sono i piccoli imprenditori e qual è il criterio che li definisce?", a: "Coltivatori diretti, artigiani, piccoli commercianti e chi lavora prevalentemente con il lavoro proprio e della propria famiglia (criterio quantitativo/prevalenza)." },
+            { cat: "Piccola e Familiare", art: "Art. 230-bis c.c.", q: "Fino a quale grado di parentela e affinità si applica l'impresa familiare?", a: "Coniuge, parenti entro il 3° grado (es. figli, genitori, fratelli, nonni, nipoti) e affini entro il 2° grado (suoceri, generi, nuore, cognati)." },
+            { cat: "Piccola e Familiare", art: "Art. 230-bis c.c.", q: "In un'impresa familiare, i familiari collaboratori rischiano il fallimento se l'azienda va male?", a: "No. L'impresa familiare resta un'impresa individuale: solo il titolare è responsabile dei debiti verso i creditori e solo lui può fallire." },
+            { cat: "Impresa Sociale", art: "D.Lgs. 112/2017", q: "Quali sono i 3 elementi caratterizzanti dell'Impresa Sociale?", a: "1) Attività stabile di interesse generale; 2) Assenza di scopo di lucro; 3) Coinvolgimento di lavoratori/utenti, con almeno il 30% di lavoratori svantaggiati o con disabilità e obbligo di Bilancio Sociale." }
+        ];
+
+        const quizData = [
+            {
+                q: "Cosa definisce espressamente l'articolo 2082 del Codice Civile?",
+                options: [
+                    "La nozione di azienda come complesso di beni",
+                    "La nozione di imprenditore (da cui si desume quella di impresa)",
+                    "Esclusivamente l'imprenditore commerciale",
+                    "Le società per azioni"
+                ],
+                correct: 1,
+                exp: "Nel Codice Civile c'è una definizione esplicita di 'imprenditore' (Art. 2082 c.c.), dalla quale si ricava indirettamente la definizione di impresa."
+            },
+            {
+                q: "Chi coltiva un orto esclusivamente per consumare i prodotti in famiglia è un imprenditore?",
+                options: [
+                    "Sì, è un piccolo imprenditore agricolo",
+                    "Sì, perché svolge un'attività organizzata",
+                    "No, perché manca la destinazione al mercato (autoconsumo)",
+                    "Sì, se lavora tutti i giorni"
+                ],
+                correct: 2,
+                exp: "Uno dei requisiti essenziali dell'art. 2082 c.c. è la produzione o lo scambio di beni/servizi destinati al mercato, non all'autoconsumo."
+            },
+            {
+                q: "Secondo il criterio personale, qual è l'obiettivo economico principale delle Imprese Pubbliche?",
+                options: [
+                    "Massimizzare il profitto per distribuire dividendi",
+                    "Realizzare un pubblico interesse tendendo al pareggio di bilancio",
+                    "Evitare l'iscrizione al Registro delle Imprese",
+                    "Sostituire tutte le imprese private"
+                ],
+                correct: 1,
+                exp: "Le imprese pubbliche non mirano allo scopo di lucro, ma alla soddisfazione di bisogni collettivi, cercando economicamente il pareggio di bilancio."
+            },
+            {
+                q: "La coltivazione idroponica (in acqua, senza uso della terra) rientra nell'impresa agricola?",
+                options: [
+                    "No, è un'attività industriale perché non usa il terreno",
+                    "Sì, perché cura un ciclo biologico vegetale ed è esposta a rischio biologico",
+                    "Solo se il fatturato supera i 100.000 euro",
+                    "Solo se svolta da una cooperativa sociale"
+                ],
+                correct: 1,
+                exp: "L'art. 2135 c.c. include le attività dirette alla cura di un ciclo biologico vegetale o animale che utilizzano o 'possono utilizzare' il fondo."
+            },
+            {
+                q: "Quale tra queste NON è un'attività dell'imprenditore commerciale ai sensi dell'art. 2195 c.c.?",
+                options: [
+                    "Attività di trasporto per terra, acqua o aria",
+                    "Attività bancaria o assicurativa",
+                    "Selvicoltura (coltivazione dei boschi per produrre legname)",
+                    "Attività intermediaria nella circolazione dei beni"
+                ],
+                correct: 2,
+                exp: "La selvicoltura è una delle tre attività agricole essenziali previste dall'art. 2135 c.c."
+            },
+            {
+                q: "Cosa accade se un minore non emancipato eredita un'impresa commerciale?",
+                options: [
+                    "L'impresa viene chiusa d'ufficio dal Comune",
+                    "I genitori possono continuare l'attività esistente previa autorizzazione",
+                    "Il minore può gestirla da solo dal giorno successivo",
+                    "L'impresa diventa automaticamente un'impresa sociale"
+                ],
+                correct: 1,
+                exp: "I genitori di un minore non emancipato (così come il tutore di un interdetto) possono continuare un'attività commerciale già esistente, non iniziarne una nuova."
+            },
+            {
+                q: "Quali sono le due scritture contabili obbligatorie per l'imprenditore commerciale?",
+                options: [
+                    "Libro Cassa e Libro Magazzino",
+                    "Libro Giornale e Libro degli Inventari",
+                    "Bilancio Sociale e Libro Mastro",
+                    "Libro Soci e Registro IVA"
+                ],
+                correct: 1,
+                exp: "L'imprenditore commerciale deve tenere obbligatoriamente il Libro Giornale (giorno per giorno) e il Libro degli Inventari (annuale)."
+            },
+            {
+                q: "Cosa significa il principio della 'Par Condicio Creditorum' in caso di fallimento?",
+                options: [
+                    "Che il debitore non deve pagare nessuno",
+                    "Che tutti i creditori hanno uguale diritto di essere soddisfatti sui beni del debitore, salve cause di prelazione",
+                    "Che viene pagato solo il creditore più anziano",
+                    "Che i familiari dell'imprenditore pagano i debiti al posto suo"
+                ],
+                correct: 1,
+                exp: "La Par Condicio Creditorum garantisce parità di trattamento tra tutti i creditori, fatte salve le cause legittime di prelazione (privilegi, pegno, ipoteche)."
+            },
+            {
+                q: "Quale vantaggio giuridico hanno in comune l'imprenditore agricolo e il piccolo imprenditore?",
+                options: [
+                    "Non pagano alcuna imposta sul reddito",
+                    "Sono esonerati dalle scritture contabili e non sono soggetti al fallimento",
+                    "Possono emettere azioni in Borsa",
+                    "Non devono mai iscriversi in alcuna sezione del Registro delle Imprese"
+                ],
+                correct: 1,
+                exp: "Entrambi godono dell'esonero dall'obbligo di tenuta delle scritture contabili e dalla soggezione al fallimento in caso di insolvenza."
+            },
+            {
+                q: "Nell'impresa familiare (art. 230-bis c.c.), chi decide sugli indirizzi produttivi e sulla gestione straordinaria?",
+                options: [
+                    "Esclusivamente il titolare senza consultare nessuno",
+                    "I familiari partecipanti a maggioranza",
+                    "Il giudice del lavoro",
+                    "La Camera di Commercio"
+                ],
+                correct: 1,
+                exp: "Mentre la gestione ordinaria spetta solo al titolare, le decisioni su impiego degli utili, gestione straordinaria e indirizzi produttivi sono adottate a maggioranza dai familiari."
+            },
+            {
+                q: "Il suocero o il cognato che lavora stabilmente nell'azienda di famiglia senza contratto rientra nell'impresa familiare?",
+                options: [
+                    "No, rientrano solo i parenti di sangue",
+                    "Sì, perché sono affini entro il secondo grado",
+                    "Sì, ma solo se sono soci di maggioranza",
+                    "No, serve sempre un contratto a tempo indeterminato"
+                ],
+                correct: 1,
+                exp: "L'art. 230-bis c.c. tutela il coniuge, i parenti entro il 3° grado e gli affini entro il 2° grado (suoceri, generi, nuore, cognati)."
+            },
+            {
+                q: "Quale documento di trasparenza deve redigere e pubblicare ogni anno l'Impresa Sociale?",
+                options: [
+                    "Il Libro Magazzino",
+                    "Il Bilancio Sociale",
+                    "L'atto di precetto",
+                    "Il piano industriale quotato"
+                ],
+                correct: 1,
+                exp: "L'impresa sociale (D.Lgs. 112/2017) redige ogni anno il Bilancio Sociale, lo deposita al Registro delle Imprese e lo pubblica sul proprio sito per informare sui risultati sociali."
+            }
+        ];
+
+        const judgeCasesData = [
+            {
+                id: 1,
+                title: "Caso #1: I pomodori senza terra",
+                scenario: "Marco avvia una serra hi-tech a Genova dove coltiva pomodori in acqua (coltura idroponica) senza usare un grammo di terra. I creditori vogliono farlo fallire sostenendo che è un'industria.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Hanno ragione i creditori: senza terra non è impresa agricola, quindi fallisce.",
+                    "Ricorso respinto! Cura un ciclo biologico vegetale ed è esposto a rischio biologico: è imprenditore agricolo (Art. 2135 c.c.) e NON fallisce."
+                ],
+                correct: 1,
+                ruling: "Sentenza confermata! L'art. 2135 c.c. chiarisce che conta la cura del ciclo biologico anche senza utilizzo diretto del fondo."
+            },
+            {
+                id: 2,
+                title: "Caso #2: Il cognato senza contratto",
+                scenario: "Lucia lavora da 4 anni nel ristorante del fratello di suo marito (suo cognato) in modo continuativo senza un contratto scritto. Il cognato le nega la quota degli utili dicendo che non è una parente di sangue.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Lucia ha diritto al mantenimento e agli utili: il cognato è un affine entro il 2° grado tutelato dall'art. 230-bis c.c.",
+                    "Ha ragione il cognato: la tutela vale solo per figli e genitori."
+                ],
+                correct: 0,
+                ruling: "Esatto! L'impresa familiare include espressamente il coniuge, i parenti entro il 3° grado e gli affini entro il 2° grado (tra cui i cognati)."
+            },
+            {
+                id: 3,
+                title: "Caso #3: L'edicola in rosso",
+                scenario: "Il signor Rossi gestisce da solo una piccola edicola di quartiere con capitale modesto. Purtroppo accumula debiti e va in stato di insolvenza. Un fornitore chiede il fallimento.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Dichiaro il fallimento e sequestro il Libro Giornale.",
+                    "Rigetto la richiesta di fallimento: è un piccolo imprenditore (Art. 2083 c.c.) esonerato da fallimento e scritture contabili."
+                ],
+                correct: 1,
+                ruling: "Ottimo giudizio! I piccoli commercianti con lavoro prevalentemente proprio/familiare godono della disciplina semplificata dell'art. 2083 c.c."
+            },
+            {
+                id: 4,
+                title: "Caso #4: L'eredità del diciassettenne",
+                scenario: "Pietro ha 17 anni (non emancipato) ed eredita dai nonni un avviato negozio di abbigliamento. I suoi genitori vogliono continuare l'attività per non perdere la clientela.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Possono continuare l'attività commerciale già esistente in rappresentanza del minore (con autorizzazione del giudice).",
+                    "Vietato: un minore non può mai essere titolare di un'impresa ereditata."
+                ],
+                correct: 0,
+                ruling: "Corretto! I genitori di un minore non emancipato non possono iniziare una nuova impresa commerciale, ma possono continuare quella già esistente."
+            },
+            {
+                id: 5,
+                title: "Caso #5: La cooperativa e i volontari",
+                scenario: "Una Cooperativa Sociale (Impresa Sociale) ha 10 lavoratori dipendenti e vorrebbe inserire 15 volontari per gestire l'assistenza agli anziani.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Ammesso senza limiti: più volontari ci sono, meglio è.",
+                    "Irregolare! Nell'Impresa Sociale il numero dei volontari non può superare quello dei lavoratori dipendenti."
+                ],
+                correct: 1,
+                ruling: "Sentenza impeccabile! Secondo la disciplina dell'Impresa Sociale (D.Lgs. 112/2017), i volontari possono collaborare ma non possono superare il numero dei dipendenti."
+            },
+            {
+                id: 6,
+                title: "Caso #6: Il creditore furbo",
+                scenario: "Durante il fallimento di una grande azienda di trasporti, un fornitore chirografario (senza ipoteca né pegno) pretende di essere pagato al 100% prima di tutti gli altri perché è arrivato per primo.",
+                question: "Qual è la tua sentenza?",
+                options: [
+                    "Respinto! Si applica la 'Par Condicio Creditorum': tutti i creditori senza cause di prelazione hanno uguale diritto sui beni.",
+                    "Accolto: chi primo arriva meglio alloggia."
+                ],
+                correct: 0,
+                ruling: "Giustizia è fatta! La Par Condicio Creditorum impone la parità di trattamento tra i creditori, salvo privilegi, pegni o ipoteche."
+            }
+        ];
+
+        // ==========================================
+        // STATO DELL'APPLICAZIONE
+        // ==========================================
+        let xp = 0;
+        let currentGlossaryFilter = 'Tutti';
+        
+        let fcDeck = [...flashcardsData];
+        let fcIndex = 0;
+        let isFlipped = false;
+        let knownCards = new Set();
+
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        let judgeSolved = new Set();
+
+        function addXP(points) {
+            xp += points;
+            document.getElementById('xpCounter').innerText = xp;
+        }
+
+        // ==========================================
+        // NAVIGAZIONE TAB
+        // ==========================================
+        function switchTab(tabName) {
+            ['glossario', 'flashcards', 'quiz', 'giudice'].forEach(t => {
+                document.getElementById(`page-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${t}`);
+                btn.classList.remove('bg-amber-400', 'text-slate-900', 'shadow');
+                btn.classList.add('bg-slate-800', 'text-slate-200');
+            });
+
+            document.getElementById(`page-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-200');
+            activeBtn.classList.add('bg-amber-400', 'text-slate-900', 'shadow');
+        }
+
+        // ==========================================
+        // 1. LOGICA GLOSSARIO
+        // ==========================================
+        function setGlossaryFilter(cat) {
+            currentGlossaryFilter = cat;
+            document.querySelectorAll('.filter-pill').forEach(btn => {
+                if (btn.innerText === cat) {
+                    btn.className = 'filter-pill bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm';
+                } else {
+                    btn.className = 'filter-pill bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full';
+                }
+            });
+            renderGlossary();
+        }
+
+        function renderGlossary() {
+            const query = document.getElementById('glossarySearch').value.toLowerCase().trim();
+            const grid = document.getElementById('glossaryGrid');
+            
+            const filtered = glossaryData.filter(item => {
+                const matchCat = currentGlossaryFilter === 'Tutti' || item.category === currentGlossaryFilter;
+                const matchText = item.term.toLowerCase().includes(query) || item.def.toLowerCase().includes(query) || item.badge.toLowerCase().includes(query);
+                return matchCat && matchText;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-10 text-slate-500 text-sm">Nessun termine trovato per "${query}".</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <article class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-indigo-400 transition-all flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h3 class="font-extrabold text-slate-900 text-base leading-snug">${item.term}</h3>
+                            <span class="shrink-0 text-[11px] font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-lg">${item.badge}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${item.def}</p>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-semibold">
+                        <span><i class="fa-solid fa-tag text-amber-500 mr-1"></i>${item.category}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // ==========================================
+        // 2. LOGICA FLASHCARD
+        // ==========================================
+        function renderFlashcard() {
+            const card = fcDeck[fcIndex];
+            isFlipped = false;
+            document.getElementById('flashcardInner').classList.remove('rotate-y-180');
+            
+            document.getElementById('fcCurrent').innerText = fcIndex + 1;
+            document.getElementById('fcTotal').innerText = fcDeck.length;
+            document.getElementById('fcCategoryFront').innerText = card.cat;
+            document.getElementById('fcQuestion').innerText = card.q;
+            document.getElementById('fcArticle').innerText = card.art;
+            document.getElementById('fcAnswer').innerText = card.a;
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const inner = document.getElementById('flashcardInner');
+            if (isFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            fcIndex = (fcIndex + 1) % fcDeck.length;
+            renderFlashcard();
+        }
+
+        function prevCard() {
+            fcIndex = (fcIndex - 1 + fcDeck.length) % fcDeck.length;
+            renderFlashcard();
+        }
+
+        function shuffleFlashcards() {
+            for (let i = fcDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [fcDeck[i], fcDeck[j]] = [fcDeck[j], fcDeck[i]];
+            }
+            fcIndex = 0;
+            renderFlashcard();
+        }
+
+        function markKnown() {
+            const key = fcDeck[fcIndex].q;
+            if (!knownCards.has(key)) {
+                knownCards.add(key);
+                addXP(10);
+            }
+            nextCard();
+        }
+
+        // ==========================================
+        // 3. LOGICA QUIZ
+        // ==========================================
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            document.getElementById('quizTotal').innerText = quizData.length;
+            document.getElementById('quizScore').innerText = quizScore;
+
+            if (quizIndex >= quizData.length) {
+                const perc = Math.round((quizScore / quizData.length) * 100);
+                container.innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 text-amber-600 text-4xl shadow-inner">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-900">Quiz Completato!</h3>
+                        <p class="text-sm text-slate-600">Hai risposto correttamente a <strong class="text-indigo-600">${quizScore} su ${quizData.length}</strong> domande (${perc}%).</p>
+                        <button onclick="resetQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow">
+                            Ripeti il Quiz
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const qObj = quizData[quizIndex];
+            quizAnswered = false;
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <span>Domanda ${quizIndex + 1} di ${quizData.length}</span>
+                    <span>+15 XP per risposta esatta</span>
+                </div>
+                <h3 class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">${qObj.q}</h3>
+                <div class="space-y-2.5" id="quizOptions">
+                    ${qObj.options.map((opt, idx) => `
+                        <button onclick="selectQuizOption(${idx})" id="qopt-${idx}" class="w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-sm font-medium text-slate-800 transition-all flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${String.fromCharCode(65 + idx)}</span>
+                            <span>${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="quizFeedback" class="hidden p-4 rounded-xl text-xs sm:text-sm leading-relaxed"></div>
+                <div class="flex justify-end pt-2">
+                    <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hidden bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow flex items-center gap-2">
+                        Prossima Domanda <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectQuizOption(selectedIdx) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const qObj = quizData[quizIndex];
+            const feedbackBox = document.getElementById('quizFeedback');
+            const isCorrect = selectedIdx === qObj.correct;
+
+            qObj.options.forEach((_, idx) => {
+                const btn = document.getElementById(`qopt-${idx}`);
+                btn.disabled = true;
+                if (idx === qObj.correct) {
+                    btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-sm font-bold text-emerald-950 flex items-center gap-3";
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-sm font-medium text-rose-950 flex items-center gap-3";
+                } else {
+                    btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm text-slate-400 flex items-center gap-3";
+                }
+            });
+
+            if (isCorrect) {
+                quizScore++;
+                addXP(15);
+                document.getElementById('quizScore').innerText = quizScore;
+                feedbackBox.className = "p-4 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-950 text-xs sm:text-sm";
+                feedbackBox.innerHTML = `<strong><i class="fa-solid fa-circle-check mr-1"></i> Esatto!</strong> ${qObj.exp}`;
+            } else {
+                feedbackBox.className = "p-4 rounded-xl bg-rose-100 border border-rose-300 text-rose-950 text-xs sm:text-sm";
+                feedbackBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark mr-1"></i> Attenzione:</strong> ${qObj.exp}`;
+            }
+
+            feedbackBox.classList.remove('hidden');
+            document.getElementById('nextQuizBtn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            quizIndex++;
+            renderQuiz();
+        }
+
+        function resetQuiz() {
+            quizIndex = 0;
+            quizScore = 0;
+            renderQuiz();
+        }
+
+        // ==========================================
+        // 4. LOGICA IL GIUDICE DELLE IMPRESE
+        // ==========================================
+        function renderJudgeCases() {
+            const container = document.getElementById('judgeCasesContainer');
+            container.innerHTML = judgeCasesData.map(c => `
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-slate-200 p-5 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black uppercase text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg">${c.title}</span>
+                            <span id="badge-case-${c.id}" class="text-xs font-bold text-slate-400">In attesa</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">${c.scenario}</p>
+                        <p class="text-xs font-extrabold text-slate-900 pt-1">${c.question}</p>
+                    </div>
+
+                    <div class="space-y-2" id="case-opts-${c.id}">
+                        ${c.options.map((opt, idx) => `
+                            <button onclick="emitVerdict(${c.id}, ${idx})" class="w-full text-left p-3 rounded-xl border border-slate-300 hover:border-amber-500 hover:bg-amber-50 text-xs font-semibold text-slate-800 transition-all">
+                                <i class="fa-solid fa-gavel text-slate-400 mr-1.5"></i> ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div id="ruling-${c.id}" class="hidden p-3 rounded-xl text-xs font-medium leading-relaxed"></div>
+                </div>
+            `).join('');
+        }
+
+        function emitVerdict(caseId, selectedIdx) {
+            const caseObj = judgeCasesData.find(x => x.id === caseId);
+            const isCorrect = selectedIdx === caseObj.correct;
+            const optsDiv = document.getElementById(`case-opts-${caseId}`);
+            const rulingDiv = document.getElementById(`ruling-${caseId}`);
+            const badge = document.getElementById(`badge-case-${caseId}`);
+
+            Array.from(optsDiv.querySelectorAll('button')).forEach((b, idx) => {
+                b.disabled = true;
+                if (idx === caseObj.correct) {
+                    b.className = "w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs font-bold text-emerald-950";
+                } else if (idx === selectedIdx && !isCorrect) {
+                    b.className = "w-full text-left p-3 rounded-xl border-2 border-rose-500 bg-rose-50 text-xs font-semibold text-rose-950";
+                } else {
+                    b.className = "w-full text-left p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400";
+                }
+            });
+
+            if (isCorrect) {
+                if (!judgeSolved.has(caseId)) {
+                    judgeSolved.add(caseId);
+                    addXP(20);
+                    document.getElementById('judgeScore').innerText = judgeSolved.size;
+                }
+                badge.innerHTML = `<span class="text-emerald-600"><i class="fa-solid fa-check-double"></i> Sentenza Esatta</span>`;
+                rulingDiv.className = "p-3 rounded-xl bg-emerald-100 text-emerald-950 text-xs border border-emerald-300";
+                rulingDiv.innerHTML = `<strong>Motivazione:</strong> ${caseObj.ruling}`;
+            } else {
+                badge.innerHTML = `<span class="text-rose-600"><i class="fa-solid fa-xmark"></i> Riformata in Appello</span>`;
+                rulingDiv.className = "p-3 rounded-xl bg-rose-100 text-rose-950 text-xs border border-rose-300";
+                rulingDiv.innerHTML = `<strong>Spiegazione:</strong> ${caseObj.ruling}`;
+            }
+            rulingDiv.classList.remove('hidden');
+        }
+
+        // ==========================================
+        // ESPORTAZIONE FILE HTML OFFLINE
+        // ==========================================
+        function scaricaAppHTML() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'App_Imprenditore_e_Impresa.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // INIZIALIZZAZIONE
+        window.addEventListener('DOMContentLoaded', () => {
+            renderGlossary();
+            renderFlashcard();
+            renderQuiz();
+            renderJudgeCases();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="it"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwODcwODIxNjI3NTI0NTUxOTYwNCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2NmMjMxYzllNzdkNjBlYmRfcmlwYXNzby1ib3Rhbmljby1naWFyZGluaS1zYW5yZW1vLmh0bWwtMzkzIn0sImV4cCI6MTc5NTE2NzE4MCwiaWF0IjoxNzk1MTYzNTgwLCJhbGciOiJSUzI1NiJ9.XrkQmTx4y275TJMBG1cxpNO0lHrogu5eHAzvjJmywgsKn2UCXnIaJayZoLEK9DRn6yGIFBi7G6WFqyznjS64fUoYbH2mQDA36PIVqJbwN-mtg4HMptjjSyfOKG2Usok3M_Zg71Btv13g6e6HVhIzusrSxINbVhcS4zAE3v5kykzDxTRqCloXgtGK6RnkMDPg6hBYQ3reCTnbRo7KS-orxGcx98dTafKqd-u2s6guE6-RY7p-1w3EXU9YZ3RKdikxplWob6piGvqYAhrKQyIkjAE19dAoyuaZOtJ-q269dgjovNbb19D1_zzmNenqJpIMhjenFqfiJCpAPj4WukY4rQ","c_cf231c9e77d60ebd_ripasso-botanico-giardini-sanremo.html-393")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ripasso Botanico e Storico: I Giardini Storici di Sanremo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest-deep: #153427;
+      --sage-green: #2f5e47;
+      --brass-gold: #b88e28;
+      --parchment: #faf7f2;
+      --parchment-warm: #f1ebe0;
+      --ink-dark: #18261f;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--parchment);
+      color: var(--ink-dark);
+      background-image: radial-gradient(rgba(47, 94, 71, 0.055) 1px, transparent 0);
+      background-size: 26px 26px;
+    }
+
+    .font-editorial {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    /* Effetto Flip Card 3D fluido */
+    .perspective-1000 {
+      perspective: 1200px;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front, .flip-back {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-back {
+      transform: rotateY(180deg);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-up {
+      animation: fadeUp 0.32s ease-out forwards;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1ebe0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2f5e47;
+      border-radius: 9999px;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.sticky{position:sticky}.inset-0{inset:0px}.bottom-20{bottom:5rem}.right-4{right:1rem}.top-0{top:0px}.z-30{z-index:30}.z-50{z-index:50}.col-span-2{grid-column:span 2 / span 2}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-12{margin-top:3rem}.mb-3{margin-bottom:0.75rem}.mt-3{margin-top:0.75rem}.mb-0\.5{margin-bottom:0.125rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.min-h-screen{min-height:100vh}.min-h-\[275px\]{min-height:275px}.w-full{width:100%}.max-w-3xl{max-width:48rem}.max-w-7xl{max-width:80rem}.shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded-3xl{border-radius:1.5rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-4{border-bottom-width:4px}.border-t-4{border-top-width:4px}.border-t{border-top-width:1px}.border-l-4{border-left-width:4px}.border-dashed{border-style:dashed}.border-\[\#2f5e47\]{--tw-border-opacity:1;border-color:rgb(47 94 71 / var(--tw-border-opacity, 1))}.border-\[\#2f5e47\]\/20{border-color:rgb(47 94 71 / 0.2)}.border-\[\#b88e28\]{--tw-border-opacity:1;border-color:rgb(184 142 40 / var(--tw-border-opacity, 1))}.border-\[\#b88e28\]\/50{border-color:rgb(184 142 40 / 0.5)}.border-\[\#2f5e47\]\/30{border-color:rgb(47 94 71 / 0.3)}.border-\[\#f1ebe0\]{--tw-border-opacity:1;border-color:rgb(241 235 224 / var(--tw-border-opacity, 1))}.border-\[\#153427\]{--tw-border-opacity:1;border-color:rgb(21 52 39 / var(--tw-border-opacity, 1))}.border-\[\#2f5e47\]\/35{border-color:rgb(47 94 71 / 0.35)}.bg-\[\#153427\]{--tw-bg-opacity:1;background-color:rgb(21 52 39 / var(--tw-bg-opacity, 1))}.bg-\[\#1e4635\]{--tw-bg-opacity:1;background-color:rgb(30 70 53 / var(--tw-bg-opacity, 1))}.bg-\[\#2f5e47\]\/75{background-color:rgb(47 94 71 / 0.75)}.bg-\[\#b88e28\]{--tw-bg-opacity:1;background-color:rgb(184 142 40 / var(--tw-bg-opacity, 1))}.bg-\[\#faf7f2\]\/95{background-color:rgb(250 247 242 / 0.95)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-\[\#2f5e47\]{--tw-bg-opacity:1;background-color:rgb(47 94 71 / var(--tw-bg-opacity, 1))}.bg-\[\#f1ebe0\]{--tw-bg-opacity:1;background-color:rgb(241 235 224 / var(--tw-bg-opacity, 1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.bg-rose-800{--tw-bg-opacity:1;background-color:rgb(159 18 57 / var(--tw-bg-opacity, 1))}.bg-\[\#faf7f2\]{--tw-bg-opacity:1;background-color:rgb(250 247 242 / var(--tw-bg-opacity, 1))}.bg-\[\#faf7f2\]\/70{background-color:rgb(250 247 242 / 0.7)}.p-3{padding:0.75rem}.p-6{padding:1.5rem}.p-3\.5{padding:0.875rem}.p-5{padding:1.25rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.pt-3{padding-top:0.75rem}.pt-4{padding-top:1rem}.pb-4{padding-bottom:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-2xl{font-size:1.5rem;line-height:2rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-semibold{font-weight:600}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-\[\#153427\]{--tw-text-opacity:1;color:rgb(21 52 39 / var(--tw-text-opacity, 1))}.text-\[\#cde0d5\]{--tw-text-opacity:1;color:rgb(205 224 213 / var(--tw-text-opacity, 1))}.text-\[\#dbe6df\]{--tw-text-opacity:1;color:rgb(219 230 223 / var(--tw-text-opacity, 1))}.text-\[\#e5c565\]{--tw-text-opacity:1;color:rgb(229 197 101 / var(--tw-text-opacity, 1))}.text-\[\#e6efe9\]{--tw-text-opacity:1;color:rgb(230 239 233 / var(--tw-text-opacity, 1))}.text-\[\#f2df9e\]{--tw-text-opacity:1;color:rgb(242 223 158 / var(--tw-text-opacity, 1))}.text-\[\#faf7f2\]{--tw-text-opacity:1;color:rgb(250 247 242 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-\[\#2f5e47\]{--tw-text-opacity:1;color:rgb(47 94 71 / var(--tw-text-opacity, 1))}.text-\[\#b88e28\]{--tw-text-opacity:1;color:rgb(184 142 40 / var(--tw-text-opacity, 1))}.text-\[\#f4f0e8\]{--tw-text-opacity:1;color:rgb(244 240 232 / var(--tw-text-opacity, 1))}.text-\[\#18261f\]{--tw-text-opacity:1;color:rgb(24 38 31 / var(--tw-text-opacity, 1))}.opacity-75{opacity:0.75}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.selection\:bg-\[\#b88e28\]\/25 *::selection{background-color:rgb(184 142 40 / 0.25)}.selection\:text-\[\#153427\] *::selection{--tw-text-opacity:1;color:rgb(21 52 39 / var(--tw-text-opacity, 1))}.selection\:bg-\[\#b88e28\]\/25::selection{background-color:rgb(184 142 40 / 0.25)}.selection\:text-\[\#153427\]::selection{--tw-text-opacity:1;color:rgb(21 52 39 / var(--tw-text-opacity, 1))}.hover\:-translate-y-0\.5:hover{--tw-translate-y:-0.125rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:border-\[\#b88e28\]:hover{--tw-border-opacity:1;border-color:rgb(184 142 40 / var(--tw-border-opacity, 1))}.hover\:bg-\[\#2f5e47\]:hover{--tw-bg-opacity:1;background-color:rgb(47 94 71 / var(--tw-bg-opacity, 1))}.hover\:bg-\[\#cfa234\]:hover{--tw-bg-opacity:1;background-color:rgb(207 162 52 / var(--tw-bg-opacity, 1))}.hover\:bg-\[\#f1ebe0\]:hover{--tw-bg-opacity:1;background-color:rgb(241 235 224 / var(--tw-bg-opacity, 1))}.hover\:bg-\[\#b88e28\]\/25:hover{background-color:rgb(184 142 40 / 0.25)}.hover\:bg-\[\#e5dccb\]:hover{--tw-bg-opacity:1;background-color:rgb(229 220 203 / var(--tw-bg-opacity, 1))}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:col-span-1{grid-column:span 1 / span 1}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-7{padding-top:1.75rem;padding-bottom:1.75rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:text-left{text-align:left}}@media (min-width: 1024px){.lg\:max-w-md{max-width:28rem}.lg\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.lg\:flex-row{flex-direction:row}.lg\:items-end{align-items:flex-end}.lg\:items-center{align-items:center}.lg\:justify-end{justify-content:flex-end}.lg\:justify-between{justify-content:space-between}.lg\:px-8{padding-left:2rem;padding-right:2rem}.lg\:text-3xl{font-size:1.875rem;line-height:2.25rem}.lg\:text-5xl{font-size:3rem;line-height:1}}</style></head>
+<body class="min-h-screen flex flex-col selection:bg-[#b88e28]/25 selection:text-[#153427]">
+
+  <!-- HEADER BOTANICO MEDITERRANEO -->
+  <header class="bg-[#153427] text-[#faf7f2] border-b-4 border-[#b88e28] shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-7">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+        <div class="space-y-2 max-w-3xl">
+          <div class="inline-flex flex-wrap items-center gap-2 px-3 py-1 rounded-full bg-[#2f5e47]/75 border border-[#b88e28]/50 text-[#f2df9e] text-xs font-bold uppercase tracking-wider">
+            <span>🌿 Corso per Guide Naturalistiche</span>
+            <span>•</span>
+            <span>4,2 km (~1 h cammino / 2,5–3 h con soste)</span>
+            <span>•</span>
+            <span>Via Cap. A. Pesante → Villa Zirio</span>
+          </div>
+
+          <h1 class="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+            Ripasso Botanico e Storico
+            <span class="block text-xl sm:text-2xl lg:text-3xl font-semibold italic text-[#e5c565] mt-0.5">
+              I Giardini Storici di Sanremo
+            </span>
+          </h1>
+
+          <p class="text-xs sm:text-sm text-[#dbe6df] leading-relaxed">
+            <strong>Tema:</strong> acclimatazione esotica ottocentesca, collezionismo botanico e alberi monumentali •
+            <strong>Focus tassonomico:</strong> Moraceae, Arecaceae, Asparagaceae, Cupressaceae, Araliaceae.
+          </p>
+        </div>
+
+        <!-- Famiglie Tassonomiche Chiave -->
+        <div class="flex flex-col items-start lg:items-end gap-2">
+          <span class="text-[11px] uppercase tracking-widest text-[#e5c565] font-bold">Famiglie in esame</span>
+          <div class="flex flex-wrap gap-1.5 lg:max-w-md lg:justify-end">
+            <span class="px-3 py-1 rounded-lg bg-[#1e4635] border border-[#2f5e47] text-xs font-semibold text-[#e6efe9]">Moraceae</span>
+            <span class="px-3 py-1 rounded-lg bg-[#1e4635] border border-[#2f5e47] text-xs font-semibold text-[#e6efe9]">Arecaceae</span>
+            <span class="px-3 py-1 rounded-lg bg-[#1e4635] border border-[#2f5e47] text-xs font-semibold text-[#e6efe9]">Asparagaceae</span>
+            <span class="px-3 py-1 rounded-lg bg-[#1e4635] border border-[#2f5e47] text-xs font-semibold text-[#e6efe9]">Cupressaceae</span>
+            <span class="px-3 py-1 rounded-lg bg-[#1e4635] border border-[#2f5e47] text-xs font-semibold text-[#e6efe9]">Araliaceae</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BARRA DI NAVIGAZIONE PULITA CON 5 SCHEDE DI RIPASSO -->
+  <nav aria-label="Sezioni di ripasso" class="sticky top-0 z-30 bg-[#faf7f2]/95 backdrop-blur-md border-b border-[#2f5e47]/20 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <button type="button" onclick="switchTab('tab1')" id="btn-tab1" class="nav-tab-btn p-3 rounded-2xl border-2 text-left transition cursor-pointer bg-white hover:bg-[#f1ebe0] text-[#153427] border-[#2f5e47]/20">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider opacity-75">Scheda 1</div>
+          <div class="text-xs sm:text-sm font-extrabold leading-snug mt-0.5">🌿 Vero o Falso d'Autore</div>
+        </button>
+
+        <button type="button" onclick="switchTab('tab2')" id="btn-tab2" class="nav-tab-btn p-3 rounded-2xl border-2 text-left transition cursor-pointer bg-white hover:bg-[#f1ebe0] text-[#153427] border-[#2f5e47]/20">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider opacity-75">Scheda 2</div>
+          <div class="text-xs sm:text-sm font-extrabold leading-snug mt-0.5">🔍 Identikit Morfologico</div>
+        </button>
+
+        <button type="button" onclick="switchTab('tab3')" id="btn-tab3" class="nav-tab-btn p-3 rounded-2xl border-2 text-left transition cursor-pointer bg-[#153427] text-[#faf7f2] border-[#b88e28] shadow-md">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider opacity-75">Scheda 3</div>
+          <div class="text-xs sm:text-sm font-extrabold leading-snug mt-0.5">⚖️ Confronto tra Sosia</div>
+        </button>
+
+        <button type="button" onclick="switchTab('tab4')" id="btn-tab4" class="nav-tab-btn p-3 rounded-2xl border-2 text-left transition cursor-pointer bg-white hover:bg-[#f1ebe0] text-[#153427] border-[#2f5e47]/20">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider opacity-75">Scheda 4</div>
+          <div class="text-xs sm:text-sm font-extrabold leading-snug mt-0.5">📋 Tracce di Esposizione</div>
+        </button>
+
+        <button type="button" onclick="switchTab('tab5')" id="btn-tab5" class="nav-tab-btn col-span-2 sm:col-span-1 p-3 rounded-2xl border-2 text-left transition cursor-pointer bg-white hover:bg-[#f1ebe0] text-[#153427] border-[#2f5e47]/20">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider opacity-75">Scheda 5</div>
+          <div class="text-xs sm:text-sm font-extrabold leading-snug mt-0.5">📖 Taccuino delle Tappe</div>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main id="main-content" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Diagnosi Differenziale sul Campo</span>
+            <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+              Confronto tra Sosia
+            </h2>
+            <p class="text-sm text-[#2f5e47] mt-1 max-w-3xl">
+              Schede comparative affiancate per fissare le differenze morfologiche, ecologiche e architettoniche tra specie ed esemplari che possono essere facilmente confusi durante un'escursione guidata.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            
+          <section class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#f1ebe0] pb-4">
+              <div>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#2f5e47]">Confronto #1 • Tappa 2 (Giardino di Villa Nobel) • Famiglia Cupressaceae</span>
+                <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-0.5">Cupressus macrocarpa vs Cupressus sempervirens</h3>
+              </div>
+
+              <button type="button" onclick="toggleComparison('cmp-1')" class="px-4 py-2.5 rounded-xl bg-[#b88e28] hover:bg-[#cfa234] text-[#153427] text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer shrink-0">
+                ⚖️ Mostra sintesi diagnostica
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine A</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Cupressus macrocarpa (Cipresso di Monterey)</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Fascia costiera della California centrale (baia di Monterey)</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        Richiama alla memoria i caratteri distintivi di Cupressus macrocarpa (Cipresso di Monterey), poi clicca su "Mostra sintesi diagnostica".
+                      </p>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine B</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Cupressus sempervirens (Cipresso mediterraneo)</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Bacino del Mediterraneo</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        ...e confrontali con Cupressus sempervirens (Cipresso mediterraneo).
+                      </p>
+              </div>
+            </div>
+
+            
+          </section>
+        
+          <section class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#f1ebe0] pb-4">
+              <div>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#2f5e47]">Confronto #2 • Tappe 0, 1, 2 e 4 • Famiglia Arecaceae</span>
+                <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-0.5">Jubaea chilensis vs Phoenix reclinata vs Washingtonia filifera</h3>
+              </div>
+
+              <button type="button" onclick="toggleComparison('cmp-2')" class="px-4 py-2.5 rounded-xl bg-[#b88e28] hover:bg-[#cfa234] text-[#153427] text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer shrink-0">
+                ⚖️ Mostra sintesi diagnostica
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine A</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Jubaea chilensis (Palma del Cile / Palma da vino)</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Valli costiere del Cile centrale (Parco Marsaglia &amp; Villa Ormond)</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        Richiama alla memoria i caratteri distintivi di Jubaea chilensis (Palma del Cile / Palma da vino), poi clicca su "Mostra sintesi diagnostica".
+                      </p>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine B</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Washingtonia filifera &amp; Phoenix reclinata</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Fontana Sanremo (Tappa 0) e Villa Nobel / Villa Ormond (Tappe 2–4)</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        ...e confrontali con Washingtonia filifera &amp; Phoenix reclinata.
+                      </p>
+              </div>
+            </div>
+
+            
+          </section>
+        
+          <section class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#f1ebe0] pb-4">
+              <div>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#2f5e47]">Confronto #3 • Confronto tra due esemplari dello stesso taxon (Moraceae)</span>
+                <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-0.5">Ficus macrophylla: Villa Nobel vs Giardini di Villa Zirio</h3>
+              </div>
+
+              <button type="button" onclick="toggleComparison('cmp-3')" class="px-4 py-2.5 rounded-xl bg-[#b88e28] hover:bg-[#cfa234] text-[#153427] text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer shrink-0">
+                ⚖️ Mostra sintesi diagnostica
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine A</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Ficus macrophylla subsp. columnaris — Villa Nobel (Tappa 2)</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Isola di Lord Howe (Australia orientale) • Specie emiepifita in natura</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        Richiama alla memoria i caratteri distintivi di Ficus macrophylla subsp. columnaris — Villa Nobel (Tappa 2), poi clicca su "Mostra sintesi diagnostica".
+                      </p>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine B</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">Ficus macrophylla — Giardini di Villa Zirio (Tappa 5, 146 anni)</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">Corso Felice Cavallotti • Esemplare storico di 146 anni</p>
+                <p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        ...e confrontali con Ficus macrophylla — Giardini di Villa Zirio (Tappa 5, 146 anni).
+                      </p>
+              </div>
+            </div>
+
+            
+          </section>
+        
+          </div>
+        </div>
+      </main>
+
+  <!-- NOTIFICA TOAST DISCRETA -->
+  <div id="toast-area" class="fixed bottom-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- FOOTER CON PULSANTE DOWNLOAD OFFLINE -->
+  <footer class="bg-[#153427] text-[#faf7f2] border-t-4 border-[#b88e28] mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-center md:text-left">
+        <p class="font-editorial text-xl font-bold text-[#faf7f2]">
+          Ripasso Botanico e Storico: I Giardini Storici di Sanremo
+        </p>
+        <p class="text-xs text-[#cde0d5] mt-1">
+          Strumento di studio e autoverifica per aspiranti Guide Naturalistiche • Tappe 0–5 (Fontana Sanremo → Villa Zirio).
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <button type="button" onclick="resetStudyProgress()" class="px-4 py-2.5 rounded-xl bg-[#1e4635] hover:bg-[#2f5e47] text-[#e6efe9] text-xs sm:text-sm font-bold border border-[#2f5e47] transition cursor-pointer">
+          ↺ Ripristina Schede
+        </button>
+
+        <button type="button" onclick="downloadOfflineHTML()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#b88e28] hover:bg-[#cfa234] text-[#153427] font-extrabold text-sm sm:text-base shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+          <span>⬇️ Scarica App Offline (.html)</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * =========================================================================
+     * DATASET COMPLETO E FEDELE ALLA SCHEDA TECNICO-BOTANICA DI SANREMO
+     * =========================================================================
+     */
+
+    const TRUE_FALSE_CARDS = [
+      {
+        id: "tf-1",
+        stop: "Tappa 0 • Fontana Sanremo (Corso Raimondo)",
+        family: "Arecaceae",
+        statement: "«Le cosiddette 'palme dello zampillo' presso la Fontana Sanremo in Corso Raimondo sono Washingtonia filifera alte circa 15 metri e rappresentano il nucleo di esemplari più vetusti del patrimonio botanico del Comune di Sanremo.»",
+        isTrue: true,
+        tag: "VERO • Patrimonio Storico Comunale",
+        explanation: "Corretto. Alla Tappa 0 (Fontana Sanremo in Corso Raimondo) svettano le Washingtonia filifera di 15 metri di altezza, note come 'le palme dello zampillo', che costituiscono il nucleo più antico del patrimonio botanico comunale."
+      },
+      {
+        id: "tf-2",
+        stop: "Tappa 1 • Parco Marsaglia",
+        family: "Araliaceae",
+        statement: "«L'Oreopanax spp. presente lungo il ruscello del Parco Marsaglia appartiene alla stessa famiglia dell'edera (Araliaceae) e mostra una forte eterofillia: foglie giovanili palmato-lobate e foglie adulte fertili intere, ovate o ellittiche e coriacee.»",
+        isTrue: true,
+        tag: "VERO • Morfologia & Ecologia",
+        explanation: "Esatto. Originario delle foreste nebulose e montane dell'America centrale e meridionale, l'Oreopanax spp. (es. O. capitatus / O. nymphaeifolius) vegeta in posizioni riparate e semi-ombreggiate mostrando una marcada eterofillia lungo i rami di diversa età."
+      },
+      {
+        id: "tf-3",
+        stop: "Tappa 2 • Giardino di Villa Nobel",
+        family: "Storia & Collezionismo",
+        statement: "«Villa Nobel fu fatta costruire direttamente da Alfred Nobel nel 1871 su progetto di Filippo Grossi, che la chiamò subito 'Villa Mio Nido' e vi visse fino al 1896.»",
+        isTrue: false,
+        tag: "FALSO • Attenzione alla Cronologia",
+        explanation: "Impreciso nelle date. La villa fu costruita intorno al 1871 su progetto di Filippo Grossi (con vicende iniziali legate anche al farmacista Pietro Vacchieri), ma Alfred Nobel la acquistò nel 1891, ribattezzandola 'Villa Mio Nido', ampliandola e abitandovi fino alla morte nel 1896. Dopo un restauro durato quasi nove anni, è stata riaperta come casa-museo nel 2002; nel parco si conserva anche un cannone Bofors del 1883."
+      },
+      {
+        id: "tf-4",
+        stop: "Tappa 2 • Giardino di Villa Nobel",
+        family: "Moraceae & Cupressaceae",
+        statement: "«A Villa Nobel convivono il Ficus macrophylla subsp. columnaris (specie emiepifita dell'Isola di Lord Howe con radici aeree colonnari e tabulari) e il Cupressus macrocarpa (Cipresso di Monterey) dal fogliame che, sfregato, rilascia aroma limonaceo da monoterpeni.»",
+        isTrue: true,
+        tag: "VERO • Identificazione sul Campo",
+        explanation: "Perfetto. A Villa Nobel si osservano sia il Ficus macrophylla subsp. columnaris (sin. Ficus magnolioides) con corteccia grigio-argentea liscia, radici tabulari e colonne aeree, sia il Cupressus macrocarpa dalla chioma matura tabulare/irregolare e aroma limonaceo."
+      },
+      {
+        id: "tf-5",
+        stop: "Tappa 3 • Lungomare",
+        family: "Araucariaceae & Myrtaceae",
+        statement: "«Lungo il lungomare di Sanremo si trovano un'Araucaria heterophylla di 22 metri e 106 anni in Corso Trento Trieste (vicino al baretto) e un Eucalyptus globulus di 96 anni nel parco giochi sotto Villa Ormond in Corso Salvo D'Acquisto.»",
+        isTrue: true,
+        tag: "VERO • Esemplari Monumentali",
+        explanation: "Esatto. Sono i due alberi monumentali della Tappa 3: l'Araucaria heterophylla (Pino di Norfolk, 22 m, 106 anni) in Corso Trento Trieste vicino al baretto e l'Eucalyptus globulus (96 anni) nel parco giochi sotto Villa Ormond in Corso Salvo D'Acquisto."
+      },
+      {
+        id: "tf-6",
+        stop: "Tappa 4 • Parco di Villa Ormond",
+        family: "Asparagaceae",
+        statement: "«La Dracaena draco (Albero del Drago) di Villa Ormond produce veri anelli annuali di accrescimento nel tronco legnoso, che permettono di calcolarne l'età esatta senza osservare le biforcazioni dei rami.»",
+        isTrue: false,
+        tag: "FALSO • Anatomia delle Monocotiledoni",
+        explanation: "Falso. Pur avendo portamento arboreo, la Dracaena draco è una monocotiledone (famiglia Asparagaceae): non possiede vero legno con anelli di accrescimento annuali, bensì un fusto fibroso con accrescimento secondario anomalo. La sua età relativa si stima contando i livelli di ramificazione dicotomica (ogni ramo si biforca in due dopo ogni episode di fioritura), mentre la resina ossidandosi diventa rosso intenso ('sangue di drago')."
+      },
+      {
+        id: "tf-7",
+        stop: "Tappa 4 • Parco di Villa Ormond",
+        family: "Storia & Architettura",
+        statement: "«Villa Ormond nacque nel 1875 dall'acquisto di Villa Rambaldi da parte di Michel Louis Ormond e Marie Margherite Renet; dopo il terremoto del 23 febbraio 1887 fu ricostruita su progetto di Emile Réverdin e inaugurata il 1° giugno 1890, per poi passare al Comune nel 1928 sotto il podestà Pietro Agosti.»",
+        isTrue: true,
+        tag: "VERO • Cronologia Completa",
+        explanation: "Esatto. Nel 1928 il Comune acquistò villa e parco per quattro milioni (legati al canone del Casinò); dal 1936 ai primi anni Settanta ospitò mostre floreali internazionali e dal 1970 è sede dell'Istituto Internazionale di Diritto Umanitario."
+      },
+      {
+        id: "tf-8",
+        stop: "Tappa 5 • Giardini di Villa Zirio",
+        family: "Moraceae & Biologia Fiorale",
+        statement: "«Nei Giardini di Villa Zirio (edificata dal 1868 per l'avv. Giovanni Battista Zirio) si può visitare liberamente l'interno della villa storica dopo aver osservato il Ficus macrophylla di 146 anni e i suoi veri frutti carnosi impollinati dal vento.»",
+        isTrue: false,
+        tag: "FALSO • Doppio Errore (Fruizione e Biologia)",
+        explanation: "Attenzione a due errori: 1) la struttura principale di Villa Zirio risulta chiusa in modo permanente al pubblico (si visitano solo i giardini); 2) il Ficus non ha impollinazione anemofila né un vero frutto semplice, bensì un'infiorescenza chiusa detta siconio (falso frutto) legata a un mutualismo obbligato con micro-imenotteri impollinatori della famiglia Agaonidae."
+      }
+    ];
+
+    const IDENTIKIT_CARDS = [
+      {
+        id: "id-1",
+        species: "Oreopanax spp. (es. O. capitatus / O. nymphaeifolius)",
+        family: "Araliaceae (stessa famiglia dell'edera)",
+        origin: "Foreste nebulose e montane dell'America centrale e meridionale",
+        stop: "Tappa 1 • Parco Marsaglia (zone riparate e semi-ombreggiate lungo il ruscello)",
+        clues: [
+          "Appartengo alla stessa famiglia dell'edera e provengo dalle foreste nebulose e montane dell'America centrale e meridionale.",
+          "Nei giardini storici ottocenteschi della Riviera prediligo posizioni riparate e semi-ombreggiate, come lungo il ruscello centrale del Parco Marsaglia.",
+          "Sul campo si osserva la mia forte eterofillia: le foglie giovanili sono profondamente palmato-lobate, mentre quelle dei rami adulti fertili diventano intere, ovate o ellittiche e coriacee."
+        ]
+      },
+      {
+        id: "id-2",
+        species: "Ficus macrophylla subsp. columnaris (sin. Ficus magnolioides)",
+        family: "Moraceae",
+        origin: "Isola di Lord Howe (Australia orientale)",
+        stop: "Tappa 2 (Villa Nobel), Tappa 4 (Villa Ormond), Tappa 5 (Villa Zirio, 146 anni)",
+        clues: [
+          "Sono originario dell'Isola di Lord Howe (Australia orientale) e nel mio areale d'origine sono una specie emiepifita che germina sui rami di altri alberi.",
+          "Ho corteccia grigio-argentea liscia, grandi contrafforti basali laminari (radici tabulari) e foglie coriacee lucide sopra e ferruginee sotto, protette nella gemma apicale da grandi stipole caduche.",
+          "Sviluppo radici aeree colonnari che scendono dai rami orizzontali principali e lignificano in fusti secondari (pilastri); la mia infiorescenza chiusa è il siconio, impollinato dagli imenotteri Agaonidae."
+        ]
+      },
+      {
+        id: "id-3",
+        species: "Cupressus macrocarpa (Cipresso di Monterey)",
+        family: "Cupressaceae",
+        origin: "Fascia costiera della California centrale (baia di Monterey)",
+        stop: "Tappa 2 • Giardino di Villa Nobel",
+        clues: [
+          "La mia area d'origine è la fascia costiera della California centrale, nella baia di Monterey.",
+          "Negli esemplari maturi assumo un portamento espanso con chioma tabulare o irregolare, molto diverso dal profilo colonnare fastigiato del cipresso mediterraneo.",
+          "Il mio fogliame squamiforme verde brillante, se sfregato tra le dita, emana un intenso aroma limonaceo dovuto ai monoterpeni."
+        ]
+      },
+      {
+        id: "id-4",
+        species: "Jubaea chilensis (Palma del Cile o Palma da vino)",
+        family: "Arecaceae",
+        origin: "Valli costiere del Cile centrale (specie endemica e minacciata in natura)",
+        stop: "Tappa 1 (Parco Marsaglia, esemplare monumentale) e Tappa 4 (Parco di Villa Ormond)",
+        clues: [
+          "Sono una palma endemica e minacciata in natura proveniente dalle valli costiere del Cile centrale, caratterizzata da una crescita estremamente lenta.",
+          "Possiedo lo stipite più massiccio tra le palme coltivabili all'aperto in clima mediterraneo, potendo superare il metro di diametro.",
+          "Il mio stipite grigio-cenere colonnare è spesso leggermente rigonfio nella parte mediana e rastremato verso l'alto ('a bottiglia'), segnato da cicatrici fogliari romboidali orizzontali."
+        ]
+      },
+      {
+        id: "id-5",
+        species: "Dracaena draco (Albero del Drago)",
+        family: "Asparagaceae (Monocotiledone)",
+        origin: "Arcipelago delle Isole Canarie, Capo Verde e Madeira (flora macaronesiana)",
+        stop: "Tappa 4 • Parco di Villa Ormond",
+        clues: [
+          "Provengo dalla flora macaronesiana (Canarie, Capo Verde, Madeira) e, pur avendo aspetto arboreo, sono una monocotiledone priva di vero legno con anelli annuali.",
+          "La mia ramificazione è rigorosamente dicotomica: ogni ramo si biforca in due dopo ogni episodio di fioritura, consentendo di stimare l'età relativa dell'esemplare.",
+          "Ho chioma ad ombrello di foglie ensiformi (a forma di spada) glauche e dalle ferite della corteccia essuda una resina che, ossidandosi all'aria, diventa rosso intenso ('sangue di drago')."
+        ]
+      },
+      {
+        id: "id-6",
+        species: "Phoenix theophrasti & Phoenix reclinata",
+        family: "Arecaceae",
+        origin: "Creta / costa sud-occidentale turca (P. theophrasti) • Africa (P. reclinata)",
+        stop: "Tappa 2 / Tappa 4 (Phoenix reclinata, 105 anni) e Tappa 4 (Phoenix theophrasti a Villa Ormond)",
+        clues: [
+          "Siamo due rare palme del genere Phoenix osservabili lungo l'itinerario storico sanremese.",
+          "Una di noi (Phoenix reclinata, Palma del Senegal) ha 105 anni, origine africana ed è celebre per il caratteristico portamento dello stipite.",
+          "L'altra (Phoenix theophrasti, Palma di Teofrasto) è endemica di Creta e della costa sud-occidentale turca, ha portamento cespitoso (pollonante dalla base) e foglie glauco-argentee molto spinose alla base."
+        ]
+      },
+      {
+        id: "id-7",
+        species: "Butia capitata & Nolina longifolia",
+        family: "Arecaceae (Butia) • Asparagaceae (Nolina)",
+        origin: "Sud America (Butia capitata) • Messico (Nolina longifolia)",
+        stop: "Tappa 4 • Parco di Villa Ormond",
+        clues: [
+          "Siamo due specie esotiche ospitate nel Parco di Villa Ormond appartenenti rispettivamente alle Arecaceae e alle Asparagaceae.",
+          "La specie sudamericana (Butia capitata, Palma da gelatina) è riconoscibile per le lunghe foglie pennate fortemente arcuato-ricurve verso il basso di colore verde-azzurrognolo.",
+          "La monocotiledone messicana (Nolina longifolia) presenta invece un fusto suberoso fessurato e lunghe foglie nastriformi ricadenti a cascata."
+        ]
+      }
+    ];
+
+    const COMPARISON_CARDS = [
+      {
+        id: "cmp-1",
+        title: "Cupressus macrocarpa vs Cupressus sempervirens",
+        subtitle: "Tappa 2 (Giardino di Villa Nobel) • Famiglia Cupressaceae",
+        left: {
+          name: "Cupressus macrocarpa (Cipresso di Monterey)",
+          origin: "Fascia costiera della California centrale (baia di Monterey)",
+          points: [
+            "Portamento espanso e chioma tabulare o irregolare negli esemplari maturi",
+            "Fogliame squamiforme di colore verde brillante",
+            "Allo sfregamento emana un intenso aroma limonaceo dovuto ai monoterpeni"
+          ]
+        },
+        right: {
+          name: "Cupressus sempervirens (Cipresso mediterraneo)",
+          origin: "Bacino del Mediterraneo",
+          points: [
+            "Profilo fastigiato e colonnare slanciato",
+            "Fogliame squamiforme verde scuro opaco",
+            "Odore resinoso tipico, privo della nota limonacea intensa da monoterpeni del C. macrocarpa"
+          ]
+        },
+        synthesis: "Sul campo a Villa Nobel far osservare prima la silhouette aperta e tabulare della chioma matura, poi far sfregare un rametto per percepire l'aroma limonaceo dei monoterpeni."
+      },
+      {
+        id: "cmp-2",
+        title: "Jubaea chilensis vs Phoenix reclinata vs Washingtonia filifera",
+        subtitle: "Tappe 0, 1, 2 e 4 • Famiglia Arecaceae",
+        left: {
+          name: "Jubaea chilensis (Palma del Cile / Palma da vino)",
+          origin: "Valli costiere del Cile centrale (Parco Marsaglia & Villa Ormond)",
+          points: [
+            "Foglie pennate (a forma di piuma), rigide e arcuato-ascendenti",
+            "Stipite più massiccio coltivabile all'aperto in clima mediterraneo (> 1 m di diametro)",
+            "Crescita lentissima; fusto grigio-cenere rigonfio al centro e rastremato in alto ('a bottiglia') con cicatrici fogliari romboidali orizzontali"
+          ]
+        },
+        right: {
+          name: "Washingtonia filifera & Phoenix reclinata",
+          origin: "Fontana Sanremo (Tappa 0) e Villa Nobel / Villa Ormond (Tappe 2–4)",
+          points: [
+            "Foglie palmate a ventaglio (costapalmate) nella Washingtonia filifera (15 m alla Fontana Sanremo, \"palme dello zampillo\", nucleo più vetusto del Comune), contro foglie pennate nella Phoenix reclinata (105 anni, stipiti sinuosi/reclinati) e nella Phoenix theophrasti (cespitosa, foglie glauco-argentee molto spinose alla base)",
+            "Stipite colonnare slanciato nella Washingtonia filifera, ben distinto dal tronco colossale della Jubaea",
+            "Portamento pluricaule con stipiti sinuosi/reclinati di origine africana nella Phoenix reclinata"
+          ]
+        },
+        synthesis: "Partire subito dalla morfologia fogliare: foglie pennate (a piuma) in Jubaea chilensis e nel genere Phoenix contro foglie palmate a ventaglio nella Washingtonia filifera (15 m, 'palme dello zampillo'); osservare poi il fusto colonnare massiccio 'a bottiglia' (> 1 m di diametro) della Jubaea rispetto agli stipiti slanciati o sinuosi/reclinati (105 anni) delle altre."
+      },
+      {
+        id: "cmp-3",
+        title: "Ficus macrophylla: Villa Nobel vs Giardini di Villa Zirio",
+        subtitle: "Confronto tra due esemplari dello stesso taxon (Moraceae)",
+        left: {
+          name: "Ficus macrophylla subsp. columnaris — Villa Nobel (Tappa 2)",
+          origin: "Isola di Lord Howe (Australia orientale) • Specie emiepifita in natura",
+          points: [
+            "Umidità e spazio favoriscono la discesa delle radici aeree colonnari dai rami orizzontali",
+            "Le radici toccato il suolo lignificano diventando veri fusti secondari di sostegno (pilastri)",
+            "Evidenti contrafforti basali laminari (radici tabulari), corteccia grigio-argentea liscia, foglie lucide sopra e ferruginee sotto"
+          ]
+        },
+        right: {
+          name: "Ficus macrophylla — Giardini di Villa Zirio (Tappa 5, 146 anni)",
+          origin: "Corso Felice Cavallotti • Esemplare storico di 146 anni",
+          points: [
+            "Particolarmente leggibile la struttura portante della chioma rispetto alle colonne aeree",
+            "Branche primarie quasi orizzontali che si estendono per decine di metri creando un'ombra fittissima",
+            "Infiorescenza chiusa detta siconio con mutualismo obbligato con micro-imenotteri Agaonidae"
+          ]
+        },
+        synthesis: "Ottimo confronto didattico lungo Corso Cavallotti: a Villa Nobel si legge l'architettura radicale (colonne aeree e contrafforti tabulari), mentre a Villa Zirio (146 anni) risalta l'estensione orizzontale delle branche primarie."
+      }
+    ];
+
+    const STAGES_DATA = [
+      {
+        id: "st-0",
+        num: "Tappa 0",
+        title: "Fontana Sanremo in Corso Raimondo",
+        meta: "Punto di partenza • Itinerario complessivo: 4,2 km (~1 h cammino / 2,5–3 h con soste) • Via Cap. A. Pesante → Villa Zirio",
+        species: ["Washingtonia filifera (15 metri di altezza)"],
+        summary: "Nucleo iniziale dell'itinerario dedicato all'acclimatazione esotica ottocentesca, al collezionismo botanico e agli alberi monumentali.",
+        bullets: [
+          "Osservare le Washingtonia filifera di 15 metri di altezza in Corso Raimondo.",
+          "Ricordare che sono denominate 'le palme dello zampillo'.",
+          "Sottolineare che costituiscono il nucleo di esemplari più vetusti del patrimonio botanico del Comune di Sanremo.",
+          "Introdurre il filo conduttore del percorso: acclimatazione esotica ottocentesca, collezionismo botanico e alberi monumentali."
+        ]
+      },
+      {
+        id: "st-1",
+        num: "Tappa 1",
+        title: "Parco Marsaglia",
+        meta: "Corso Imperatrice • Aperto tutti i giorni 7:00–20:00 • Ruscello centrale e Auditorium Franco Alfano all'aperto",
+        species: [
+          "Oreopanax spp. (es. Oreopanax capitatus / O. nymphaeifolius)",
+          "Jubaea chilensis monumentale"
+        ],
+        summary: "Parco pubblico di ponente con percorsi alberati ombrosi, un ruscello centrale e l'Auditorium Franco Alfano all'aperto. Focus su specie esotiche d'ombra e rari esemplari di Araliaceae.",
+        bullets: [
+          "Inquadrare il contesto storico-paesaggistico di Corso Imperatrice, il ruscello centrale e l'Auditorium Franco Alfano all'aperto (orario 7:00–20:00).",
+          "Illustrare Oreopanax spp. (Araliaceae, famiglia dell'edera; foreste nebulose e montane dell'America centrale e meridionale).",
+          "Mostrare dal vivo la forte eterofillia: foglie giovanili profondamente palmato-lobate e foglie dei rami adulti fertili intere, ovate o ellittiche e coriacee.",
+          "Segnalare l'esemplare monumentale di Jubaea chilensis, utile per un confronto diretto con quello di Villa Ormond in un contesto più riparato dai venti marini diretti."
+        ]
+      },
+      {
+        id: "st-2",
+        num: "Tappa 2",
+        title: "Giardino di Villa Nobel",
+        meta: "Corso Felice Cavallotti • Casa-museo riaperta nel 2002 • Focus: Grandi latifoglie sempreverdi subtropicali e architettura radicale",
+        species: [
+          "Ficus macrophylla subsp. columnaris (sin. Ficus magnolioides)",
+          "Cupressus macrocarpa (Cipresso di Monterey)",
+          "Phoenix reclinata (Palma del Senegal, 105 anni)"
+        ],
+        summary: "Residenza ottocentesca in stile neomoresco ed eclettico lungo Corso Felice Cavallotti, ultima dimora di Alfred Nobel.",
+        bullets: [
+          "Ricordare le date storiche: costruita intorno al 1871 su progetto di Filippo Grossi (vicende iniziali legate anche al farmacista Pietro Vacchieri); acquistata nel 1891 da Alfred Nobel che la ribattezzò 'Villa Mio Nido' e vi abitò fino alla morte nel 1896.",
+          "Citare il restauro durato quasi nove anni fino alla riapertura nel 2002 come casa-museo e la presenza nel parco di un cannone Bofors del 1883 legato alle prove balistiche.",
+          "Analizzare il Ficus macrophylla subsp. columnaris (Isola di Lord Howe, Moraceae): specie emiepifita in origine con radici aeree colonnari che lignificano in pilastri, contrafforti basali laminari (radici tabulari), corteccia grigio-argentea liscia e foglie lucide sopra / ferruginee sotto.",
+          "Analizzare il Cupressus macrocarpa (baia di Monterey, California): chioma matura espansa/tabulare vs Cupressus sempervirens fastigiato e intenso aroma limonaceo da monoterpeni allo sfregamento.",
+          "Segnalare la Phoenix reclinata (Palma del Senegal, 105 anni, origine africana) e il portamento caratteristico dello stipite."
+        ]
+      },
+      {
+        id: "st-3",
+        num: "Tappa 3",
+        title: "Lungomare",
+        meta: "Corso Trento Trieste e Corso Salvo D'Acquisto • Alberi monumentali costieri",
+        species: [
+          "Araucaria heterophylla (Pino di Norfolk — 22 m, 106 anni)",
+          "Eucalyptus globulus (96 anni)"
+        ],
+        summary: "Tratto litoraneo che ospita due notevoli esemplari arborei monumentali censiti lungo la passeggiata a mare.",
+        bullets: [
+          "Indicare in Corso Trento Trieste vicino al baretto l'Araucaria heterophylla (Pino di Norfolk) di 22 metri d'altezza e 106 anni di età.",
+          "Indicare nel parco giochi sotto Villa Ormond in Corso Salvo D'Acquisto l'Eucalyptus globulus di 96 anni."
+        ]
+      },
+      {
+        id: "st-4",
+        num: "Tappa 4",
+        title: "Parco di Villa Ormond",
+        meta: "Corso Cavallotti • 'Stanze' vegetali ottocentesche e collezionismo botanico • Sede Istituto Internazionale di Diritto Umanitario (1970)",
+        species: [
+          "Ficus macrophylla (scalinata vicino all'edificio)",
+          "Jubaea chilensis (Palma del Cile / Palma da vino)",
+          "Dracaena draco (Albero del Drago)",
+          "Phoenix theophrasti (Palma di Teofrasto)",
+          "Butia capitata (Palma da gelatina)",
+          "Nolina longifolia"
+        ],
+        summary: "Celebre parco pubblico articolato secondo il gusto francese dell'Ottocento in 'stanze' vegetali (palmeto, cedri, antico uliveto, Ficus, giardino all'italiana) e giardino alla giapponese (gemellaggio con Atami).",
+        bullets: [
+          "Ripercorrere la storia: 1875 acquisto di Villa Rambaldi (costruita da Giovenale Gastaldi senior) da parte di Michel Louis Ormond e Marie Margherite Renet; terremoto del 23 febbraio 1887 e benemerenze a Ormond e al figlio Francis.",
+          "Inaugurazione il 1° giugno 1890 su progetto dell'architetto ginevrino Emile Réverdin (pietre di Tolone, soffitti policromi a cassettoni, camino dei Doria di Dolceacqua, vetri di Saint-Gobain); ospiti come l'imperatrice Sissi; acquisto comunale nel febbraio 1928 (podestà Pietro Agosti); mostre floreali internazionali dal 1936 ai primi anni Settanta.",
+          "Descrivere la Jubaea chilensis (valli costiere del Cile centrale): stipite più massiccio coltivabile all'aperto nel Mediterraneo (> 1 m diametro), crescita lentissima, stipite grigio-cenere 'a bottiglia' con cicatrici fogliari romboidali orizzontali.",
+          "Descrivere la Dracaena draco (Canarie, Capo Verde, Madeira; Asparagaceae): monocotiledone senza anelli annuali legnosi ma accrescimento secondario anomalo, ramificazione dicotomica post-fioritura, foglie ensiformi glauche e resina rosso intenso 'sangue di drago'.",
+          "Completare con Phoenix theophrasti (Creta/Turchia sud-occidentale, cespitosa, foglie glauco-argentee molto spinose alla base), Butia capitata (Sud America, foglie pennate arcuato-ricurve verde-azzurrognolo) e Nolina longifolia (Messico, fusto suberoso fessurato e foglie nastriformi a cascata)."
+        ]
+      },
+      {
+        id: "st-5",
+        num: "Tappa 5",
+        title: "Giardini di Villa Zirio",
+        meta: "Corso Felice Cavallotti • Traguardo • Edificio principale chiuso permanentemente al pubblico • Focus: Sviluppo della chioma nei grandi Ficus",
+        species: ["Ficus macrophylla (Fico della Baia di Moreton — 146 anni)"],
+        summary: "Giardini storici della residenza edificata a partire dal 1868 dall'avvocato sanremese Giovanni Battista Zirio nell'espansione signorile verso levante.",
+        bullets: [
+          "Contestualizzare la costruzione dal 1868 per l'avvocato Giovanni Battista Zirio lungo Corso Felice Cavallotti, precisando che la struttura principale della villa risulta chiusa in modo permanente al pubblico.",
+          "Osservare il Ficus macrophylla di 146 anni: a differenza dell'esemplare di Villa Nobel, qui è particolarmente leggibile la struttura portante della chioma, con branche primarie quasi orizzontali che si estendono per decine di metri creando un'ombra fittissima.",
+          "Spiegare la biologia fiorale dei Ficus: infiorescenza chiusa detta siconio (il falso frutto) legata a un mutualismo obbligato con micro-imenotteri impollinatori della famiglia Agaonidae."
+        ]
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * STATO DELL'APPLICAZIONE DI RIPASSO (NESSUN PUNTEGGIO O TIMER)
+     * =========================================================================
+     */
+    const STORAGE_KEY = "sanremo_ripasso_botanico_v2";
+
+    let state = {
+      activeTab: "tab1",
+      tfOrder: TRUE_FALSE_CARDS.map((_, i) => i),
+      idOrder: IDENTIKIT_CARDS.map((_, i) => i),
+      flippedCards: {},
+      revealedClues: {},
+      revealedSpecies: {},
+      revealedComparisons: {},
+      checkedBullets: {},
+      notebookSearch: ""
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed };
+          if (!Array.isArray(state.tfOrder) || state.tfOrder.length !== TRUE_FALSE_CARDS.length) {
+            state.tfOrder = TRUE_FALSE_CARDS.map((_, i) => i);
+          }
+          if (!Array.isArray(state.idOrder) || state.idOrder.length !== IDENTIKIT_CARDS.length) {
+            state.idOrder = IDENTIKIT_CARDS.map((_, i) => i);
+          }
+        }
+      } catch (e) {
+        // Fallback silenzioso in memoria
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // Ignora errori storage
+      }
+    }
+
+    function showToast(msg) {
+      const area = document.getElementById("toast-area");
+      if (!area) return;
+      const el = document.createElement("div");
+      el.className = "px-4 py-2.5 rounded-2xl bg-[#153427] text-[#faf7f2] border-l-4 border-[#b88e28] shadow-lg text-xs sm:text-sm font-bold transition-all duration-300";
+      el.textContent = msg;
+      area.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(6px)";
+        setTimeout(() => el.remove(), 300);
+      }, 2400);
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    /**
+     * NAVIGAZIONE TRA LE 5 SCHEDE
+     */
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      saveState();
+      updateNavButtons();
+      renderMainContent();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateNavButtons() {
+      ["tab1", "tab2", "tab3", "tab4", "tab5"].forEach((id) => {
+        const btn = document.getElementById(`btn-${id}`);
+        if (!btn) return;
+        if (id === state.activeTab) {
+          btn.classList.add("bg-[#153427]", "text-[#faf7f2]", "border-[#b88e28]", "shadow-md");
+          btn.classList.remove("bg-white", "hover:bg-[#f1ebe0]", "text-[#153427]", "border-[#2f5e47]/20");
+        } else {
+          btn.classList.remove("bg-[#153427]", "text-[#faf7f2]", "border-[#b88e28]", "shadow-md");
+          btn.classList.add("bg-white", "hover:bg-[#f1ebe0]", "text-[#153427]", "border-[#2f5e47]/20");
+        }
+      });
+    }
+
+    function renderMainContent() {
+      const main = document.getElementById("main-content");
+      if (!main) return;
+
+      switch (state.activeTab) {
+        case "tab1":
+          main.innerHTML = renderTab1TrueFalse();
+          break;
+        case "tab2":
+          main.innerHTML = renderTab2Identikit();
+          break;
+        case "tab3":
+          main.innerHTML = renderTab3Comparisons();
+          break;
+        case "tab4":
+          main.innerHTML = renderTab4ExpositionTracks();
+          break;
+        case "tab5":
+          main.innerHTML = renderTab5Notebook();
+          break;
+        default:
+          main.innerHTML = renderTab1TrueFalse();
+      }
+    }
+
+    /**
+     * TAB 1: VERO O FALSO D'AUTORE
+     */
+    function renderTab1TrueFalse() {
+      const orderedCards = state.tfOrder.map((idx) => TRUE_FALSE_CARDS[idx]);
+
+      const cardsHtml = orderedCards.map((card, position) => {
+        const isFlipped = !!state.flippedCards[card.id];
+        const badgeStyle = card.isTrue
+          ? "bg-emerald-700 text-white"
+          : "bg-rose-800 text-white";
+
+        return `
+          <div class="perspective-1000">
+            <div class="flip-inner ${isFlipped ? "is-flipped" : ""}">
+              <!-- FRONTE -->
+              <div
+                onclick="toggleFlipCard('${card.id}')"
+                role="button"
+                tabindex="0"
+                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFlipCard('${card.id}');}"
+                class="flip-front bg-white rounded-3xl p-6 border-2 border-[#2f5e47]/20 hover:border-[#b88e28] shadow-sm hover:shadow-md flex flex-col justify-between min-h-[275px] transition cursor-pointer">
+                <div>
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="px-3 py-1 rounded-full bg-[#f1ebe0] text-[#153427] text-xs font-extrabold">
+                      Scheda #${position + 1} • ${card.stop}
+                    </span>
+                    <span class="text-xs font-bold text-[#2f5e47]">${card.family}</span>
+                  </div>
+
+                  <p class="font-editorial text-xl sm:text-2xl italic text-[#153427] leading-snug my-4">
+                    ${card.statement}
+                  </p>
+                </div>
+
+                <div class="pt-4 border-t border-[#f1ebe0] flex items-center justify-between gap-3">
+                  <span class="text-xs text-[#2f5e47] font-medium">
+                    Rifletti se l'affermazione è vera o falsa, poi gira la carta
+                  </span>
+                  <span class="px-3.5 py-2 rounded-xl bg-[#153427] text-[#faf7f2] text-xs font-extrabold shrink-0">
+                    🔄 Gira la carta
+                  </span>
+                </div>
+              </div>
+
+              <!-- RETRO -->
+              <div
+                onclick="toggleFlipCard('${card.id}')"
+                role="button"
+                tabindex="0"
+                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFlipCard('${card.id}');}"
+                class="flip-back absolute inset-0 bg-[#153427] text-[#faf7f2] rounded-3xl p-6 border-2 border-[#b88e28] shadow-lg flex flex-col justify-between overflow-y-auto cursor-pointer">
+                <div>
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${badgeStyle}">
+                      ${card.tag}
+                    </span>
+                    <span class="text-[11px] font-bold text-[#e5c565]">${card.stop}</span>
+                  </div>
+
+                  <p class="text-xs sm:text-sm text-[#f4f0e8] leading-relaxed mt-3">
+                    ${card.explanation}
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-[#2f5e47] flex items-center justify-between gap-2 mt-3">
+                  <span class="text-[11px] text-[#cde0d5]">Clicca sulla carta per tornare al fronte</span>
+                  <span class="px-3 py-1.5 rounded-xl bg-[#2f5e47] text-white text-xs font-extrabold">
+                    ↩ Fronte
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Autoverifica Concettuale</span>
+              <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+                Vero o Falso d'Autore
+              </h2>
+              <p class="text-sm text-[#2f5e47] mt-1 max-w-3xl">
+                Leggi ciascuna affermazione relativa alle 6 tappe del percorso sanremese, verifica mentalmente la precisione storica o tassonomica e clicca sulla carta per leggere la spiegazione tecnica.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onclick="shuffleTrueFalse()"
+                class="px-4 py-2.5 rounded-xl bg-[#f1ebe0] hover:bg-[#b88e28]/25 text-[#153427] font-extrabold text-xs sm:text-sm border border-[#b88e28] transition cursor-pointer">
+                🔀 Mescola / Nuova sequenza
+              </button>
+              <button
+                type="button"
+                onclick="resetFlips()"
+                class="px-3.5 py-2.5 rounded-xl bg-white hover:bg-[#f1ebe0] text-[#2f5e47] font-bold text-xs border border-[#2f5e47]/30 transition cursor-pointer">
+                ↺ Chiudi tutte
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleFlipCard(id) {
+      state.flippedCards[id] = !state.flippedCards[id];
+      saveState();
+      renderMainContent();
+    }
+
+    function shuffleTrueFalse() {
+      state.tfOrder = shuffleArray(state.tfOrder);
+      state.flippedCards = {};
+      saveState();
+      renderMainContent();
+      showToast("Sequenza delle carte 'Vero o Falso' mescolata.");
+    }
+
+    function resetFlips() {
+      state.flippedCards = {};
+      saveState();
+      renderMainContent();
+    }
+
+    /**
+     * TAB 2: IDENTIKIT MORFOLOGICO
+     */
+    function renderTab2Identikit() {
+      const orderedItems = state.idOrder.map((idx) => IDENTIKIT_CARDS[idx]);
+
+      const cardsHtml = orderedItems.map((item, pos) => {
+        const revealedCount = state.revealedClues[item.id] || 1;
+        const isSpeciesRevealed = !!state.revealedSpecies[item.id];
+
+        const cluesHtml = item.clues.map((text, idx) => {
+          const shown = idx < revealedCount || isSpeciesRevealed;
+          if (!shown) {
+            return `
+              <div class="p-3.5 rounded-xl border border-dashed border-[#2f5e47]/35 bg-[#faf7f2]/70 text-xs text-[#2f5e47]">
+                🔒 Indizio #${idx + 1} ancora nascosto
+              </div>
+            `;
+          }
+          return `
+            <div class="p-3.5 rounded-xl bg-[#faf7f2] border-l-4 ${
+              idx === 0 ? "border-[#153427]" : idx === 1 ? "border-[#2f5e47]" : "border-[#b88e28]"
+            } text-sm text-[#18261f] leading-relaxed">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-[#2f5e47] block mb-0.5">Indizio #${idx + 1}</span>
+              ${text}
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <article class="bg-white rounded-3xl p-6 border-2 ${
+            isSpeciesRevealed ? "border-[#b88e28]" : "border-[#2f5e47]/20"
+          } shadow-sm flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <span class="px-3 py-1 rounded-full bg-[#153427] text-[#faf7f2] text-xs font-extrabold">
+                  Identikit #${pos + 1}
+                </span>
+                <span class="text-xs font-semibold text-[#2f5e47]">
+                  ${isSpeciesRevealed ? "Specie svelata" : `Indizi visibili: ${revealedCount} di 3`}
+                </span>
+              </div>
+
+              <div class="space-y-2.5">
+                ${cluesHtml}
+              </div>
+
+              ${
+                isSpeciesRevealed
+                  ? `
+                    <div class="mt-4 p-4 rounded-2xl bg-[#153427] text-[#faf7f2] border border-[#b88e28] space-y-1.5">
+                      <div class="text-[11px] uppercase tracking-wider text-[#e5c565] font-bold">🌿 Identificazione Botanica</div>
+                      <h3 class="font-editorial text-2xl font-bold italic text-white">${item.species}</h3>
+                      <p class="text-xs text-[#dbe6df]"><strong>Famiglia:</strong> ${item.family}</p>
+                      <p class="text-xs text-[#dbe6df]"><strong>Origine:</strong> ${item.origin}</p>
+                      <p class="text-xs text-[#f1ebe0] pt-1.5 border-t border-[#2f5e47]"><strong>Collocazione nel percorso:</strong> ${item.stop}</p>
+                    </div>
+                  `
+                  : ""
+              }
+            </div>
+
+            <div class="pt-3 border-t border-[#f1ebe0] flex flex-wrap items-center justify-between gap-2">
+              ${
+                !isSpeciesRevealed && revealedCount < 3
+                  ? `<button type="button" onclick="showNextClue('${item.id}')" class="px-3.5 py-2 rounded-xl bg-[#f1ebe0] hover:bg-[#e5dccb] text-[#153427] text-xs font-extrabold transition cursor-pointer">
+                      ➕ Mostra indizio successivo
+                    </button>`
+                  : `<span></span>`
+              }
+
+              <button
+                type="button"
+                onclick="toggleRevealSpecies('${item.id}')"
+                class="px-4 py-2 rounded-xl ${
+                  isSpeciesRevealed
+                    ? "bg-slate-200 hover:bg-slate-300 text-slate-800"
+                    : "bg-[#b88e28] hover:bg-[#cfa234] text-[#153427]"
+                } text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer">
+                ${isSpeciesRevealed ? "🙈 Nascondi la specie" : "✨ Svela la specie"}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      return `
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Allenamento al Riconoscimento Diagnostico</span>
+              <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+                Identikit Morfologico
+              </h2>
+              <p class="text-sm text-[#2f5e47] mt-1 max-w-3xl">
+                Prova a risalire al nome scientifico e alla famiglia partendo dal primo indizio morfologico o ecologico. Se serve aiuto, svela gradualmente gli indizi successivi prima di scoprire la scheda completa.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onclick="shuffleIdentikits()"
+              class="shrink-0 px-4 py-2.5 rounded-xl bg-[#f1ebe0] hover:bg-[#b88e28]/25 text-[#153427] font-extrabold text-xs sm:text-sm border border-[#b88e28] transition cursor-pointer">
+              🔀 Mescola / Nuova sequenza
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function showNextClue(id) {
+      const curr = state.revealedClues[id] || 1;
+      if (curr < 3) {
+        state.revealedClues[id] = curr + 1;
+        saveState();
+        renderMainContent();
+      }
+    }
+
+    function toggleRevealSpecies(id) {
+      state.revealedSpecies[id] = !state.revealedSpecies[id];
+      saveState();
+      renderMainContent();
+    }
+
+    function shuffleIdentikits() {
+      state.idOrder = shuffleArray(state.idOrder);
+      state.revealedClues = {};
+      state.revealedSpecies = {};
+      saveState();
+      renderMainContent();
+      showToast("Sequenza degli Identikit Morfologici mescolata.");
+    }
+
+    /**
+     * TAB 3: CONFRONTO TRA SOSIA
+     */
+    function renderTab3Comparisons() {
+      const cardsHtml = COMPARISON_CARDS.map((cmp, idx) => {
+        const isShown = !!state.revealedComparisons[cmp.id];
+
+        return `
+          <section class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#f1ebe0] pb-4">
+              <div>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#2f5e47]">Confronto #${idx + 1} • ${cmp.subtitle}</span>
+                <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-0.5">${cmp.title}</h3>
+              </div>
+
+              <button
+                type="button"
+                onclick="toggleComparison('${cmp.id}')"
+                class="px-4 py-2.5 rounded-xl ${
+                  isShown
+                    ? "bg-[#2f5e47] text-white"
+                    : "bg-[#b88e28] hover:bg-[#cfa234] text-[#153427]"
+                } text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer shrink-0">
+                ${isShown ? "🙈 Nascondi sintesi diagnostica" : "⚖️ Mostra sintesi diagnostica"}
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine A</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">${cmp.left.name}</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">${cmp.left.origin}</p>
+                ${
+                  isShown
+                    ? `<ul class="space-y-2 text-sm text-[#18261f] list-disc pl-4">
+                        ${cmp.left.points.map((pt) => `<li>${pt}</li>`).join("")}
+                      </ul>`
+                    : `<p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        Richiama alla memoria i caratteri distintivi di ${cmp.left.name}, poi clicca su "Mostra sintesi diagnostica".
+                      </p>`
+                }
+              </div>
+
+              <div class="p-5 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/20">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#b88e28]">Termine B</span>
+                <h4 class="font-editorial text-xl font-bold italic text-[#153427] mt-0.5">${cmp.right.name}</h4>
+                <p class="text-xs font-semibold text-[#2f5e47] mb-3">${cmp.right.origin}</p>
+                ${
+                  isShown
+                    ? `<ul class="space-y-2 text-sm text-[#18261f] list-disc pl-4">
+                        ${cmp.right.points.map((pt) => `<li>${pt}</li>`).join("")}
+                      </ul>`
+                    : `<p class="text-xs italic text-[#2f5e47] p-3 rounded-xl border border-dashed border-[#2f5e47]/30">
+                        ...e confrontali con ${cmp.right.name}.
+                      </p>`
+                }
+              </div>
+            </div>
+
+            ${
+              isShown
+                ? `<div class="p-4 rounded-2xl bg-[#153427] text-[#faf7f2] text-xs sm:text-sm leading-relaxed">
+                    <strong class="text-[#e5c565]">🌿 Sintesi per l'osservazione sul campo:</strong> ${cmp.synthesis}
+                  </div>`
+                : ""
+            }
+          </section>
+        `;
+      }).join("");
+
+      return `
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Diagnosi Differenziale sul Campo</span>
+            <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+              Confronto tra Sosia
+            </h2>
+            <p class="text-sm text-[#2f5e47] mt-1 max-w-3xl">
+              Schede comparative affiancate per fissare le differenze morfologiche, ecologiche e architettoniche tra specie ed esemplari che possono essere facilmente confusi durante un'escursione guidata.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleComparison(id) {
+      state.revealedComparisons[id] = !state.revealedComparisons[id];
+      saveState();
+      renderMainContent();
+    }
+
+    /**
+     * TAB 4: TRACCE DI ESPOSIZIONE (TAPPE 0–5 SPUNTABILI SENZA TIMER NÉ VOTI)
+     */
+    function renderTab4ExpositionTracks() {
+      const stagesHtml = STAGES_DATA.map((stage) => {
+        const doneCount = stage.bullets.filter((_, i) => !!state.checkedBullets[`${stage.id}-${i}`]).length;
+
+        const bulletsHtml = stage.bullets.map((bText, idx) => {
+          const key = `${stage.id}-${idx}`;
+          const isChecked = !!state.checkedBullets[key];
+
+          return `
+            <label class="flex items-start gap-3 p-3.5 rounded-2xl border transition cursor-pointer ${
+              isChecked
+                ? "bg-emerald-50/90 border-emerald-600/60 text-emerald-950"
+                : "bg-[#faf7f2] border-[#2f5e47]/20 hover:border-[#b88e28] text-[#18261f]"
+            }">
+              <input
+                type="checkbox"
+                ${isChecked ? "checked" : ""}
+                onchange="toggleBullet('${key}')"
+                class="mt-1 w-4 h-4 accent-[#153427] rounded cursor-pointer"
+              />
+              <span class="text-xs sm:text-sm leading-relaxed ${isChecked ? "font-semibold" : ""}">${bText}</span>
+            </label>
+          `;
+        }).join("");
+
+        return `
+          <section class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-[#f1ebe0] pb-4">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-[#153427] text-[#e5c565] text-xs font-extrabold uppercase tracking-wider">
+                    ${stage.num}
+                  </span>
+                  <span class="text-xs font-bold text-[#2f5e47]">
+                    Concetti ripassati: ${doneCount} / ${stage.bullets.length}
+                  </span>
+                </div>
+                <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1.5">
+                  ${stage.title}
+                </h3>
+                <p class="text-xs font-semibold text-[#2f5e47] mt-0.5">${stage.meta}</p>
+              </div>
+
+              <button
+                type="button"
+                onclick="clearStageBullets('${stage.id}', ${stage.bullets.length})"
+                class="text-xs font-bold text-[#2f5e47] hover:text-[#153427] underline cursor-pointer shrink-0">
+                Deseleziona tappa
+              </button>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5">
+              ${stage.species.map((sp) => `
+                <span class="px-3 py-1 rounded-xl bg-[#f1ebe0] border border-[#b88e28]/40 text-xs font-bold italic text-[#153427]">
+                  🌿 ${sp}
+                </span>
+              `).join("")}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${bulletsHtml}
+            </div>
+          </section>
+        `;
+      }).join("");
+
+      return `
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Preparazione del Discorso della Guida</span>
+            <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+              Tracce di Esposizione (Tappe 0 – 5)
+            </h2>
+            <p class="text-sm text-[#2f5e47] mt-1 max-w-3xl">
+              Usa queste tracce per provare ad alta voce la presentazione di ciascuna tappa con i tuoi ritmi: spunta man mano i concetti storici, architettonici e botanici fondamentali per verificare di non aver tralasciato alcun dettaglio.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            ${stagesHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleBullet(key) {
+      state.checkedBullets[key] = !state.checkedBullets[key];
+      saveState();
+      renderMainContent();
+    }
+
+    function clearStageBullets(stageId, count) {
+      for (let i = 0; i < count; i++) {
+        delete state.checkedBullets[`${stageId}-${i}`];
+      }
+      saveState();
+      renderMainContent();
+    }
+
+    /**
+     * TAB 5: TACCUINO DELLE TAPPE (ARCHIVIO RICERCABILE)
+     */
+    function renderTab5Notebook() {
+      const q = (state.notebookSearch || "").toLowerCase().trim();
+
+      const filtered = STAGES_DATA.filter((st) => {
+        if (!q) return true;
+        const searchable = `${st.num} ${st.title} ${st.meta} ${st.summary} ${st.species.join(" ")} ${st.bullets.join(" ")}`.toLowerCase();
+        return searchable.includes(q);
+      });
+
+      const resultsHtml = filtered.map((st) => `
+        <article class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm space-y-4">
+          <div class="border-b border-[#f1ebe0] pb-3">
+            <span class="px-3 py-1 rounded-full bg-[#153427] text-[#e5c565] text-xs font-extrabold uppercase">
+              ${st.num}
+            </span>
+            <h3 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1.5">${st.title}</h3>
+            <p class="text-xs font-semibold text-[#2f5e47] mt-0.5">${st.meta}</p>
+          </div>
+
+          <p class="text-sm text-[#18261f] leading-relaxed">
+            ${st.summary}
+          </p>
+
+          <div class="flex flex-wrap gap-1.5">
+            ${st.species.map((sp) => `
+              <span class="px-3 py-1 rounded-xl bg-[#faf7f2] border border-[#2f5e47]/25 text-xs font-bold italic text-[#153427]">
+                ${sp}
+              </span>
+            `).join("")}
+          </div>
+
+          <div class="p-4 rounded-2xl bg-[#faf7f2] border border-[#2f5e47]/15 space-y-2">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-[#153427]">
+              Scheda Sintetica di Riferimento:
+            </div>
+            <ul class="space-y-1.5 text-xs sm:text-sm text-[#18261f] list-disc pl-5">
+              ${st.bullets.map((b) => `<li>${b}</li>`).join("")}
+            </ul>
+          </div>
+        </article>
+      `).join("");
+
+      return `
+        <div class="animate-fade-up space-y-6">
+          <div class="bg-white rounded-3xl p-6 border border-[#2f5e47]/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-[#b88e28]">Consultazione Rapida</span>
+              <h2 class="font-editorial text-2xl sm:text-3xl font-bold text-[#153427] mt-1">
+                Taccuino delle Tappe
+              </h2>
+              <p class="text-sm text-[#2f5e47] mt-1">
+                Filtra istantaneamente per nome scientifico, famiglia tassonomica, anno storico, architetto, misura o tappa del percorso.
+              </p>
+            </div>
+
+            <div class="w-full md:w-80">
+              <input
+                type="search"
+                value="${state.notebookSearch.replace(/"/g, "&quot;")}"
+                oninput="updateSearch(this.value)"
+                placeholder="🔎 Es. 146 anni, Réverdin, siconio, Jubaea..."
+                class="w-full px-4 py-3 rounded-2xl border-2 border-[#2f5e47]/30 focus:border-[#153427] focus:outline-none text-sm font-semibold bg-[#faf7f2]"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-5">
+            ${
+              resultsHtml ||
+              `<div class="bg-white rounded-3xl p-8 text-center text-[#2f5e47] font-semibold">Nessuna voce corrispondente a "${state.notebookSearch}".</div>`
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    function updateSearch(val) {
+      state.notebookSearch = val;
+      saveState();
+      renderMainContent();
+    }
+
+    /**
+     * RIPRISTINO STATO DI STUDIO & DOWNLOAD OFFLINE
+     */
+    function resetStudyProgress() {
+      state.flippedCards = {};
+      state.revealedClues = {};
+      state.revealedSpecies = {};
+      state.revealedComparisons = {};
+      state.checkedBullets = {};
+      state.notebookSearch = "";
+      saveState();
+      renderMainContent();
+      showToast("Tutte le schede e le spunte di ripasso sono state ripristinate.");
+    }
+
+    function downloadOfflineHTML() {
+      try {
+        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ripasso-botanico-giardini-sanremo.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        showToast("⬇️ Download di 'ripasso-botanico-giardini-sanremo.html' avviato!");
+      } catch (err) {
+        console.error("Errore durante il download offline:", err);
+        showToast("Impossibile avviare il download offline.");
+      }
+    }
+
+    /**
+     * INIZIALIZZAZIONE
+     */
+    window.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      updateNavButtons();
+      renderMainContent();
+    });
+  </script>
+
+</body></html>

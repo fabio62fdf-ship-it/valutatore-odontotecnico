@@ -1,0 +1,1391 @@
+html_content = """<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OdontoLab 3D v2 - Proprietà Meccaniche e Diagramma Trazione-Allungamenti</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-light: #334155;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --purple: #c084fc;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --radius: 14px;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0284c7 0%, #1e3a8a 100%);
+    padding: 16px 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    letter-spacing: 0.4px;
+  }
+
+  header p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: #e0f2fe;
+  }
+
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .tab-btn {
+    background: var(--card);
+    color: var(--muted);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 11px 8px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--card-light);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .panel {
+    display: none;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+
+  .panel.active {
+    display: block;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* SIMULATOR STYLES */
+  .sim-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .sim-controls { grid-template-columns: 1fr; }
+  }
+
+  .control-box {
+    background: var(--bg);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #cbd5e1;
+  }
+
+  select, input[type="range"] {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  select {
+    background: var(--card-light);
+    color: var(--text);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 8px;
+  }
+
+  .visual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 720px) {
+    .visual-grid { grid-template-columns: 1fr; }
+  }
+
+  .svg-stage {
+    background: #0b1120;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .stage-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .legend-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    margin-top: 6px;
+  }
+
+  .leg-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .badge-elastic { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+  .badge-plastic { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-broken  { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+  .sim-readout {
+    background: var(--bg);
+    padding: 14px;
+    border-radius: 10px;
+    border-left: 4px solid var(--accent);
+    font-size: 0.94rem;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: var(--card-light);
+    color: var(--text);
+  }
+
+  /* QUIZ / CASE STYLES */
+  .quiz-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--bg);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .progress-wrap {
+    width: 100%;
+    height: 8px;
+    background: #0b1120;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #22c55e);
+    transition: width 0.3s ease;
+  }
+
+  .case-box {
+    background: var(--bg);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .case-tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--warning);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .case-text {
+    font-size: 1rem;
+    margin: 6px 0 0;
+  }
+
+  .options {
+    display: grid;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    background: var(--card-light);
+    color: var(--text);
+    border: 2px solid #475569;
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 0.94rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+
+  .opt-btn.correct {
+    background: rgba(34, 197, 94, 0.22);
+    border-color: var(--success);
+    color: #bbf7d0;
+  }
+
+  .opt-btn.wrong {
+    background: rgba(239, 68, 68, 0.22);
+    border-color: var(--danger);
+    color: #fecaca;
+  }
+
+  .feedback-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #0b1120;
+    border-left: 4px solid var(--accent);
+    display: none;
+  }
+
+  /* FLASHCARDS */
+  .flashcard {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    min-height: 210px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 14px;
+  }
+
+  .fc-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 800;
+  }
+
+  .fc-content {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  footer {
+    text-align: center;
+    padding: 16px;
+    background: #0b1120;
+    border-top: 1px solid #1e293b;
+  }
+
+  .download-btn {
+    background: #10b981;
+    color: #052e16;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦷 OdontoLab 3D — Collaudo Materiali Dentali</h1>
+  <p>Modulo 4: Proprietà Meccaniche, Diagramma Carichi/Allungamenti e 32 Casi di Laboratorio</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('sim', this)">🔬 Banco Prova + Curva</button>
+    <button class="tab-btn" onclick="switchTab('game', this)">🕵️ Sfida (32 Casi)</button>
+    <button class="tab-btn" onclick="switchTab('cards', this)">⚡ Flashcard (14)</button>
+  </div>
+
+  <!-- TAB 1: SIMULATORE BANCO PROVA + DIAGRAMMA -->
+  <section id="panel-sim" class="panel active">
+    <h2>🔬 Macchina Universale di Prova & Diagramma Carichi / Allungamenti</h2>
+    <p style="font-size:0.9rem; color:#cbd5e1; margin-top:0;">
+      Aumenta il carico <strong>F</strong> con il cursore: osserva il provino nelle ganasce e segui in tempo reale il punto rosso sulla curva <strong>F / dL</strong>! Prova anche a cliccare <em>Rimuovi il Carico</em> per vedere il ritorno elastico o l'allungamento permanente.
+    </p>
+
+    <div class="sim-controls">
+      <div class="control-box">
+        <label for="matSelect">1. Provino in Esame:</label>
+        <select id="matSelect" onchange="resetSim()">
+          <option value="metal">Lega Metallica per Ganci (Duttile • E alto)</option>
+          <option value="ceramic">Ceramica / Gesso (Fragile • Nessuna plasticità)</option>
+          <option value="resin">Resina Acrilica (Basso Modulo E • Molto flessibile)</option>
+        </select>
+      </div>
+      <div class="control-box">
+        <label for="loadRange">2. Carico Applicato (F): <span id="loadVal" style="color:#38bdf8;">0</span> %</label>
+        <input type="range" id="loadRange" min="0" max="100" value="0" oninput="updateSim()">
+      </div>
+    </div>
+
+    <div class="visual-grid">
+      <!-- SX: PROVINO NELLE GANASCE -->
+      <div class="svg-stage">
+        <div class="stage-title">1. Provino nelle Ganasce (Tratto Utile L₀)</div>
+        <svg viewBox="0 0 460 190" aria-label="Simulazione provino">
+          <!-- Linee tratteggiate riferimento L0 -->
+          <line x1="65" y1="35" x2="65" y2="145" stroke="#475569" stroke-dasharray="4 4" stroke-width="1.5"/>
+          <line x1="355" y1="35" x2="355" y2="145" stroke="#475569" stroke-dasharray="4 4" stroke-width="1.5"/>
+          <text x="210" y="28" text-anchor="middle" fill="#64748b" font-size="11" font-weight="bold">Lunghezza iniziale L₀</text>
+
+          <!-- Ganasce / Morse -->
+          <rect x="20" y="65" width="45" height="60" rx="6" fill="#475569"/>
+          <rect id="rightJaw" x="355" y="65" width="45" height="60" rx="6" fill="#475569"/>
+
+          <!-- Provino -->
+          <rect id="specLeft" x="65" y="80" width="145" height="30" rx="4" fill="#38bdf8"/>
+          <rect id="specRight" x="210" y="80" width="145" height="30" rx="4" fill="#38bdf8"/>
+
+          <!-- Frecce di trazione -->
+          <g id="forceArrows" opacity="0">
+            <line x1="42" y1="50" x2="10" y2="50" stroke="#f59e0b" stroke-width="4"/>
+            <polygon points="10,50 20,43 20,57" fill="#f59e0b"/>
+            <line x1="378" y1="50" x2="410" y2="50" stroke="#f59e0b" stroke-width="4"/>
+            <polygon points="410,50 400,43 400,57" fill="#f59e0b"/>
+          </g>
+
+          <text id="svgLabel" x="230" y="170" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="bold">
+            Provino a riposo (dL = 0)
+          </text>
+        </svg>
+        <div class="legend-row">
+          <span>Tratteggio = riferimento L₀</span>
+        </div>
+      </div>
+
+      <!-- DX: DIAGRAMMA CARICHI / ALLUNGAMENTI -->
+      <div class="svg-stage">
+        <div class="stage-title">2. Diagramma Carichi (F) / Allungamenti (dL)</div>
+        <svg viewBox="0 0 380 220" aria-label="Diagramma carichi allungamenti">
+          <!-- Griglia leggera -->
+          <line x1="48" y1="30" x2="355" y2="30" stroke="#1e293b" stroke-width="1"/>
+          <line x1="48" y1="80" x2="355" y2="80" stroke="#1e293b" stroke-width="1"/>
+          <line x1="48" y1="130" x2="355" y2="130" stroke="#1e293b" stroke-width="1"/>
+          <line x1="120" y1="20" x2="120" y2="180" stroke="#1e293b" stroke-width="1"/>
+          <line x1="200" y1="20" x2="200" y2="180" stroke="#1e293b" stroke-width="1"/>
+          <line x1="280" y1="20" x2="280" y2="180" stroke="#1e293b" stroke-width="1"/>
+
+          <!-- Assi -->
+          <line x1="48" y1="180" x2="360" y2="180" stroke="#94a3b8" stroke-width="2"/>
+          <polygon points="360,180 352,176 352,184" fill="#94a3b8"/>
+          <line x1="48" y1="180" x2="48" y2="16" stroke="#94a3b8" stroke-width="2"/>
+          <polygon points="48,16 44,24 52,24" fill="#94a3b8"/>
+
+          <text x="16" y="26" fill="#cbd5e1" font-size="12" font-weight="bold">F</text>
+          <text x="12" y="40" fill="#64748b" font-size="9">(Carico)</text>
+          <text x="342" y="198" fill="#cbd5e1" font-size="12" font-weight="bold">dL</text>
+          <text x="275" y="210" fill="#64748b" font-size="9">(Allungamento)</text>
+
+          <!-- Traccia fantasma completa del materiale -->
+          <path id="ghostCurve" d="" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="4 4"/>
+
+          <!-- Linea di scarico elastico (ritorno parallelo) -->
+          <line id="unloadLine" x1="48" y1="180" x2="48" y2="180" stroke="#fbbf24" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>
+
+          <!-- Curva percorsa attivamente -->
+          <path id="activeCurve" d="" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+
+          <!-- Punto limite di elasticità / Rp -->
+          <circle id="yieldMarker" cx="0" cy="0" r="4.5" fill="#22c55e" stroke="#0b1120" stroke-width="1.5"/>
+          <text id="yieldText" x="0" y="0" fill="#4ade80" font-size="10" font-weight="bold">Rp</text>
+
+          <!-- Punto rottura Fm -->
+          <text id="fractureMarker" x="0" y="0" fill="#ef4444" font-size="13" font-weight="bold">✖</text>
+
+          <!-- Cursore stato attuale -->
+          <circle id="liveDot" cx="48" cy="180" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+        </svg>
+        <div class="legend-row">
+          <span><i class="leg-dot" style="background:#38bdf8;"></i>Curva tracciata</span>
+          <span><i class="leg-dot" style="background:#22c55e;"></i>Limite elastico (Rp)</span>
+          <span><i class="leg-dot" style="background:#ef4444;"></i>Stato attuale</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sim-readout">
+      <div id="simBadge" class="status-badge badge-elastic">Stato: Equilibrio</div>
+      <div id="simText">Muovi il cursore del carico per osservare sia l'allungamento del provino sia l'avanzamento della curva sul grafico F / dL.</div>
+      <div class="btn-row">
+        <button class="btn" onclick="releaseLoad()">🔄 Rimuovi il Carico (Scarica)</button>
+        <button class="btn btn-secondary" onclick="resetSim()">Nuovo Provino</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: GIOCO COLLAUDATORE (32 DOMANDE) -->
+  <section id="panel-game" class="panel">
+    <div class="quiz-topbar">
+      <span id="qCounter">Domanda 1 di 32</span>
+      <span id="scoreDisplay" style="color:#4ade80;">Punti: 0</span>
+      <select id="quizLengthSelect" style="width:auto; padding:4px 8px; font-size:0.82rem;" onchange="startQuiz()">
+        <option value="32" selected>Maratona Completa (32 domande)</option>
+        <option value="15">Allenamento Medio (15 domande)</option>
+        <option value="10">Ripasso Rapido (10 domande)</option>
+      </select>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="quizArea">
+      <div class="case-box">
+        <div class="case-tag" id="caseTag">SCHEDA DI COLLAUDO</div>
+        <p class="case-text" id="caseText"></p>
+      </div>
+      <div class="options" id="optionsBox"></div>
+      <div class="feedback-box" id="feedbackBox">
+        <strong id="fbTitle"></strong>
+        <p id="fbText" style="margin:6px 0 10px; font-size:0.92rem;"></p>
+        <button class="btn" id="nextBtn" onclick="nextQuestion()">Prossima Domanda ➡️</button>
+      </div>
+    </div>
+
+    <div id="endScreen" style="display:none; text-align:center; padding:16px 0;">
+      <h2 style="justify-content:center; font-size:1.4rem;">🏆 Turno di Collaudo Completato!</h2>
+      <p id="finalSummary" style="font-size:1.05rem;"></p>
+      <button class="btn" onclick="startQuiz()">🔁 Ricomincia (Domande e risposte mescolate)</button>
+    </div>
+  </section>
+
+  <!-- TAB 3: FLASHCARD -->
+  <section id="panel-cards" class="panel">
+    <h2>⚡ Ripasso Lampo (Tocca la carta per girarla)</h2>
+    <div class="flashcard" onclick="flipCard()">
+      <div class="fc-label" id="fcSide">DOMANDA • 1 / 14</div>
+      <div class="fc-content" id="fcText"></div>
+    </div>
+    <div class="btn-row" style="justify-content:center;">
+      <button class="btn btn-secondary" onclick="prevCard()">⬅️ Precedente</button>
+      <button class="btn" onclick="flipCard()">🔄 Gira Carta</button>
+      <button class="btn btn-secondary" onclick="nextCard()">Successiva ➡️</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button class="download-btn" onclick="downloadOffline()">💾 Scarica App HTML5 per uso Offline</button>
+</footer>
+
+<script>
+// --- TAB NAVIGATION ---
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// --- SIMULATOR + CURVE ENGINE ---
+let maxLoadReached = 0;
+let isBroken = false;
+
+// Coordinate grafico: Origine (48, 180), X max = 345 (dL max = 297 px), Y min = 28 (F max = 152 px)
+const materials = {
+  metal: {
+    name: "Lega Metallica",
+    elasticLimit: 45,     // % carico fino a Rp
+    fractureLimit: 92,    // % carico di rottura
+    slopeE: 1.55,         // pendenza elevata -> Modulo di Young alto (rigido)
+    plasticGain: 2.35,    // grande deformazione plastica prima di rompersi
+    color: "#38bdf8",
+    noteElastic: "Tratto rettilineo (Legge di Hooke): la curva sale ripida perché il Modulo di Young (E) è alto (materiale rigido). Se scarichi, torni a dL = 0!",
+    notePlastic: "Superato il limite elastico (Rp): la curva piega verso destra! Il metallo si deforma plasticamente (utile per modellare i ganci).",
+    noteBroken: "FRATTURA DUTTILE: il provino si è rotto dopo un ampio tratto plastico sul diagramma."
+  },
+  ceramic: {
+    name: "Ceramica / Gesso",
+    elasticLimit: 48,
+    fractureLimit: 52,    // si rompe quasi subito dopo il tratto elastico!
+    slopeE: 2.20,         // molto rigido, pendenza ripidissima
+    plasticGain: 0.15,    // plasticità quasi nulla
+    color: "#e2e8f0",
+    noteElastic: "Tratto rettilineo ripidissimo (materiale molto rigido, pochissima deformazione elastica).",
+    notePlastic: "Attenzione: sei al limite! Nei materiali fragili non c'è praticamente fase plastica prima della rottura.",
+    noteBroken: "FRATTURA FRAGILE: la curva si interrompe bruscamente senza fase plastica! Per questo gessi e ceramiche non si testano a trazione."
+  },
+  resin: {
+    name: "Resina Acrilica",
+    elasticLimit: 42,
+    fractureLimit: 78,
+    slopeE: 0.62,         // pendenza bassa -> Modulo di Young basso (più deformabile)
+    plasticGain: 1.65,
+    color: "#f472b6",
+    noteElastic: "Nota la pendenza meno ripida rispetto al metallo: avendo Modulo di Young (E) basso, la resina si allunga molto già in campo elastico!",
+    notePlastic: "Deformazione permanente avviata: superato il limite elastico il manufatto perde la precisione dimensionale.",
+    noteBroken: "Rottura del provino in resina al raggiungimento del carico massimo Fm."
+  }
+};
+
+// Calcola coordinate (x, y) sul grafico dato un carico percentuale p (0..fractureLimit)
+function getCurvePoint(mat, p) {
+  const originX = 48;
+  const originY = 180;
+  const clampedP = Math.min(p, mat.fractureLimit);
+
+  // Calcolo dL in pixel
+  let dL = 0;
+  if (clampedP <= mat.elasticLimit) {
+    dL = (clampedP * 1.35) / mat.slopeE;
+  } else {
+    const elasticDL = (mat.elasticLimit * 1.35) / mat.slopeE;
+    const plasticP = clampedP - mat.elasticLimit;
+    // Curva plastica che si appiattisce progressivamente
+    dL = elasticDL + (plasticP * mat.plasticGain) + Math.pow(plasticP, 1.38) * 0.22;
+  }
+
+  // Calcolo F in pixel (leggero arrotondamento verso il massimo in fase plastica)
+  let fPix = 0;
+  if (clampedP <= mat.elasticLimit) {
+    fPix = clampedP * 1.35;
+  } else {
+    const elasticF = mat.elasticLimit * 1.35;
+    const plasticP = clampedP - mat.elasticLimit;
+    const plasticSpan = Math.max(1, mat.fractureLimit - mat.elasticLimit);
+    const ratio = plasticP / plasticSpan;
+    fPix = elasticF + (plasticP * 0.85) * (1 - 0.35 * ratio);
+  }
+
+  const x = Math.min(345, originX + dL);
+  const y = Math.max(26, originY - fPix);
+  return { x, y, dL };
+}
+
+function buildPath(mat, targetP) {
+  let d = "M 48 180";
+  const steps = Math.max(1, Math.ceil(targetP));
+  for (let i = 1; i <= steps; i++) {
+    const p = Math.min(i, targetP);
+    const pt = getCurvePoint(mat, p);
+    d += ` L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+function resetSim() {
+  maxLoadReached = 0;
+  isBroken = false;
+  document.getElementById('loadRange').value = 0;
+  updateSim();
+}
+
+function releaseLoad() {
+  if (isBroken) return;
+  document.getElementById('loadRange').value = 0;
+  updateSim();
+}
+
+function updateSim() {
+  const matKey = document.getElementById('matSelect').value;
+  const mat = materials[matKey];
+  const load = parseInt(document.getElementById('loadRange').value, 10);
+  document.getElementById('loadVal').textContent = load;
+
+  // Aggiorna riferimento fantasma completo, marker Rp e marker Rottura
+  document.getElementById('ghostCurve').setAttribute('d', buildPath(mat, mat.fractureLimit));
+  const rpPt = getCurvePoint(mat, mat.elasticLimit);
+  const fmPt = getCurvePoint(mat, mat.fractureLimit);
+
+  const yieldMarker = document.getElementById('yieldMarker');
+  const yieldText = document.getElementById('yieldText');
+  yieldMarker.setAttribute('cx', rpPt.x.toFixed(1));
+  yieldMarker.setAttribute('cy', rpPt.y.toFixed(1));
+  yieldText.setAttribute('x', (rpPt.x - 18).toFixed(1));
+  yieldText.setAttribute('y', (rpPt.y - 8).toFixed(1));
+
+  const fracMarker = document.getElementById('fractureMarker');
+  fracMarker.setAttribute('x', (fmPt.x - 5).toFixed(1));
+  fracMarker.setAttribute('y', (fmPt.y + 4).toFixed(1));
+
+  const specLeft = document.getElementById('specLeft');
+  const specRight = document.getElementById('specRight');
+  const rightJaw = document.getElementById('rightJaw');
+  const arrows = document.getElementById('forceArrows');
+  const badge = document.getElementById('simBadge');
+  const simText = document.getElementById('simText');
+  const svgLabel = document.getElementById('svgLabel');
+  const activeCurve = document.getElementById('activeCurve');
+  const liveDot = document.getElementById('liveDot');
+  const unloadLine = document.getElementById('unloadLine');
+
+  specLeft.setAttribute('fill', mat.color);
+  specRight.setAttribute('fill', mat.color);
+  activeCurve.setAttribute('stroke', mat.color);
+  arrows.setAttribute('opacity', load > 0 ? '1' : '0');
+
+  if (isBroken) return;
+
+  if (load > maxLoadReached) {
+    maxLoadReached = load;
+  }
+
+  // Controllo rottura
+  if (load >= mat.fractureLimit) {
+    isBroken = true;
+    activeCurve.setAttribute('d', buildPath(mat, mat.fractureLimit));
+    liveDot.setAttribute('cx', fmPt.x.toFixed(1));
+    liveDot.setAttribute('cy', fmPt.y.toFixed(1));
+    unloadLine.setAttribute('opacity', '0');
+
+    specLeft.setAttribute('x', '65');
+    specLeft.setAttribute('width', '136');
+    specRight.setAttribute('x', '224');
+    specRight.setAttribute('width', '136');
+    rightJaw.setAttribute('x', '360');
+
+    badge.className = 'status-badge badge-broken';
+    badge.textContent = 'Stato: Rottura Provino (Fm)!';
+    simText.textContent = mat.noteBroken;
+    svgLabel.textContent = 'PROVINO ROTTO — Premi "Nuovo Provino"';
+    return;
+  }
+
+  // Calcolo punto massimo raggiunto e scarico elastico
+  const peakPt = getCurvePoint(mat, maxLoadReached);
+  activeCurve.setAttribute('d', buildPath(mat, maxLoadReached));
+
+  // Se abbiamo superato Rp, calcola la deformazione plastica permanente sull'asse X
+  let permanentX = 48;
+  if (maxLoadReached > mat.elasticLimit) {
+    // Ritorno parallelo alla pendenza elastica iniziale
+    const elasticRecoveryDX = (180 - peakPt.y) / mat.slopeE;
+    permanentX = Math.max(48, peakPt.x - elasticRecoveryDX);
+  }
+
+  // Punto corrente lungo la retta elastica tra permanentX e peakPt
+  let curX = 48;
+  let curY = 180;
+  if (maxLoadReached > 0) {
+    const ratio = load / maxLoadReached;
+    curX = permanentX + (peakPt.x - permanentX) * ratio;
+    curY = 180 + (peakPt.y - 180) * ratio;
+  }
+
+  liveDot.setAttribute('cx', curX.toFixed(1));
+  liveDot.setAttribute('cy', curY.toFixed(1));
+
+  // Mostra linea tratteggiata di ritorno elastico se si sta scaricando dopo deformazione plastica
+  if (maxLoadReached > mat.elasticLimit && load < maxLoadReached) {
+    unloadLine.setAttribute('x1', peakPt.x.toFixed(1));
+    unloadLine.setAttribute('y1', peakPt.y.toFixed(1));
+    unloadLine.setAttribute('x2', permanentX.toFixed(1));
+    unloadLine.setAttribute('y2', '180');
+    unloadLine.setAttribute('opacity', '1');
+  } else {
+    unloadLine.setAttribute('opacity', '0');
+  }
+
+  // Aggiorna allungamento visivo provino nelle ganasce (proporzionale a curX - 48)
+  const stretchPix = (curX - 48) * 0.34;
+  const halfLen = 145 + stretchPix / 2;
+  specLeft.setAttribute('x', '65');
+  specLeft.setAttribute('width', halfLen.toFixed(1));
+  specRight.setAttribute('x', (65 + halfLen).toFixed(1));
+  specRight.setAttribute('width', halfLen.toFixed(1));
+  rightJaw.setAttribute('x', (65 + halfLen * 2).toFixed(1));
+
+  // Messaggi didattici
+  if (load === 0 && maxLoadReached <= mat.elasticLimit) {
+    badge.className = 'status-badge badge-elastic';
+    badge.textContent = 'Stato: Equilibrio (dL = 0)';
+    simText.textContent = maxLoadReached === 0
+      ? 'Nessun carico applicato. Muovi lo slider per tracciare la curva.'
+      : 'Hai tolto il carico prima di superare Rp: il punto rosso è tornato all\'origine (0,0) e il provino ha recuperato L₀!';
+    svgLabel.textContent = 'Provino alla lunghezza iniziale L₀';
+  } else if (load === 0 && maxLoadReached > mat.elasticLimit) {
+    badge.className = 'status-badge badge-plastic';
+    badge.textContent = 'Deformazione Permanente Rimasta!';
+    simText.textContent = 'Guarda il grafico: scaricando il provino, il punto scende parallelo al tratto elastico ma NON torna a zero! Resta un allungamento permanente.';
+    svgLabel.textContent = 'Allungamento permanente presente (Lu > L₀)';
+  } else if (load <= mat.elasticLimit && maxLoadReached <= mat.elasticLimit) {
+    badge.className = 'status-badge badge-elastic';
+    badge.textContent = 'Campo Elastico (Legge di Hooke)';
+    simText.textContent = mat.noteElastic;
+    svgLabel.textContent = 'Deformazione elastica (reversibile)';
+  } else {
+    badge.className = 'status-badge badge-plastic';
+    badge.textContent = 'Campo Plastico (Superato Rp)';
+    simText.textContent = mat.notePlastic;
+    svgLabel.textContent = 'Deformazione plastica in corso!';
+  }
+}
+
+// --- BANCA DATI DI 32 DOMANDE SUL MODULO 4 ---
+const allCases = [
+  // U.D. 1 - FORZE, VINCOLI, TENSIONI, SOLLECITAZIONI, DEFORMAZIONI
+  {
+    tag: "U.D.1 • CONCETTI BASE",
+    q: "Che cosa si intende per 'proprietà meccaniche' dei materiali dentali?",
+    opts: [
+      "Le proprietà legate alla resistenza nel tempo degli oggetti costruiti con quei materiali sotto l'azione delle forze",
+      "La capacità di condurre calore ed elettricità nel cavo orale",
+      "Il colore e la traslucenza dello smalto artificiale",
+      "La temperatura di fusione delle leghe metalliche"
+    ],
+    ans: 0,
+    exp: "Le proprietà meccaniche riguardano la capacità di protesi e restauri di resistere nel tempo alle forze (masticatorie, occlusali, abrasione da spazzolini)."
+  },
+  {
+    tag: "U.D.1 • FORZE",
+    q: "Qual è la differenza tra forze superficiali e forze di massa?",
+    opts: [
+      "Le superficiali derivano dal contatto diretto con altri corpi; le forze di massa (es. il peso) agiscono sull'intero volume",
+      "Le superficiali agiscono solo sui liquidi; le forze di massa solo sui gas",
+      "Le forze superficiali sono sempre interne; quelle di massa sono reazioni vincolari",
+      "Non esiste alcuna differenza: sono sinonimi"
+    ],
+    ans: 0,
+    exp: "Le forze superficiali nascono dal contatto diretto tra corpi, mentre le forze di massa (come la forza peso) sono distribuite sull'intero volume."
+  },
+  {
+    tag: "U.D.1 • VINCOLI",
+    q: "Un libro appoggiato su un tavolo non cade verso il basso perché il tavolo esercita una forza uguale e contraria al suo peso. Come si chiama questa forza?",
+    opts: [
+      "Reazione vincolare",
+      "Sollecitazione di torsione",
+      "Scorrimento viscoso",
+      "Carico di snervamento"
+    ],
+    ans: 0,
+    exp: "Il tavolo è un vincolo che impedisce il movimento e risponde al corpo con una forza detta reazione vincolare."
+  },
+  {
+    tag: "U.D.1 • TIPI DI VINCOLI",
+    q: "Quale tipo di vincolo impedisce al corpo QUALSIASI movimento (né traslazione né rotazione)?",
+    opts: [
+      "Incastro",
+      "Appoggio semplice",
+      "Cerniera",
+      "Piano inclinato"
+    ],
+    ans: 0,
+    exp: "L'incastro blocca ogni movimento, mentre l'appoggio semplice dà solo reazioni perpendicolari e la cerniera permette rotazioni e scorrimenti lungo il proprio asse."
+  },
+  {
+    tag: "U.D.1 • TIPI DI VINCOLI",
+    q: "Quali movimenti consente un vincolo a 'cerniera'?",
+    opts: [
+      "Solo rotazioni attorno al suo asse e scorrimenti lungo la sua direzione",
+      "Nessun movimento in assoluto",
+      "Solo traslazioni verticali senza alcuna rotazione",
+      "Movimenti liberi in tutte e tre le dimensioni"
+    ],
+    ans: 0,
+    exp: "La cerniera è costituita da una retta rigida che permette al corpo solamente rotazioni attorno ad essa e scorrimenti lungo la sua direzione."
+  },
+  {
+    tag: "U.D.1 • TENSIONI INTERNE",
+    q: "Quando applichi una forza esterna che tende ad allungare un corpo, cosa si genera tra le sue particelle per opporsi al carico?",
+    opts: [
+      "Tensioni interne (forze di coesione che cercano di equilibrare la forza esterna)",
+      "Usura abrasiva superficiale",
+      "Microdurezza Knoop",
+      "Sollecitazioni di massa"
+    ],
+    ans: 0,
+    exp: "Quando le particelle vengono allontanate dal carico esterno, si generano tensioni interne (forze di coesione) che tendono ad opporsi alla sollecitazione fino all'equilibrio."
+  },
+  {
+    tag: "U.D.1 • SOLLECITAZIONI SEMPLICI",
+    q: "Quale sollecitazione semplice tende a recidere un corpo per scorrimento di due sezioni contigue?",
+    opts: [
+      "Taglio",
+      "Trazione",
+      "Compressione",
+      "Torsione"
+    ],
+    ans: 0,
+    exp: "Il taglio tende a recidere il corpo per scorrimento di due sezioni contigue; spesso in pratica è accompagnato dalla flessione."
+  },
+  {
+    tag: "U.D.1 • SOLLECITAZIONI",
+    q: "Durante la masticazione, i denti e le protesi subiscono carichi che si ripetono periodicamente migliaia di volte al giorno. Come si classificano queste sollecitazioni?",
+    opts: [
+      "Sollecitazioni cicliche o periodiche",
+      "Sollecitazioni statiche",
+      "Sollecitazioni di incastro",
+      "Sollecitazioni adimensionali"
+    ],
+    ans: 0,
+    exp: "Le sollecitazioni si dividono in statiche (aumentano lentamente), dinamiche (raggiungono il massimo rapidamente) e cicliche/periodiche (si ripetono un elevato numero di volte)."
+  },
+  {
+    tag: "U.D.1 • DEFORMAZIONI",
+    q: "Qual è l'ordine corretto con cui tutti i materiali subiscono le deformazioni quando vengono sottoposti a un carico crescente?",
+    opts: [
+      "Prima elastica, poi plastica, poi eventuale rottura",
+      "Prima plastica, poi elastica, poi eventuale rottura",
+      "Prima rottura, poi deformazione elastica",
+      "Subiscono solo deformazioni plastiche senza mai fase elastica"
+    ],
+    ans: 0,
+    exp: "Tutti i materiali attraversano prima la fase elastica (reversibile), poi quella plastica (irreversibile) e infine la rottura, anche se nei materiali fragili la fase plastica è quasi nulla."
+  },
+  {
+    tag: "U.D.1 • PLASTICITÀ E FRAGILITÀ",
+    q: "In campo odontotecnico, quale affermazione distingue correttamente metalli, resine e ceramiche?",
+    opts: [
+      "I metalli sono materiali plastici (duttili), mentre le resine e le ceramiche sono fragili",
+      "Le ceramiche sono molto plastiche, mentre i metalli sono fragili",
+      "Sia i metalli sia le ceramiche subiscono enormi deformazioni plastiche prima di rompersi",
+      "Nessun materiale dentale può mai subire frattura fragile"
+    ],
+    ans: 0,
+    exp: "I metalli possiedono buona plasticità (frattura duttile), mentre ceramiche e resine arrivano a rottura senza apprezzabili deformazioni plastiche (frattura fragile)."
+  },
+
+  // U.D. 2 - PROVE ED ELASTICITÀ
+  {
+    tag: "U.D.2 • CLASSIFICAZIONE PROVE",
+    q: "Qual è la differenza tra una prova convenzionale, una prova simulata e una prova reale?",
+    opts: [
+      "La convenzionale dà valori numerici standard su provini; la simulata riproduce condizioni vicine all'uso; la reale testa il materiale in bocca",
+      "La convenzionale si fa solo sui pazienti; la reale solo al computer",
+      "La simulata distrugge sempre il dente naturale; la convenzionale non usa mai macchine",
+      "Sono tre nomi diversi per indicare la prova di Vickers"
+    ],
+    ans: 0,
+    exp: "Le prove convenzionali danno indici numerici di confronto indipendenti dall'impiego reale, le simulate imitano le condizioni d'uso e le reali avvengono in condizioni effettive."
+  },
+  {
+    tag: "U.D.2 • LEGGE DI HOOKE",
+    q: "Che cosa afferma la Legge di Hooke nel campo delle deformazioni elastiche?",
+    opts: [
+      "Le deformazioni subite dal corpo sono proporzionali alla forza che le ha prodotte",
+      "La deformazione rimane permanente anche dopo aver tolto il carico",
+      "La rottura avviene sempre per carichi ciclici ripetuti",
+      "L'allungamento è inversamente proporzionale alla forza applicata"
+    ],
+    ans: 0,
+    exp: "Nel primo tratto della curva (periodo di proporzionalità), la deformazione elastica è direttamente proporzionale al carico applicato."
+  },
+
+  // U.D. 3 - TRAZIONE, COMPRESSIONE, FLESSIONE, TAGLIO
+  {
+    tag: "U.D.3 • PROVA DI TRAZIONE",
+    q: "Perché la prova di trazione statica NON viene mai eseguita sulle ceramiche dentali?",
+    opts: [
+      "Perché sono materiali fragili: si romperebbero subito nelle ganasce senza deformazione plastica",
+      "Perché le ceramiche hanno un punto di fusione troppo basso",
+      "Perché la trazione è una prova non distruttiva",
+      "Perché le ceramiche si allungano troppo facilmente"
+    ],
+    ans: 0,
+    exp: "La trazione statica è distruttiva e si applica soprattutto ai metalli e talvolta alle resine, mai ai materiali fragili come ceramiche o gessi."
+  },
+  {
+    tag: "U.D.3 • PROVETTE",
+    q: "Perché le provette per la prova di trazione hanno le estremità più larghe rispetto alla parte centrale (tratto utile)?",
+    opts: [
+      "Per consentire l'afferraggio saldo da parte delle morse o ganasce della macchina universale",
+      "Per farle rompere esattamente alle estremità",
+      "Per aumentare la loro durezza Vickers",
+      "Per evitare che subiscano deformazioni elastiche"
+    ],
+    ans: 0,
+    exp: "Le teste più ampie permettono alle ganasce di afferrare il provino senza farlo scivolare, concentrando lo sforzo sul tratto utile centrale (L₀, S₀)."
+  },
+  {
+    tag: "U.D.3 • GRANDEZZE TRAZIONE",
+    q: "Come si calcola il carico unitario (R) e come si esprime l'allungamento unitario (ε)?",
+    opts: [
+      "R = F / S₀ (carico su sezione iniziale) ed ε = dL / L₀ (grandezza adimensionale)",
+      "R = F · L₀ ed ε = F / S₀",
+      "R = dL / S₀ ed ε = F · dL",
+      "Entrambi si misurano in gradi Celsius"
+    ],
+    ans: 0,
+    exp: "Il carico unitario R è il rapporto tra forza F e sezione iniziale S₀; l'allungamento unitario ε = dL / L₀ è il rapporto tra due lunghezze ed è quindi adimensionale."
+  },
+  {
+    tag: "U.D.3 • CARICO DI SCOSTAMENTO Rp",
+    q: "Qual è il parametro più usato per indicare la resistenza dei materiali metallici dentali, oltre il quale un restauro non deve mai essere caricato?",
+    opts: [
+      "Il carico unitario di scostamento dalla proporzionalità (Rp, solitamente allo 0,2%)",
+      "Il carico di rottura finale (Fm)",
+      "La durezza Knoop della dentina",
+      "L'allungamento percentuale dopo rottura (A%)"
+    ],
+    ans: 0,
+    exp: "Gli elementi strutturali dentali non devono essere sottoposti a carichi superiori a Rp, perché oltre quel valore iniziano deformazioni plastiche permanenti."
+  },
+  {
+    tag: "U.D.3 • ALLUNGAMENTO DOPO ROTTURA",
+    q: "A cosa serve conoscere l'allungamento percentuale dopo rottura (A%) di una lega metallica in laboratorio odontotecnico?",
+    opts: [
+      "Valuta la plasticità del metallo, utile ad esempio per costruire ganci piegando fili metallici",
+      "Indica quanto si consuma il metallo con lo spazzolino",
+      "Misura la resistenza agli urti improvvisi",
+      "Serve a calcolare il peso specifico del gesso"
+    ],
+    ans: 0,
+    exp: "L'allungamento dopo rottura A = 100·(Lu - L₀)/L₀ misura la deformazione permanente raggiunta e indica se il filo metallico è abbastanza plastico per realizzare ganci."
+  },
+  {
+    tag: "U.D.3 • MODULO DI YOUNG",
+    q: "Se il Materiale A ha un Modulo di Young (E) molto più alto del Materiale B, cosa significa a parità di carico applicato?",
+    opts: [
+      "Il Materiale A è più rigido e subisce una deformazione elastica minore",
+      "Il Materiale A è più elastico e si piega molto più facilmente",
+      "Il Materiale A ha una temperatura di fusione inferiore",
+      "Il Materiale A subisce subito scorrimento viscoso"
+    ],
+    ans: 0,
+    exp: "Il Modulo di Young (E) misura la rigidità: più è alto, più la curva elastica è ripida e minore è la deformazione elastica."
+  },
+  {
+    tag: "U.D.3 • TEMPERATURA E MODULO E",
+    q: "Che cosa succede al Modulo di Young (E) di un materiale quando aumenta la temperatura?",
+    opts: [
+      "Diminuisce (il materiale diventa meno rigido)",
+      "Aumenta fino all'infinito",
+      "Resta sempre identico a qualsiasi temperatura",
+      "Si trasforma in durezza Vickers"
+    ],
+    ans: 0,
+    exp: "All'aumentare della temperatura il Modulo di Young diminuisce, rendendo il materiale più deformabile."
+  },
+  {
+    tag: "U.D.3 • TENACITÀ",
+    q: "Che cosa rappresenta la 'tenacità' di un materiale nel diagramma carichi/allungamenti unitari?",
+    opts: [
+      "La capacità di assorbire energia in campo plastico prima di rompersi (area sottesa dalla curva)",
+      "La resistenza della superficie alla penetrazione di una punta di diamante",
+      "La sola pendenza del tratto elastico iniziale",
+      "La resistenza all'abrasione da dentifricio"
+    ],
+    ans: 0,
+    exp: "La tenacità è l'energia assorbita nel campo delle deformazioni plastiche prima della rottura ed è rappresentata dall'area sottesa alla curva."
+  },
+  {
+    tag: "U.D.3 • COMPRESSIONE STATICA",
+    q: "Quali materiali dentali vengono testati tipicamente con la prova di compressione statica?",
+    opts: [
+      "I materiali fragili con limitata plasticità, come i gessi e i rivestimenti per fusione",
+      "Esclusivamente i fili ortodontici in acciaio",
+      "Solo le cere da modellazione",
+      "Esclusivamente le leghe auree duttili"
+    ],
+    ans: 0,
+    exp: "I materiali fragili (gessi, rivestimenti) non sopportano la trazione ma lavorano a compressione (es. pressione della lega fusa colata nel cilindro)."
+  },
+  {
+    tag: "U.D.3 • FLESSIONE E FRECCIA",
+    q: "Nella prova di flessione di una trave, se raddoppi lo spessore (h) della trave o raddoppi la sua lunghezza (L), cosa succede alla 'freccia' (abbassamento al centro)?",
+    opts: [
+      "La freccia aumenta col cubo della lunghezza (L³) e diminuisce col cubo dello spessore (h³)",
+      "La freccia non dipende né dalla lunghezza né dallo spessore",
+      "Raddoppiando lo spessore la freccia diventa otto volte più grande",
+      "Allungando il ponte la freccia diminuisce"
+    ],
+    ans: 0,
+    exp: "Dalla formula f = (F·L³)/(4·E·b·h³), la freccia cresce con L³ e cala con h³: ecco perché nei ponti lunghi i connettori devono avere uno spessore adeguato!"
+  },
+  {
+    tag: "U.D.3 • FLESSIONE NEI PONTI",
+    q: "Perché nei ponti protesici in metallo-ceramica bisogna evitare una flessione eccessiva dei connettori?",
+    opts: [
+      "Perché la ceramica sovrastante è fragile e si fratturerebbe se la struttura sottostante si flette troppo",
+      "Perché la ceramica diventerebbe troppo duttile",
+      "Perché aumenterebbe la durezza Knoop della dentina",
+      "Perché la flessione fonde la lega metallica"
+    ],
+    ans: 0,
+    exp: "I connettori sono le zone più critiche di un ponte: una freccia eccessiva manda in trazione/flessione la ceramica sovrastante causandone la rottura."
+  },
+  {
+    tag: "U.D.3 • PROVA DI TAGLIO",
+    q: "In campo odontotecnico, qual è l'applicazione principale della prova di taglio statico?",
+    opts: [
+      "Valutare la resistenza all'adesione tra due materiali diversi (es. metallo-ceramica o smalto-composito)",
+      "Misurare la lunghezza iniziale L₀ di un filo",
+      "Determinare il punto di fusione della cera",
+      "Calcolare lo scorrimento viscoso dell'amalgama"
+    ],
+    ans: 0,
+    exp: "La sollecitazione di taglio tende a far scorrere due superfici contigue ed è usata principalmente per testare l'adesione tra materiali."
+  },
+
+  // U.D. 4 - DUREZZA, RESILIENZA, CONCENTRAZIONE TENSIONI, FATICA, USURA, SCORRIMENTO VISCOSO
+  {
+    tag: "U.D.4 • DUREZZA",
+    q: "Le prove di durezza (Vickers, Knoop) sono prove distruttive o non distruttive, e quale carico separa macrodurezza e microdurezza?",
+    opts: [
+      "Sono non distruttive; la macrodurezza usa carichi ≥ 9,81 N, la microdurezza < 9,81 N",
+      "Sono sempre distruttive; il limite è 100 N",
+      "Sono non distruttive; il limite tra macro e micro è 0,2%",
+      "Distruggono sempre il provino in due metà"
+    ],
+    ans: 0,
+    exp: "La durezza (resistenza alla penetrazione) è una prova non distruttiva: sopra o uguale a 9,81 N si parla di macrodurezza, sotto 9,81 N di microdurezza."
+  },
+  {
+    tag: "U.D.4 • PROVA VICKERS (HV)",
+    q: "Che forma ha il penetratore utilizzato nella prova di macrodurezza Vickers (HV)?",
+    opts: [
+      "Una piramide retta di diamante a base quadrata con angolo al vertice di 136°",
+      "Una piramide a base rombica allungata",
+      "Una sfera di cera morbida",
+      "Un cilindro cavo di gesso"
+    ],
+    ans: 0,
+    exp: "La prova Vickers impiega un penetratore di diamante a piramide retta a base quadrata (136°); misurando la diagonale al microscopio si risale al numero puro HV."
+  },
+  {
+    tag: "U.D.4 • PROVA KNOOP (HK)",
+    q: "Quale tessuto dentale risulta nettamente più duro nella prova di microdurezza Knoop (HK)?",
+    opts: [
+      "Lo smalto (340–390 HK) rispetto alla dentina (68–75 HK)",
+      "La dentina (390 HK) rispetto allo smalto (70 HK)",
+      "Hanno esattamente lo stesso valore di durezza Knoop",
+      "La prova Knoop non si usa mai su smalto e dentina"
+    ],
+    ans: 0,
+    exp: "La microdurezza Knoop (penetratore rombico) mostra che lo smalto (340–390 HK) è circa cinque volte più duro della dentina (68–75 HK)."
+  },
+  {
+    tag: "U.D.4 • RESILIENZA",
+    q: "Quando un paziente morde per sbaglio un frammento duro imprevisto nel cibo (es. un guscio o un nocciolo), quale proprietà evita la rottura del restauro?",
+    opts: [
+      "La resilienza (resistenza all'urto)",
+      "Lo scorrimento viscoso",
+      "L'usura adesiva",
+      "Il vincolo a cerniera"
+    ],
+    ans: 0,
+    exp: "La resilienza è la capacità di resistere agli urti improvvisi senza fratturarsi."
+  },
+  {
+    tag: "U.D.4 • CONCENTRAZIONE DELLE TENSIONI",
+    q: "Qual è la differenza tra intagli 'endogeni' ed intagli 'esogeni' che causano concentrazione delle tensioni?",
+    opts: [
+      "Endogeni = difetti interni (porosità, cricche, inclusioni); Esogeni = difetti geometrici esterni (fori, incavi, incisioni)",
+      "Endogeni = graffi di spazzolino; Esogeni = peso del paziente",
+      "Endogeni = carichi statici; Esogeni = carichi dinamici",
+      "Non causano mai concentrazione delle tensioni"
+    ],
+    ans: 0,
+    exp: "Gli intagli endogeni sono difetti interni di fusione/lavorazione (porosità, cricche, inclusioni), mentre gli esogeni sono discontinuità geometriche esterne (incavi, fori, cambi bruschi di sezione)."
+  },
+  {
+    tag: "U.D.4 • RESISTENZA A FATICA",
+    q: "Perché la rottura per fatica è considerata particolarmente insidiosa nei metalli delle protesi?",
+    opts: [
+      "Perché avviene improvvisamente sotto carichi ciclici anche inferiori al carico di rottura statico, per lenta propagazione di fessure",
+      "Perché avviene solo quando il metallo viene scaldato a 1000 °C",
+      "Perché deforma lentamente il metallo rendendolo morbido come cera",
+      "Perché riguarda solo i provini in gesso"
+    ],
+    ans: 0,
+    exp: "La fatica è dovuta a sollecitazioni cicliche ripetute: piccole fessure si propagano lentamente fino al cedimento improvviso. Si previene curando la finitura ed evitando bruschi cambi dimensionali."
+  },
+  {
+    tag: "U.D.4 • USURA ADESIVA E ABRASIVA",
+    q: "Che cosa distingue l'usura adesiva dall'usura abrasiva?",
+    opts: [
+      "L'adesiva nasce dal contatto diretto tra le asperità di due superfici; l'abrasiva richiede particelle dure esogene tra i due corpi",
+      "L'adesiva avviene solo con il dentifricio; l'abrasiva solo in assenza di contatto",
+      "L'usura adesiva aumenta lo spessore della protesi",
+      "Sono due fenomeni identici che non dipendono dalla durezza"
+    ],
+    ans: 0,
+    exp: "L'usura adesiva dipende dal contatto diretto tra le micro-asperità dei due solidi; l'usura abrasiva avviene quando si interpongono particelle dure esogene (es. paste dentifricie o cibi abrasivi)."
+  },
+  {
+    tag: "U.D.4 • SCORRIMENTO VISCOSO",
+    q: "Che cos'è lo 'scorrimento viscoso' e su quali materiali dentali può provocare alterazioni dimensionali indesiderate?",
+    opts: [
+      "Deformazione continua nel tempo sotto carico costante a una data temperatura; tipico di cere, paste termoplastiche, resine e amalgami",
+      "Rottura istantanea da urto sui metalli nobili",
+      "Resistenza alla penetrazione del diamante Vickers",
+      "Allungamento elastico istantaneo delle ceramiche"
+    ],
+    ans: 0,
+    exp: "Lo scorrimento viscoso è una deformazione progressiva nel tempo a carico costante e temperatura fissata: colpisce cere, paste termoplastiche, resine e amalgami."
+  }
+];
+
+let quizList = [];
+let qIndex = 0;
+let score = 0;
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function startQuiz() {
+  const count = parseInt(document.getElementById('quizLengthSelect').value, 10);
+  quizList = shuffle(allCases).slice(0, count);
+  qIndex = 0;
+  score = 0;
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = quizList[qIndex];
+  const total = quizList.length;
+  document.getElementById('qCounter').textContent = `Domanda ${qIndex + 1} di ${total}`;
+  document.getElementById('scoreDisplay').textContent = `Punti: ${score}`;
+  document.getElementById('progressBar').style.width = `${((qIndex) / total) * 100}%`;
+  document.getElementById('caseTag').textContent = item.tag;
+  document.getElementById('caseText').textContent = item.q;
+  document.getElementById('feedbackBox').style.display = 'none';
+
+  const indexedOpts = item.opts.map((text, idx) => ({ text, isCorrect: idx === item.ans }));
+  const shuffledOpts = shuffle(indexedOpts);
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  shuffledOpts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt.text;
+    btn.onclick = () => selectAnswer(btn, opt.isCorrect, item.exp, shuffledOpts);
+    box.appendChild(btn);
+  });
+}
+
+function selectAnswer(clickedBtn, isCorrect, explanation, shuffledOpts) {
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (shuffledOpts[idx].isCorrect) {
+      b.classList.add('correct');
+    }
+  });
+
+  const fbBox = document.getElementById('feedbackBox');
+  const fbTitle = document.getElementById('fbTitle');
+  const fbText = document.getElementById('fbText');
+
+  if (isCorrect) {
+    score += 10;
+    document.getElementById('scoreDisplay').textContent = `Punti: ${score}`;
+    fbTitle.textContent = '✅ Risposta esatta! (+10 punti)';
+    fbTitle.style.color = '#4ade80';
+  } else {
+    clickedBtn.classList.add('wrong');
+    fbTitle.textContent = '❌ Risposta errata — Guarda quella evidenziata in verde!';
+    fbTitle.style.color = '#f87171';
+  }
+  fbText.textContent = explanation;
+  fbBox.style.display = 'block';
+}
+
+function nextQuestion() {
+  qIndex++;
+  if (qIndex < quizList.length) {
+    renderQuestion();
+  } else {
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('endScreen').style.display = 'block';
+    const maxScore = quizList.length * 10;
+    const pct = Math.round((score / maxScore) * 100);
+    document.getElementById('finalSummary').textContent =
+      `Hai totalizzato ${score} punti su ${maxScore} (${pct}% di risposte corrette) sul Modulo 4!`;
+  }
+}
+
+// --- FLASHCARDS DATA (14) ---
+const cards = [
+  { q: "Che cosa indica il tratto rettilineo iniziale del diagramma F / dL?", a: "Il periodo di proporzionalità (Legge di Hooke): deformazione elastica direttamente proporzionale al carico." },
+  { q: "Cosa succede se scarichi un provino DOPO aver superato il limite elastico (Rp)?", a: "Sul grafico scende parallelo al tratto elastico, ma sull'asse dL resta un allungamento permanente!" },
+  { q: "Che cos'è il Modulo di Young (E)?", a: "Indica la RIGIDITÀ del materiale (pendenza della retta elastica): più è alto, minore è la deformazione elastica. Diminuisce se aumenta la temperatura." },
+  { q: "Cos'è il carico unitario di scostamento Rp?", a: "Carico che provoca un allungamento non proporzionale (di solito 0,2%): i restauri dentali non devono mai superarlo!" },
+  { q: "Cos'è la tenacità nel diagramma carichi/allungamenti?", a: "L'energia assorbita in campo plastico prima della rottura: corrisponde all'area sottesa dalla curva." },
+  { q: "Perché non si fa la prova di trazione sulle ceramiche o sui gessi?", a: "Perché sono materiali fragili: si rompono senza apprezzabile deformazione plastica (frattura fragile). I gessi si testano a compressione." },
+  { q: "Cos'è la 'freccia' nella prova di flessione?", a: "L'abbassamento al centro della trave (in mm): cresce con L³ e cala con h³. Critica per i connettori dei ponti." },
+  { q: "A cosa serve la prova di taglio in campo dentale?", a: "Serve essenzialmente a valutare la resistenza all'ADESIONE tra due materiali diversi." },
+  { q: "Differenza tra durezza Vickers (HV) e Knoop (HK)?", a: "Vickers: macrodurezza (≥ 9,81 N), piramide base quadrata 136°. Knoop: microdurezza (< 9,81 N), base rombica (smalto 340-390 HK, dentina 68-75 HK)." },
+  { q: "Cos'è la resilienza?", a: "La resistenza all'urto (es. contro particelle dure impreviste nel cibo durante la masticazione)." },
+  { q: "Intagli endogeni vs esogeni?", a: "Endogeni: difetti interni (porosità, cricche, inclusioni). Esogeni: difetti geometrici esterni (fori, incavi, bruschi cambi di sezione)." },
+  { q: "Come avviene la rottura per fatica?", a: "Per sollecitazioni cicliche ripetute che fanno propagare lentamente piccole fessure fino alla rottura improvvisa." },
+  { q: "Usura adesiva vs usura abrasiva?", a: "Adesiva: contatto diretto tra asperità superficiali. Abrasiva: presenza di particelle dure esogene tra i due corpi (es. dentifrici abrasivi)." },
+  { q: "Cos'è lo scorrimento viscoso?", a: "Deformazione continua nel tempo sotto carico costante a una data temperatura (cere, paste termoplastiche, resine, amalgami)." }
+];
+
+let cardIdx = 0;
+let showingBack = false;
+
+function renderCard() {
+  const c = cards[cardIdx];
+  document.getElementById('fcSide').textContent =
+    (showingBack ? 'RISPOSTA' : 'DOMANDA') + ` • ${cardIdx + 1} / ${cards.length}`;
+  document.getElementById('fcText').textContent = showingBack ? c.a : c.q;
+}
+
+function flipCard() {
+  showingBack = !showingBack;
+  renderCard();
+}
+
+function nextCard() {
+  cardIdx = (cardIdx + 1) % cards.length;
+  showingBack = false;
+  renderCard();
+}
+
+function prevCard() {
+  cardIdx = (cardIdx - 1 + cards.length) % cards.length;
+  showingBack = false;
+  renderCard();
+}
+
+// --- OFFLINE DOWNLOAD ---
+function downloadOffline() {
+  const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "OdontoLab_Modulo4_v2_Curva_e_32_Domande.html";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Init
+updateSim();
+startQuiz();
+renderCard();
+</script>
+</body>
+</html>
+"""
+
+with open("OdontoLab_Modulo4_v2.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("Updated file v2 generated successfully.")
